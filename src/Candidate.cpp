@@ -1,9 +1,11 @@
 #include "crpropa/Candidate.h"
 #include "crpropa/ParticleID.h"
+#include "crpropa/ParticleMass.h"
 #include "crpropa/Units.h"
+#include "crpropa/ParticleState.h"
 
 #include <stdexcept>
-
+#include <cmath>
 namespace crpropa {
 
 Candidate::Candidate(int id, double E, Vector3d pos, Vector3d dir, double z, double weight, std::string tagOrigin) :
@@ -57,9 +59,12 @@ double Candidate::getTrajectoryLength() const {
 	return trajectoryLength;
 }
 
+
 double Candidate::getVelocity() const {
-	return c_light;
+	return computeRelativisticSpeed(current.getEnergy(), current.getMass());
 }
+
+
 
 double Candidate::getWeight() const {
 	return weight;
@@ -92,7 +97,7 @@ void Candidate::updateWeight(double w) {
 void Candidate::setCurrentStep(double lstep) {
 	currentStep = lstep;
 	trajectoryLength += lstep;
-	time += lstep / getVelocity();
+	time += lstep / computeRelativisticSpeed(current.getEnergy(), current.getMass());
 }
 
 void Candidate::setNextStep(double step) {
@@ -173,7 +178,10 @@ void Candidate::addSecondary(int id, double energy, Vector3d position, double w,
 	ref_ptr<Candidate> secondary = new Candidate;
 	secondary->setRedshift(redshift);
 	secondary->setTrajectoryLength(trajectoryLength - (current.getPosition() - position).getR());
-	secondary->setTime(time - (current.getPosition() - position).getR() / getVelocity());
+	secondary->setTime(
+		time - (current.getPosition() - position).getR() /
+		computeRelativisticSpeed(current.getEnergy(), current.getMass())
+	);
 	secondary->setWeight(weight * w);
 	secondary->setTagOrigin(tagOrigin);
 	for (PropertyMap::const_iterator it = properties.begin(); it != properties.end(); ++it) {

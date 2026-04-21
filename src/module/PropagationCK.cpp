@@ -50,8 +50,9 @@ void PropagationCK::tryStep(const Y &y, Y &out, Y &error, double h,
 
 PropagationCK::Y PropagationCK::dYdt(const Y &y, ParticleState &p, double z) const {
 	// normalize direction vector to prevent numerical losses
-	Vector3d velocity = y.u.getUnitVector() * c_light;
-	
+	double v = p.getVelocity().getR();
+	Vector3d velocity = y.u.getUnitVector() * v;
+
 	// get B field at particle position
 	Vector3d B = getFieldAtPosition(y.x, z);
 
@@ -91,15 +92,18 @@ void PropagationCK::process(Candidate *candidate) const {
 		return;
 	}
 
+	double v = current.getVelocity().getR();
+	if (v <= 0.)
+		return;
+
 	Y yOut, yErr;
 	double newStep = step;
 	double z = candidate->getRedshift();
 
-
 	// if minStep is the same as maxStep the adaptive algorithm with its error
 	// estimation is not needed and the computation time can be saved:
 	if (minStep == maxStep){
-		tryStep(yIn, yOut, yErr, step / c_light, current, z);
+		tryStep(yIn, yOut, yErr, step / v, current, z);
 	} else {
 		step = clip(candidate->getNextStep(), minStep, maxStep);
 		newStep = step;
@@ -107,7 +111,7 @@ void PropagationCK::process(Candidate *candidate) const {
 
 		// try performing step until the target error (tolerance) or the minimum/maximum step size has been reached
 		while (true) {
-			tryStep(yIn, yOut, yErr, step / c_light, current, z);
+			tryStep(yIn, yOut, yErr, step / v, current, z);
 			r = yErr.u.getR() / tolerance;  // ratio of absolute direction error and tolerance
 			if (r > 1) {  // large direction error relative to tolerance, try to decrease step size
 				if (step == minStep)  // already minimum step size
@@ -146,14 +150,12 @@ ref_ptr<MagneticField> PropagationCK::getField() const {
 Vector3d PropagationCK::getFieldAtPosition(Vector3d pos, double z) const {
 	Vector3d B(0, 0, 0);
 	try {
-		// check if field is valid and use the field vector at the
-		// position pos with the redshift z
 		if (field.valid())
 			B = field->getField(pos, z);
 	} catch (std::exception &e) {
-		KISS_LOG_ERROR 	<< "PropagationCK: Exception in PropagationCK::getFieldAtPosition.\n"
+		KISS_LOG_ERROR << "PropagationCK: Exception in PropagationCK::getFieldAtPosition.\n"
 				<< e.what();
-	}	
+	}
 	return B;
 }
 

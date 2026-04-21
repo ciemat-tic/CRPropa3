@@ -26,7 +26,7 @@ Vector3d &PeriodicMagneticField::getExtends() {
 	return extends;
 }
 
-void PeriodicMagneticField::setExtends(const Vector3d &extends) {
+void PeriodicMagneticField::setExtends(const Vector3d &origin) {
 	this->extends = extends;
 }
 

@@ -17,25 +17,34 @@ void ConstantMomentumDiffusion::process(Candidate *c) const {
 	if (std::isinf(rig)) {
 		return; // Only charged particles
 	}
-	
-	double p = c->current.getEnergy() / c_light; // Note we use E=p/c (relativistic limit)
-	double dt = c->getCurrentStep() / c_light;
-	
-	double eta =  Random::instance().randNorm();
+
+	// NOTE: this module still uses the ultrarelativistic approximation E = p c
+	double p = c->current.getEnergy() / c_light;
+
+	double v = c->getVelocity();
+	if (v <= 0.)
+		return;
+
+	double dt = c->getCurrentStep() / v;
+
+	double eta = Random::instance().randNorm();
 	double domega = eta * sqrt(dt);
-	
+
 	double AScal = calculateAScalar(p);
 	double BScal = calculateBScalar();
 
 	double dp = AScal * dt + BScal * domega;
 	c->current.setEnergy((p + dp) * c_light);
-	
-	c->limitNextStep(limit * p / AScal * c_light);
+
+	if (AScal == 0.)
+		return;
+
+	c->limitNextStep(limit * p / AScal * v);
 }
 
 double ConstantMomentumDiffusion::calculateAScalar(double p) const {
 	double a = + 2. / p * Dpp;
-	return a; 
+	return a;
 }
 
 double ConstantMomentumDiffusion::calculateBScalar() const {

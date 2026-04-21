@@ -1,6 +1,5 @@
 #include "crpropa/module/DiffusionSDE.h"
 
-
 using namespace crpropa;
 
 // Defining Cash-Karp coefficients
@@ -29,7 +28,7 @@ DiffusionSDE::DiffusionSDE(ref_ptr<MagneticField> magneticField, double toleranc
   	setEpsilon(epsilon);
   	setScale(1.);
   	setAlpha(1./3.);
-	}
+}
 
 DiffusionSDE::DiffusionSDE(ref_ptr<MagneticField> magneticField, ref_ptr<AdvectionField> advectionField, double tolerance, double minStep, double maxStep, double epsilon) :
   	minStep(0)
@@ -42,16 +41,19 @@ DiffusionSDE::DiffusionSDE(ref_ptr<MagneticField> magneticField, ref_ptr<Advecti
 	setEpsilon(epsilon);
 	setScale(1.);
 	setAlpha(1./3.);
-  	}
+}
 
 void DiffusionSDE::process(Candidate *candidate) const {
 
     // save the new previous particle state
-
 	ParticleState &current = candidate->current;
 	candidate->previous = current;
 
-	double h = clip(candidate->getNextStep(), minStep, maxStep) / c_light;
+	double v = candidate->getVelocity();
+	if (v <= 0.)
+		return;
+
+	double h = clip(candidate->getNextStep(), minStep, maxStep) / v;
 	Vector3d PosIn = current.getPosition();
 	Vector3d DirIn = current.getDirection();
 
@@ -68,8 +70,8 @@ void DiffusionSDE::process(Candidate *candidate) const {
 			driftStep(Pos, LinProp, h, time);
 		}
 
-		current.setPosition(Pos + LinProp + dir*h*c_light);
-		candidate->setCurrentStep(h * c_light);
+		current.setPosition(Pos + LinProp + dir * h * v);
+		candidate->setCurrentStep(h * v);
 		candidate->setNextStep(maxStep);
 		return;
 	}
@@ -80,7 +82,6 @@ void DiffusionSDE::process(Candidate *candidate) const {
     // Calculate the Diffusion tensor
 	double BTensor[] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
 	calculateBTensor(rig, BTensor, PosIn, DirIn, z);
-
 
     // Generate random numbers
 	double eta[] = {0., 0., 0.};
@@ -98,10 +99,9 @@ void DiffusionSDE::process(Candidate *candidate) const {
 
 	Vector3d DirOut = Vector3d(0.);
 
-
-	double propTime = TStep * sqrt(h) / c_light;
+	double propTime = TStep * sqrt(h) / v;
 	size_t counter = 0;
-	double r=42.; //arbitrary number larger than one
+	double r = 42.; // arbitrary number larger than one
 
 	do {
 		Vector3d PosOut = Vector3d(0.);
@@ -113,21 +113,21 @@ void DiffusionSDE::process(Candidate *candidate) const {
 		counter += 1;
 
     // Check for better break condition
-	} while (r > 1 && fabs(propTime) >= minStep/c_light);
+	} while (r > 1 && fabs(propTime) >= minStep / v);
 
-
-	size_t stepNumber = pow(2, counter-1);
-	double allowedTime = TStep * sqrt(h) / c_light / stepNumber;
+	size_t stepNumber = pow(2, counter - 1);
+	double allowedTime = TStep * sqrt(h) / v / stepNumber;
 	Vector3d Start = PosIn;
 	Vector3d PosOut = Vector3d(0.);
 	Vector3d PosErr = Vector3d(0.);
-	for (size_t j=0; j<stepNumber; j++) {
+	for (size_t j = 0; j < stepNumber; j++) {
 		tryStep(Start, PosOut, PosErr, z, allowedTime);
 		Start = PosOut;
 	}
 
     // Normalize the tangent vector
-	TVec = (PosOut-PosIn).getUnitVector();
+	TVec = (PosOut - PosIn).getUnitVector();
+
     // Exception: If the magnetic field vanishes: Use only advection.
     // If an advection field is not provided --> rectilinear propagation.
 	double tTest = TVec.getR();
@@ -138,15 +138,15 @@ void DiffusionSDE::process(Candidate *candidate) const {
 		if (advectionField){
 			driftStep(Pos, LinProp, h, time);
 			current.setPosition(Pos + LinProp);
-	 		candidate->setCurrentStep(h*c_light);
-	  		double newStep = 5*h*c_light;
+	 		candidate->setCurrentStep(h * v);
+	  		double newStep = 5 * h * v;
 			newStep = clip(newStep, minStep, maxStep);
 	  		candidate->setNextStep(newStep);
 	  		return;
 		}
-		current.setPosition(Pos + dir*h*c_light);
-	 	candidate->setCurrentStep(h*c_light);
-		double newStep = 5*h*c_light;
+		current.setPosition(Pos + dir * h * v);
+	 	candidate->setCurrentStep(h * v);
+		double newStep = 5 * h * v;
 		newStep = clip(newStep, minStep, maxStep);
 	  	candidate->setNextStep(newStep);
 	  	return;
@@ -154,9 +154,9 @@ void DiffusionSDE::process(Candidate *candidate) const {
 
     // Choose a random perpendicular vector as the Normal-vector.
     // Prevent 'nan's in the NVec-vector in the case of <TVec, NVec> = 0.
-	while (NVec.getR()==0.){
+	while (NVec.getR() == 0.) {
 	  	Vector3d RandomVector = Random::instance().randVector();
-	  	NVec = TVec.cross( RandomVector );
+	  	NVec = TVec.cross(RandomVector);
 	}
 	NVec = NVec.getUnitVector();
 
@@ -170,14 +170,14 @@ void DiffusionSDE::process(Candidate *candidate) const {
 	}
 
     // Integration of the SDE with a Mayorama-Euler-method
-	Vector3d PO = PosOut + LinProp + (NVec * NStep + BVec * BStep) * sqrt(h) ;
+	Vector3d PO = PosOut + LinProp + (NVec * NStep + BVec * BStep) * sqrt(h);
 
     // Throw error message if something went wrong with propagation.
     // Deactivate candidate.
 	bool NaN = std::isnan(PO.getR());
 	if (NaN == true){
-		  candidate->setActive(false);
-		  KISS_LOG_WARNING
+		candidate->setActive(false);
+		KISS_LOG_WARNING
 			<< "\nCandidate with 'nan'-position occured: \n"
 		 	<< "position = " << PO << "\n"
 		  	<< "PosIn = " << PosIn << "\n"
@@ -188,28 +188,28 @@ void DiffusionSDE::process(Candidate *candidate) const {
 		  	<< "BVec = " << BVec << "\n"
 		  	<< "BStep = " << BStep << "\n"
 			<< "Candidate is deactivated!\n";
-		  return;
+		return;
 	}
 
-	//DirOut = (PO - PosIn - LinProp).getUnitVector(); //Advection does not change the momentum vector
+	//DirOut = (PO - PosIn - LinProp).getUnitVector(); // Advection does not change the momentum vector
 	// Random direction around the tangential direction accounts for the pitch angle average.
 	DirOut = Random::instance().randConeVector(TVec, M_PI/2.);
 	current.setPosition(PO);
 	current.setDirection(DirOut);
-	candidate->setCurrentStep(h * c_light);
+	candidate->setCurrentStep(h * v);
 
 	double nextStep;
-	if (stepNumber>1){
-		nextStep = h*pow(stepNumber, -2.)*c_light;
+	if (stepNumber > 1){
+		nextStep = h * pow(stepNumber, -2.) * v;
 	}
 	else {
-		nextStep = 4 * h*c_light;
+		nextStep = 4 * h * v;
 	}
 
 	candidate->setNextStep(nextStep);
 
-    	// Debugging and Testing
-    	// Delete comments if additional information should be stored in candidate
+    // Debugging and Testing
+    // Delete comments if additional information should be stored in candidate
 	// This property "arcLength" can be interpreted as the effective arclength
 	// of the propagation along a magnetic field line.
 
@@ -229,26 +229,27 @@ void DiffusionSDE::process(Candidate *candidate) const {
 
 }
 
+void DiffusionSDE::tryStep(const Vector3d &PosIn, Vector3d &POut, Vector3d &PosErr, double z, double propStep) const {
 
-void DiffusionSDE::tryStep(const Vector3d &PosIn, Vector3d &POut, Vector3d &PosErr,double z, double propStep) const {
-
-	Vector3d k[] = {Vector3d(0.),Vector3d(0.),Vector3d(0.),Vector3d(0.),Vector3d(0.),Vector3d(0.)};
+	Vector3d k[] = {Vector3d(0.), Vector3d(0.), Vector3d(0.), Vector3d(0.), Vector3d(0.), Vector3d(0.)};
 	POut = PosIn;
-	//calculate the sum k_i * b_i
+	PosErr = Vector3d(0.);
+
+	// calculate the sum k_i * b_i
 	for (size_t i = 0; i < 6; i++) {
 
 		Vector3d y_n = PosIn;
 		for (size_t j = 0; j < i; j++)
-		  y_n += k[j] * a[i * 6 + j] * propStep;
+			y_n += k[j] * a[i * 6 + j] * propStep;
 
 		// update k_i = direction of the regular magnetic mean field
 		Vector3d BField = getMagneticFieldAtPosition(y_n, z);
 
+		// Keep c_light here: this belongs to the effective transport model
 		k[i] = BField.getUnitVector() * c_light;
 
 		POut += k[i] * b[i] * propStep;
-		PosErr +=  (k[i] * (b[i] - bs[i])) * propStep / kpc;
-
+		PosErr += (k[i] * (b[i] - bs[i])) * propStep / kpc;
 	}
 }
 
@@ -261,13 +262,11 @@ void DiffusionSDE::driftStep(const Vector3d &pos, Vector3d &linProp, double h, d
 void DiffusionSDE::calculateBTensor(double r, double BTen[], Vector3d pos, Vector3d dir, double z) const {
 
     double DifCoeff = scale * 6.1e24 * pow((std::abs(r) / 4.0e9), alpha);
-    BTen[0] = pow( 2  * DifCoeff, 0.5);
+    BTen[0] = pow(2 * DifCoeff, 0.5);
     BTen[4] = pow(2 * epsilon * DifCoeff, 0.5);
     BTen[8] = pow(2 * epsilon * DifCoeff, 0.5);
     return;
-
 }
-
 
 void DiffusionSDE::setMinimumStep(double min) {
 	if (min < 0)
@@ -283,7 +282,6 @@ void DiffusionSDE::setMaximumStep(double max) {
 	maxStep = max;
 }
 
-
 void DiffusionSDE::setTolerance(double tol) {
 	if ((tol > 1) or (tol < 0))
 		throw std::runtime_error(
@@ -297,7 +295,6 @@ void DiffusionSDE::setEpsilon(double e) {
 				"DiffusionSDE: epsilon not in range 0-1");
 	epsilon = e;
 }
-
 
 void DiffusionSDE::setAlpha(double a) {
 	if ((a > 2.) or (a < 0))
@@ -358,9 +355,9 @@ Vector3d DiffusionSDE::getMagneticFieldAtPosition(Vector3d pos, double z) const 
 			B = magneticField->getField(pos, z);
 	}
 	catch (std::exception &e) {
-		KISS_LOG_ERROR 	<< "DiffusionSDE: Exception in DiffusionSDE::getMagneticFieldAtPosition.\n"
-				<< e.what();
-	}	
+		KISS_LOG_ERROR << "DiffusionSDE: Exception in DiffusionSDE::getMagneticFieldAtPosition.\n"
+			       << e.what();
+	}
 	return B;
 }
 
@@ -377,8 +374,8 @@ Vector3d DiffusionSDE::getAdvectionFieldAtPosition(Vector3d pos, double t) const
 			AdvField = advectionField->getField(pos, t);
 	}
 	catch (std::exception &e) {
-		KISS_LOG_ERROR 	<< "DiffusionSDE: Exception in DiffusionSDE::getAdvectionFieldAtPosition.\n"
-				<< e.what();
+		KISS_LOG_ERROR << "DiffusionSDE: Exception in DiffusionSDE::getAdvectionFieldAtPosition.\n"
+			       << e.what();
 	}
 	return AdvField;
 }
@@ -390,16 +387,16 @@ std::string DiffusionSDE::getDescription() const {
 	s << "tolerance: " << tolerance << "\n";
 
 	if (epsilon != 0.1) {
-	  s << "epsilon: " << epsilon << ", ";
-	  }
+		s << "epsilon: " << epsilon << ", ";
+	}
 
 	if (alpha != 1./3.) {
-	  s << "alpha: " << alpha << "\n";
-	  }
+		s << "alpha: " << alpha << "\n";
+	}
 
 	if (scale != 1.) {
-	  s << "D_0: " << scale*6.1e24 << " m^2/s" << "\n";
-	  }
+		s << "D_0: " << scale * 6.1e24 << " m^2/s" << "\n";
+	}
 
 	return s.str();
 }

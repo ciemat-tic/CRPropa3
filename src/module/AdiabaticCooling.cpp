@@ -1,5 +1,5 @@
 #include "crpropa/module/AdiabaticCooling.h"
-
+#include <cmath>
 namespace crpropa {
 
 AdiabaticCooling::AdiabaticCooling(ref_ptr<AdvectionField> advectionField) :
@@ -15,29 +15,33 @@ AdiabaticCooling::AdiabaticCooling(ref_ptr<AdvectionField> advectionField, doubl
 void AdiabaticCooling::process(Candidate *c) const {
 
 	Vector3d pos = c->current.getPosition();
-	double E = c->current.getEnergy(); // Note we use E=p/c (relativistic limit)
-    double time = c->getTime();
-	
-	double Div = 0.;	
+	double E = c->current.getEnergy(); // Note: this module still uses the relativistic-limit relation for E
+	double time = c->getTime();
+
+	double Div = 0.;
 	try {
-		Div +=  advectionField->getDivergence(pos, time);
-	} 
-	catch (std::exception &e) {
-		KISS_LOG_ERROR 	<< "AdiabaticCooling: Exception in getDivergence.\n" 
-				<< e.what();
+		Div += advectionField->getDivergence(pos, time);
 	}
-	
-	double dEdt = -E / 3. * Div; 	// cooling due to advection -p/3 * div(V_wind)
-					// (see e.g. Kopp et al. Computer Physics Communication 183
-					// (2012) 530-542)
-	double dt = c->getCurrentStep() / c_light;
+	catch (std::exception &e) {
+		KISS_LOG_ERROR << "AdiabaticCooling: Exception in getDivergence.\n"
+			       << e.what();
+	}
+
+	double dEdt = -E / 3. * Div;  // cooling due to advection -p/3 * div(V_wind)
+
+	double v = c->getVelocity();
+	double dt = 0.;
+	if (v > 0.)
+		dt = c->getCurrentStep() / v;
+
 	double dE = dEdt * dt;
-	
+
 	c->current.setEnergy(E + dE);
-	if (dEdt==0) {
+
+	if (dEdt == 0. || v <= 0.)
 		return;
-	}	
-	c->limitNextStep(limit * E / fabs(dEdt) *c_light);
+
+	c->limitNextStep(limit * E / fabs(dEdt) * v);
 }
 
 void AdiabaticCooling::setLimit(double l) {
@@ -47,9 +51,7 @@ void AdiabaticCooling::setLimit(double l) {
 double AdiabaticCooling::getLimit() const {
 	return limit;
 }
-	
-	
-
-
 
 } // end namespace crpropa
+	
+

@@ -2,7 +2,7 @@
 #define CRPROPA_PARTICLE_STATE_H
 
 #include "crpropa/Vector3.h"
-
+#include <cstdint>
 namespace crpropa {
 /**
  * \addtogroup Core
@@ -19,6 +19,12 @@ namespace crpropa {
  direction vector.
  For faster lookup mass and charge of the particle are stored as members.
  */
+// función común para calcular el módulo de la velocidad
+double computeRelativisticSpeed(double energy, double mass);
+double computeRelativisticMomentum(double energy, double mass);
+
+unsigned long long getVelocityEvaluationCount();
+void resetVelocityEvaluationCount();
 class ParticleState {
 private:
 	int id; ///< particle ID (Particle Data Group numbering scheme)

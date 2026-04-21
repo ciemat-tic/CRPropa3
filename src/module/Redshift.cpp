@@ -13,8 +13,12 @@ void Redshift::process(Candidate *c) const {
 	if (z <= std::numeric_limits<double>::min())
 		return;
 
-	// use small step approximation:  dz = H(z) / c * ds
-	double dz = hubbleRate(z) / c_light * c->getCurrentStep();
+	double v = c->getVelocity();
+	if (v <= 0.)
+		return;
+
+	// use small step approximation: dz = H(z) * dt = H(z) / v * ds
+	double dz = hubbleRate(z) / v * c->getCurrentStep();
 
 	// prevent dz > z
 	dz = std::min(dz, z);
@@ -30,7 +34,7 @@ void Redshift::process(Candidate *c) const {
 std::string Redshift::getDescription() const {
 	std::stringstream s;
 	s << "Redshift: h0 = " << hubbleRate() / 1e5 * Mpc << ", omegaL = "
-			<< omegaL() << ", omegaM = " << omegaM();
+	  << omegaL() << ", omegaM = " << omegaM();
 	return s.str();
 }
 
@@ -41,8 +45,12 @@ void FutureRedshift::process(Candidate *c) const {
 	if (z <= -1)
 		return;
 
-	// use small step approximation:  dz = H(z) / c * ds
-	double dz = hubbleRate(z) / c_light * c->getCurrentStep();
+	double v = c->getVelocity();
+	if (v <= 0.)
+		return;
+
+	// use small step approximation: dz = H(z) * dt = H(z) / v * ds
+	double dz = hubbleRate(z) / v * c->getCurrentStep();
 
 	// update redshift
 	c->setRedshift(z - dz);
@@ -55,7 +63,7 @@ void FutureRedshift::process(Candidate *c) const {
 std::string FutureRedshift::getDescription() const {
 	std::stringstream s;
 	s << "FutureRedshift: h0 = " << hubbleRate() / 1e5 * Mpc << ", omegaL = "
-			<< omegaL() << ", omegaM = " << omegaM();
+	  << omegaL() << ", omegaM = " << omegaM();
 	return s.str();
 }
 
