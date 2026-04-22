@@ -382,3 +382,13 @@ if hasattr(crp, 'GridTurbulence'):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class testTextOutputPrecision(unittest.TestCase):
+    def test_set_get_precision(self):
+        out = crp.TextOutput()
+        self.assertEqual(5, out.getPrecision())
+        out.setPrecision(17)
+        self.assertEqual(17, out.getPrecision())
+        out.setPrecision(-3)
+        self.assertEqual(0, out.getPrecision())
