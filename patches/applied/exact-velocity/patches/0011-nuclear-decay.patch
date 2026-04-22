@@ -1,0 +1,44 @@
+diff -urN a/include/crpropa/module/NuclearDecay.h b/include/crpropa/module/NuclearDecay.h
+--- a/include/crpropa/module/NuclearDecay.h	2026-04-15 09:06:38.000000000 +0000
++++ b/include/crpropa/module/NuclearDecay.h	2026-04-17 07:39:30.828171317 +0000
+@@ -29,7 +29,8 @@
+ 	bool haveNeutrinos;
+ 	struct DecayMode {
+ 		int channel; // (#beta- #beta+ #alpha #proton #neutron)
+-		double rate; // decay rate in [1/m]
++		double rate; // legacy decay rate scale in [1/m]
++		double lifetime; // proper lifetime in [s]
+ 		std::vector<double> energy; // photon energies of ensuing gamma decays
+ 		std::vector<double> intensity; // probabilities of ensuing gamma decays
+ 	};
+@@ -78,7 +79,7 @@
+ 	 @param gamma   Lorentz factor of particle
+ 	 @returns The mean free path [in meters]
+ 	 */
+-	double meanFreePath(int id, double gamma);
++	double meanFreePath(int id, double gamma, double beta);
+ };
+ /** @}*/
+ 
+diff -urN a/src/module/NuclearDecay.cpp b/src/module/NuclearDecay.cpp
+--- a/src/module/NuclearDecay.cpp	2026-04-15 09:06:38.000000000 +0000
++++ b/src/module/NuclearDecay.cpp	2026-04-17 07:39:30.846685172 +0000
+@@ -37,7 +37,8 @@
+ 		int Z, N;
+ 		double lifetime;
+ 		stream >> Z >> N >> decay.channel >> lifetime;
+-		decay.rate = 1. / lifetime / c_light; // decay rate in [1/m]
++		decay.lifetime = lifetime;
++		decay.rate = 1. / lifetime / c_light; // legacy spatial scale, kept for compatibility
+ 		std::vector<double> gamma;
+ 		double val;
+ 		while (stream >> val)
+@@ -284,7 +285,7 @@
+ 
+ }
+ 
+-double NuclearDecay::meanFreePath(int id, double gamma) {
++double NuclearDecay::meanFreePath(int id, double gamma, double beta) {
+ 	if (not (isNucleus(id)))
+ 		return std::numeric_limits<double>::max();
+ 

@@ -125,7 +125,7 @@ void SynchrotronRadiation::process(Candidate *candidate) const {
 		B = sqrt(2. / 3) * Brms; // average perpendicular field component
 	}
 	B *= pow(1 + z, 2); // cosmological scaling
-	double Rg = candidate->current.getMomentum().getR() / charge / B;
+	double Rg = candidate->current.getMomentumExact().getR() / charge / B;
 
 	// calculate energy loss
 	double lf = candidate->current.getLorentzFactor();

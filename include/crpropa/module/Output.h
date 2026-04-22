@@ -28,17 +28,23 @@ namespace crpropa {
  . ID			 CurrentIdColumn
  . E			 CurrentEnergyColumn
  . X/Y/Z		 CurrentPositionColumn
- . Px/Py/Pz		 CurrentDirectionColumn
+ . nx/ny/nz		 CurrentDirectionColumn
+ . Vx/Vy/Vz		 CurrentVelocityColumn
+ . px/py/pz		 CurrentMomentumColumn
  . SN0			 SourceSerialNumberColumn
  . ID0			 SourceIdColumn
  . E0			 SourceEnergyColumn
  . X0/Y0/Z0		 SourcePositionColumn
- . P0x/P0y/P0z	 SourceDirectionColumn
+ . n0x/n0y/n0z	 SourceDirectionColumn
+ . V0x/V0y/V0z	 SourceVelocityColumn
+ . p0x/p0y/p0z	 SourceMomentumColumn
  . SN1			 CreatedSerialNumberColumn
  . ID1			 CreatedIdColumn
  . E1			 CreatedEnergyColumn
  . X1/Y1/Z1		 CreatedPositionColumn
- . P1x/P1y/P1z	 CreatedDirectionColumn
+ . n1x/n1y/n1z	 CreatedDirectionColumn
+ . V1x/V1y/V1z	 CreatedVelocityColumn
+ . p1x/p1y/p1z	 CreatedMomentumColumn
  . z			 RedshiftColumn
  . tag			 CandidateTagColumn
  . weight		 WeightColumn
@@ -81,14 +87,20 @@ public:
 		CurrentEnergyColumn,
 		CurrentPositionColumn,
 		CurrentDirectionColumn,
+		CurrentVelocityColumn,
+		CurrentMomentumColumn,
 		SourceIdColumn,
 		SourceEnergyColumn,
 		SourcePositionColumn,
 		SourceDirectionColumn,
+		SourceVelocityColumn,
+		SourceMomentumColumn,
 		CreatedIdColumn,
 		CreatedEnergyColumn,
 		CreatedPositionColumn,
 		CreatedDirectionColumn,
+		CreatedVelocityColumn,
+		CreatedMomentumColumn,
 		CandidateTagColumn,
 		SerialNumberColumn,
 		WeightColumn,

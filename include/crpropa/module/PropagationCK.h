@@ -17,7 +17,7 @@ namespace crpropa {
  @brief Rectilinear propagation through magnetic fields using the Cash-Karp method.
 
  This module solves the equations of motion of a relativistic charged particle when propagating through a magnetic field.\n
- It uses the Runge-Kutta integration method with Cash-Karp coefficients.\n
+ It uses the Runge-Kutta integration method with Cash-Karp coefficients in phase space (x, p).\n
  The step size control tries to keep the relative error close to, but smaller than the designated tolerance.
  Additionally a minimum and maximum size for the steps can be set.
  For neutral particles a rectilinear propagation is applied and a next step of the maximum step size proposed.
@@ -26,7 +26,7 @@ class PropagationCK: public Module {
 public:
 	class Y {
 	public:
-		Vector3d x, u; /*< phase-point: position and direction */
+		Vector3d x, u; /*< phase-point: position and momentum */
 
 		Y() {
 		}
@@ -61,16 +61,16 @@ public:
 	/** Constructor for the adaptive Kash Carp.
 	 * @param field
 	 * @param tolerance	 tolerance is criterion for step adjustment. Step adjustment takes place only if minStep < maxStep
-	 * @param minStep	   minStep/c_light is the minimum integration time step
-	 * @param maxStep	   maxStep/c_light is the maximum integration time step. 
+	 * @param minStep	   minStep/v is the minimum integration time step
+	 * @param maxStep	   maxStep/v is the maximum integration time step.
 	 */
     PropagationCK(ref_ptr<MagneticField> field = NULL, double tolerance = 1e-4,
 			double minStep = (0.1 * kpc), double maxStep = (1 * Gpc));
 
 	void process(Candidate *candidate) const;
 
-	// derivative of phase point, dY/dt = d/dt(x, u) = (v, du/dt)
-	// du/dt = q*c^2/E * (u x B)
+	// derivative of phase point, dY/dt = d/dt(x, p) = (v, dp/dt)
+	// v = p c^2 / E, dp/dt = q (v x B)
 	Y dYdt(const Y &y, ParticleState &p, double z) const;
 
 	void tryStep(const Y &y, Y &out, Y &error, double t,

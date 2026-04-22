@@ -1,0 +1,204 @@
+diff --git a/include/crpropa/module/PropagationBP.h b/include/crpropa/module/PropagationBP.h
+index df7ff61..b322b53 100644
+--- a/include/crpropa/module/PropagationBP.h
++++ b/include/crpropa/module/PropagationBP.h
+@@ -17,7 +17,7 @@ namespace crpropa {
+  @brief Propagation through magnetic fields using the Boris method.
+ 
+  This module solves the equations of motion of a relativistic charged particle when propagating through a magnetic field.\n
+- It uses the Boris push integration method.\n
++ It uses the Boris push integration method in phase space (x, p).\n
+  It can be used with a fixed step size or an adaptive version which supports the step size control.
+  The step size control tries to keep the relative error close to, but smaller than the designated tolerance.
+  Additionally a minimum and maximum size for the steps can be set.
+@@ -28,7 +28,7 @@ class PropagationBP: public Module {
+ public:
+ 	class Y {
+ 	public:
+-		Vector3d x, u; /*< phase-point: position and direction */
++		Vector3d x, u; /*< phase-point: position and momentum */
+ 
+ 		Y() {
+ 		}
+@@ -68,8 +68,8 @@ public:
+ 	/** Constructor for the adaptive Boris push.
+ 	 * @param field
+ 	 * @param tolerance	 tolerance is criterion for step adjustment. Step adjustment takes place only if minStep < maxStep
+-	 * @param minStep	   minStep/c_light is the minimum integration time step
+-	 * @param maxStep	   maxStep/c_light is the maximum integration time step. 
++	 * @param minStep	   minStep/v is the minimum integration time step
++	 * @param maxStep	   maxStep/v is the maximum integration time step. 
+ 	 */
+     PropagationBP(ref_ptr<MagneticField> field, double tolerance, double minStep, double maxStep);
+ 
+@@ -77,16 +77,16 @@ public:
+ 	 * @param candidate	 The Candidate is a passive object, that holds the information about the state of the cosmic ray and the simulation itself. */
+ 	void process(Candidate *candidate) const;
+ 
+-	/** Calculates the new position and direction of the particle based on the solution of the Lorentz force
++	/** Calculates the new position and momentum of the particle based on the solution of the Lorentz force
+ 	 * @param pos	current position of the candidate
+-	 * @param dir	current direction of the candidate
+-	 * @param step	current step size of the candidate
++	 * @param mom	current momentum of the candidate
++	 * @param dt	current time step of the candidate
+ 	 * @param z		current redshift is needed to calculate the magnetic field
+ 	 * @param q		current charge of the candidate
+-	 * @param m		current mass of the candidate
+-	 * @return	  return the new calculated position and direction of the candidate 
++	 * @param E		current total energy of the candidate
++	 * @return	  return the new calculated position and momentum of the candidate 
+ 	 */
+-	Y dY(Vector3d  pos, Vector3d  dir, double step, double z, double q, double m) const;
++	Y dY(Vector3d  pos, Vector3d  mom, double dt, double z, double q, double E) const;
+ 
+ 	/** comparison of the position after one step with the position after two steps with step/2.
+ 	 * @param x1	position after one step of size step
+@@ -103,17 +103,17 @@ public:
+ 	 */
+ 	Vector3d getFieldAtPosition(Vector3d pos, double z) const;
+ 
+-	/** Adapt step size if required and calculates the new position and direction of the particle with the usage of the function dY
+-	 * @param y		 current position and direction of candidate
+-	 * @param out	   position and direction of candidate after the step
++	/** Adapt step size if required and calculates the new position and momentum of the particle with the usage of the function dY
++	 * @param y		 current position and momentum of candidate
++	 * @param out	   position and momentum of candidate after the step
+ 	 * @param error	 error for the current step
+ 	 * @param h		 current step size
+ 	 * @param p		 current particle state
+ 	 * @param z		 current red shift
+ 	 * @param q		 current charge of the candidate 
+-	 * @param m		 current mass of the candidate
++	 * @param E		 current total energy of the candidate
+ 	 */
+-	void tryStep(const Y &y, Y &out, Y &error, double h, ParticleState &p, double z, double q, double m) const;
++	void tryStep(const Y &y, Y &out, Y &error, double h, ParticleState &p, double z, double q, double E) const;
+ 
+ 	/** Set functions for the parameters of the class PropagationBP */
+ 
+@@ -126,11 +126,11 @@ public:
+ 	 */
+ 	void setTolerance(double tolerance);
+ 	/** Set the minimum step for the Boris push
+-	 * @param minStep	   minStep/c_light is the minimum integration time step 
++	 * @param minStep	   minStep/v is the minimum integration time step 
+ 	 */
+ 	void setMinimumStep(double minStep);
+ 	/** Set the maximum step for the Boris push
+-	 * @param maxStep	   maxStep/c_light is the maximum integration time step 
++	 * @param maxStep	   maxStep/v is the maximum integration time step 
+ 	 */
+ 	void setMaximumStep(double maxStep);
+ 
+diff --git a/src/module/PropagationBP.cpp b/src/module/PropagationBP.cpp
+index 95dd5c8..af7b938 100644
+--- a/src/module/PropagationBP.cpp
++++ b/src/module/PropagationBP.cpp
+@@ -6,36 +6,38 @@
+ 
+ namespace crpropa {
+ 	void PropagationBP::tryStep(const Y &y, Y &out, Y &error, double h,
+-			ParticleState &particle, double z, double q, double m) const {
+-		out = dY(y.x, y.u, h, z, q, m);  // 1 step with h
++			ParticleState &particle, double z, double q, double E) const {
++		out = dY(y.x, y.u, h, z, q, E);  // 1 step with h
+ 
+-		Y outHelp = dY(y.x, y.u, h/2, z, q, m);  // 2 steps with h/2
+-		Y outCompare = dY(outHelp.x, outHelp.u, h/2, z, q, m);
++		Y outHelp = dY(y.x, y.u, h/2, z, q, E);  // 2 steps with h/2
++		Y outCompare = dY(outHelp.x, outHelp.u, h/2, z, q, E);
+ 
+ 		error = errorEstimation(out.x , outCompare.x , h);
+ 	}
+ 
+ 
+-	PropagationBP::Y PropagationBP::dY(Vector3d pos, Vector3d dir, double step,
+-			double z, double q, double m) const {
++	PropagationBP::Y PropagationBP::dY(Vector3d pos, Vector3d mom, double dt,
++			double z, double q, double E) const {
++		Vector3d vel = (E > 0.) ? mom * (c_squared / E) : Vector3d(0,0,0);
+ 		// half leap frog step in the position
+-		pos += dir * step / 2.;
++		pos += vel * dt / 2.;
+ 
+ 		// get B field at particle position
+ 		Vector3d B = getFieldAtPosition(pos, z);
+ 
+ 		// Boris help vectors
+-		Vector3d t = B * q / 2 / m * step / c_light;
++		Vector3d t = B * q * dt * c_squared / (2. * E);
+ 		Vector3d s = t * 2 / (1 + t.dot(t));
+-		Vector3d v_help;
++		Vector3d p_help;
+ 
+ 		// Boris push
+-		v_help = dir + dir.cross(t);
+-		dir = dir + v_help.cross(s);
++		p_help = mom + mom.cross(t);
++		mom = mom + p_help.cross(s);
+ 
+ 		// the other half leap frog step in the position
+-		pos += dir * step / 2.;
+-		return Y(pos, dir);
++		vel = (E > 0.) ? mom * (c_squared / E) : Vector3d(0,0,0);
++		pos += vel * dt / 2.;
++		return Y(pos, mom);
+ 	}
+ 
+ 
+@@ -64,7 +66,7 @@ namespace crpropa {
+ 		ParticleState &current = candidate->current;
+ 		candidate->previous = current;
+ 
+-		Y yIn(current.getPosition(), current.getDirection());
++		Y yIn(current.getPosition(), current.getMomentumExact());
+ 
+ 		// calculate charge of particle
+ 		double q = current.getCharge();
+@@ -82,12 +84,12 @@ namespace crpropa {
+ 		Y yOut, yErr;
+ 		double newStep = step;
+ 		double z = candidate->getRedshift();
+-		double m = current.getEnergy()/(c_light * c_light);
++		double E = current.getEnergy();
+ 
+ 		// if minStep is the same as maxStep the adaptive algorithm with its error
+ 		// estimation is not needed and the computation time can be saved:
+ 		if (minStep == maxStep){
+-			yOut = dY(yIn.x, yIn.u, step, z, q, m);
++			yOut = dY(yIn.x, yIn.u, step / std::max(current.getVelocityExact().getR(), 1e-300), z, q, E);
+ 		} else {
+ 			step = clip(candidate->getNextStep(), minStep, maxStep);
+ 			newStep = step;
+@@ -95,8 +97,8 @@ namespace crpropa {
+ 
+ 			// try performing step until the target error (tolerance) or the minimum/maximum step size has been reached
+ 			while (true) {
+-				tryStep(yIn, yOut, yErr, step, current, z, q, m);
+-				r = yErr.u.getR() / tolerance;  // ratio of absolute direction error and tolerance
++				tryStep(yIn, yOut, yErr, step / std::max(current.getVelocityExact().getR(), 1e-300), current, z, q, E);
++				r = yErr.x.getR() / std::max(step, 1e-300) / tolerance;  // ratio of absolute direction error and tolerance
+ 				if (r > 1) {  // large direction error relative to tolerance, try to decrease step size
+ 					if (step == minStep)  // already minimum step size
+ 						break;
+@@ -118,7 +120,18 @@ namespace crpropa {
+ 		}
+ 
+ 		current.setPosition(yOut.x);
+-		current.setDirection(yOut.u.getUnitVector());
++		if (yOut.u.getR() > 0.)
++			current.setDirection(yOut.u.getUnitVector());
++		const double pabs = yOut.u.getR();
++		const double m = current.getMass();
++		double Enew = 0.;
++		if (m > 0.) {
++			const double mc2 = m * c_squared;
++			Enew = std::sqrt(pabs * pabs * c_squared + mc2 * mc2);
++		} else {
++			Enew = pabs * c_light;
++		}
++		current.setEnergy(Enew);
+ 		candidate->setCurrentStep(step);
+ 		candidate->setNextStep(newStep);
+ 	}

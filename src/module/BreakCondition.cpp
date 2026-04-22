@@ -107,7 +107,7 @@ double MinimumRigidity::getMinimumRigidity() const {
 }
 
 void MinimumRigidity::process(Candidate *c) const {
-	if (c->current.getRigidity() < minRigidity)
+	if (c->current.getRigidityExact() < minRigidity)
 		reject(c);
 }
 

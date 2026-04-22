@@ -13,13 +13,18 @@ ConstantMomentumDiffusion::ConstantMomentumDiffusion(double Dpp, double limit) {
 }
 
 void ConstantMomentumDiffusion::process(Candidate *c) const {
-	double rig = c->current.getRigidity();
+	double rig = c->current.getRigidityExact();
 	if (std::isinf(rig)) {
 		return; // Only charged particles
 	}
 	
-	double p = c->current.getEnergy() / c_light; // Note we use E=p/c (relativistic limit)
-	double dt = c->getCurrentStep() / c_light;
+	const double p = c->current.getMomentumExact().getR();
+	if (p <= 0.)
+		return;
+	const double v = c->current.getVelocityExact().getR();
+	if (v <= 0.)
+		return;
+	double dt = c->getCurrentStep() / v;
 	
 	double eta =  Random::instance().randNorm();
 	double domega = eta * sqrt(dt);
@@ -28,9 +33,18 @@ void ConstantMomentumDiffusion::process(Candidate *c) const {
 	double BScal = calculateBScalar();
 
 	double dp = AScal * dt + BScal * domega;
-	c->current.setEnergy((p + dp) * c_light);
-	
-	c->limitNextStep(limit * p / AScal * c_light);
+	double pnew = std::max(0., p + dp);
+	double m = c->current.getMass();
+	double Enew = 0.;
+	if (m > 0.) {
+		double mc2 = m * c_squared;
+		Enew = std::sqrt(pnew * pnew * c_squared + mc2 * mc2);
+	} else {
+		Enew = pnew * c_light;
+	}
+	c->current.setEnergy(Enew);
+	if (AScal > 0.)
+		c->limitNextStep(limit * p / AScal * v);
 }
 
 double ConstantMomentumDiffusion::calculateAScalar(double p) const {

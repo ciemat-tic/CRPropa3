@@ -1,0 +1,151 @@
+diff --git a/include/crpropa/ParticleState.h b/include/crpropa/ParticleState.h
+index 480f909..2c84775 100644
+--- a/include/crpropa/ParticleState.h
++++ b/include/crpropa/ParticleState.h
+@@ -3,6 +3,8 @@
+ 
+ #include "crpropa/Vector3.h"
+ 
++#include <stdexcept>
++
+ namespace crpropa {
+ /**
+  * \addtogroup Core
+@@ -13,10 +15,11 @@ namespace crpropa {
+  @class ParticleState
+  @brief State of the particle: ID, energy, position, direction
+ 
+- The ParticleState defines the state of an ultra-high energy cosmic ray, which
+- is assumed to be traveling at the exact speed of light.
+- The cosmic ray state is defined by particle ID, energy and position and
+- direction vector.
++ The ParticleState defines the state of a particle by particle ID, total energy,
++ position and direction vector.
++ Legacy helper methods keep the historical ultra-relativistic approximation
++ used throughout CRPropa, while additional exact kinematic helpers are provided
++ for modules that need finite particle velocities.
+  For faster lookup mass and charge of the particle are stored as members.
+  */
+ class ParticleState {
+@@ -66,7 +69,8 @@ public:
+ 	 @returns Energy of particle [in Joules]
+ 	 */
+ 	double getEnergy() const;
+-	/** Get rigidity of particle, defined as E/(Z*e).
++	/** Get rigidity of particle, defined in the historical ultra-relativistic
++	 approximation as E/(Z*e).
+ 	 @returns Rigidity of the particle [in Volts]
+ 	 */
+ 	double getRigidity() const;
+@@ -104,6 +108,31 @@ public:
+ 	 */
+ 	double getLorentzFactor() const;
+ 
++
++	/** Get beta = v/c.
++	 Returns 1 for massless particles. For massive particles with energy <= m c^2,
++	 returns 0.
++	 */
++	double getBeta() const;
++
++	/** Get exact velocity: direction times beta times the speed of light.
++	 */
++	Vector3d getVelocityExact() const;
++
++	/** Get proper velocity gamma * v for massive particles.
++	 Throws std::runtime_error for massless particles.
++	 */
++	Vector3d getProperVelocity() const;
++
++	/** Get exact momentum from the relativistic invariant.
++	 */
++	Vector3d getMomentumExact() const;
++
++	/** Get exact rigidity p c / |q|.
++	 Returns +inf for neutral particles.
++	 */
++	double getRigidityExact() const;
++
+ 	/** Get velocity: direction times the speed of light.
+ 	 @returns Velocity of particle [m/s]
+ 	 */
+diff --git a/src/ParticleState.cpp b/src/ParticleState.cpp
+index 85736a8..a1f30c1 100644
+--- a/src/ParticleState.cpp
++++ b/src/ParticleState.cpp
+@@ -6,8 +6,12 @@
+ 
+ #include "HepPID/ParticleIDMethods.hh"
+ 
++#include <algorithm>
++#include <cmath>
+ #include <cstdlib>
++#include <limits>
+ #include <sstream>
++#include <stdexcept>
+ 
+ namespace crpropa {
+ 
+@@ -44,6 +48,8 @@ double ParticleState::getEnergy() const {
+ }
+ 
+ double ParticleState::getRigidity() const {
++	if (charge == 0.)
++		return std::numeric_limits<double>::infinity();
+ 	return fabs(energy / charge);
+ }
+ 
+@@ -72,14 +78,53 @@ double ParticleState::getCharge() const {
+ }
+ 
+ double ParticleState::getLorentzFactor() const {
++	if (pmass == 0.)
++		return std::numeric_limits<double>::infinity();
+ 	return energy / (pmass * c_squared);
+ }
+ 
++double ParticleState::getBeta() const {
++	if (pmass == 0.)
++		return 1.;
++	const double mc2 = pmass * c_squared;
++	if (energy <= mc2)
++		return 0.;
++	const double gamma = energy / mc2;
++	const double invGamma2 = 1. / (gamma * gamma);
++	return std::sqrt(std::max(0., 1. - invGamma2));
++}
++
+ void ParticleState::setLorentzFactor(double lf) {
+ 	lf = std::max(0., lf); // prevent negative Lorentz factors
+ 	energy = lf * pmass * c_squared;
+ }
+ 
++Vector3d ParticleState::getVelocityExact() const {
++	return direction * (getBeta() * c_light);
++}
++
++Vector3d ParticleState::getProperVelocity() const {
++	if (pmass == 0.)
++		throw std::runtime_error("ParticleState::getProperVelocity undefined for massless particles");
++	return getVelocityExact() * getLorentzFactor();
++}
++
++Vector3d ParticleState::getMomentumExact() const {
++	if (pmass == 0.)
++		return direction * (energy / c_light);
++	const double mc2 = pmass * c_squared;
++	const double p2c2 = std::max(0., energy * energy - mc2 * mc2);
++	const double p = std::sqrt(p2c2) / c_light;
++	return direction * p;
++}
++
++double ParticleState::getRigidityExact() const {
++	if (charge == 0.)
++		return std::numeric_limits<double>::infinity();
++	const double p = getMomentumExact().getR();
++	return fabs(p * c_light / charge);
++}
++
+ Vector3d ParticleState::getVelocity() const {
+ 	return direction * c_light;
+ }

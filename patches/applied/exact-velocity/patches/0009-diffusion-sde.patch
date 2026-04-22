@@ -1,0 +1,115 @@
+diff --git a/include/crpropa/module/DiffusionSDE.h b/include/crpropa/module/DiffusionSDE.h
+index 56f7d1f..48f69ec 100644
+--- a/include/crpropa/module/DiffusionSDE.h
++++ b/include/crpropa/module/DiffusionSDE.h
+@@ -48,8 +48,8 @@ public:
+ 	/** Constructor
+ 	 @param magneticField	the magnetic field to be used 
+ 	 @param tolerance		Tolerance is criterion for step adjustment. Step adjustment takes place when the  tangential vector of the magnetic field line is calculated.
+-	 @param minStep			minStep/c_light is the minimum integration time step
+-	 @param maxStep			maxStep/c_light is the maximum integration time step
++	 @param minStep			minStep/v is the minimum integration time step
++	 @param maxStep			maxStep/v is the maximum integration time step
+ 	 @param epsilon			Ratio of parallel and perpendicular diffusion coefficient D_par = epsilon*D_perp
+ 	 */
+ 	DiffusionSDE(ref_ptr<crpropa::MagneticField> magneticField, double tolerance = 1e-4, double minStep = 10 * pc, double maxStep = 1 * kpc, double epsilon = 0.1);
+@@ -57,8 +57,8 @@ public:
+ 	 @param magneticField	the magnetic field to be used 
+ 	 @param advectionField	object containing advection field
+ 	 @param tolerance		Tolerance is criterion for step adjustment. Step adjustment takes place when the  tangential vector of the magnetic field line is calculated.
+-	 @param minStep			minStep/c_light is the minimum integration time step
+-	 @param maxStep			maxStep/c_light is the maximum integration time step
++	 @param minStep			minStep/v is the minimum integration time step
++	 @param maxStep			maxStep/v is the maximum integration time step
+ 	 @param epsilon			Ratio of parallel and perpendicular diffusion coefficient D_par = epsilon*D_perp
+ 	 */
+ 	DiffusionSDE(ref_ptr<crpropa::MagneticField> magneticField, ref_ptr<crpropa::AdvectionField> advectionField, double tolerance = 1e-4, double minStep = 10 * pc, double maxStep = 1 * kpc, double epsilon = 0.1);
+diff --git a/src/module/DiffusionSDE.cpp b/src/module/DiffusionSDE.cpp
+index c14e73c..c64fb23 100644
+--- a/src/module/DiffusionSDE.cpp
++++ b/src/module/DiffusionSDE.cpp
+@@ -51,7 +51,8 @@ void DiffusionSDE::process(Candidate *candidate) const {
+ 	ParticleState &current = candidate->current;
+ 	candidate->previous = current;
+ 
+-	double h = clip(candidate->getNextStep(), minStep, maxStep) / c_light;
++	double vExact = std::max(current.getVelocityExact().getR(), 1e-300);
++	double h = clip(candidate->getNextStep(), minStep, maxStep) / vExact;
+ 	Vector3d PosIn = current.getPosition();
+ 	Vector3d DirIn = current.getDirection();
+ 
+@@ -68,14 +69,14 @@ void DiffusionSDE::process(Candidate *candidate) const {
+ 			driftStep(Pos, LinProp, h, time);
+ 		}
+ 
+-		current.setPosition(Pos + LinProp + dir*h*c_light);
+-		candidate->setCurrentStep(h * c_light);
++		current.setPosition(Pos + LinProp + dir * h * vExact);
++		candidate->setCurrentStep(h * vExact);
+ 		candidate->setNextStep(maxStep);
+ 		return;
+ 	}
+ 
+ 	double z = candidate->getRedshift();
+-	double rig = current.getEnergy() / current.getCharge();
++	double rig = current.getRigidityExact();
+ 
+     // Calculate the Diffusion tensor
+ 	double BTensor[] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
+@@ -99,7 +100,7 @@ void DiffusionSDE::process(Candidate *candidate) const {
+ 	Vector3d DirOut = Vector3d(0.);
+ 
+ 
+-	double propTime = TStep * sqrt(h) / c_light;
++	double propTime = TStep * sqrt(h) / vExact;
+ 	size_t counter = 0;
+ 	double r=42.; //arbitrary number larger than one
+ 
+@@ -113,7 +114,7 @@ void DiffusionSDE::process(Candidate *candidate) const {
+ 		counter += 1;
+ 
+     // Check for better break condition
+-	} while (r > 1 && fabs(propTime) >= minStep/c_light);
++	} while (r > 1 && fabs(propTime) >= minStep / vExact);
+ 
+ 
+ 	size_t stepNumber = pow(2, counter-1);
+@@ -138,15 +139,15 @@ void DiffusionSDE::process(Candidate *candidate) const {
+ 		if (advectionField){
+ 			driftStep(Pos, LinProp, h, time);
+ 			current.setPosition(Pos + LinProp);
+-	 		candidate->setCurrentStep(h*c_light);
+-	  		double newStep = 5*h*c_light;
++	 		candidate->setCurrentStep(h * vExact);
++	  		double newStep = 5 * h * vExact;
+ 			newStep = clip(newStep, minStep, maxStep);
+ 	  		candidate->setNextStep(newStep);
+ 	  		return;
+ 		}
+-		current.setPosition(Pos + dir*h*c_light);
+-	 	candidate->setCurrentStep(h*c_light);
+-		double newStep = 5*h*c_light;
++		current.setPosition(Pos + dir * h * vExact);
++	 	candidate->setCurrentStep(h * vExact);
++		double newStep = 5 * h * vExact;
+ 		newStep = clip(newStep, minStep, maxStep);
+ 	  	candidate->setNextStep(newStep);
+ 	  	return;
+@@ -196,14 +197,14 @@ void DiffusionSDE::process(Candidate *candidate) const {
+ 	DirOut = Random::instance().randConeVector(TVec, M_PI/2.);
+ 	current.setPosition(PO);
+ 	current.setDirection(DirOut);
+-	candidate->setCurrentStep(h * c_light);
++	candidate->setCurrentStep(h * vExact);
+ 
+ 	double nextStep;
+ 	if (stepNumber>1){
+-		nextStep = h*pow(stepNumber, -2.)*c_light;
++		nextStep = h * pow(stepNumber, -2.) * vExact;
+ 	}
+ 	else {
+-		nextStep = 4 * h*c_light;
++		nextStep = 4 * h * vExact;
+ 	}
+ 
+ 	candidate->setNextStep(nextStep);

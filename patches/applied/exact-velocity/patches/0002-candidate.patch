@@ -1,0 +1,44 @@
+diff --git a/src/Candidate.cpp b/src/Candidate.cpp
+index 12935ef..3d136a9 100644
+--- a/src/Candidate.cpp
++++ b/src/Candidate.cpp
+@@ -2,6 +2,7 @@
+ #include "crpropa/ParticleID.h"
+ #include "crpropa/Units.h"
+ 
++#include <algorithm>
+ #include <stdexcept>
+ 
+ namespace crpropa {
+@@ -58,7 +59,7 @@ double Candidate::getTrajectoryLength() const {
+ }
+ 
+ double Candidate::getVelocity() const {
+-	return c_light;
++	return current.getVelocityExact().getR();
+ }
+ 
+ double Candidate::getWeight() const {
+@@ -92,7 +93,8 @@ void Candidate::updateWeight(double w) {
+ void Candidate::setCurrentStep(double lstep) {
+ 	currentStep = lstep;
+ 	trajectoryLength += lstep;
+-	time += lstep / getVelocity();
++	const double v = std::max(getVelocity(), 0.);
++	time += (v > 0.) ? (lstep / v) : 0.;
+ }
+ 
+ void Candidate::setNextStep(double step) {
+@@ -172,8 +174,10 @@ void Candidate::addSecondary(int id, double energy, double w, std::string tagOri
+ void Candidate::addSecondary(int id, double energy, Vector3d position, double w, std::string tagOrigin) {
+ 	ref_ptr<Candidate> secondary = new Candidate;
+ 	secondary->setRedshift(redshift);
+-	secondary->setTrajectoryLength(trajectoryLength - (current.getPosition() - position).getR());
+-	secondary->setTime(time - (current.getPosition() - position).getR() / getVelocity());
++	const double backtrack = (current.getPosition() - position).getR();
++	secondary->setTrajectoryLength(trajectoryLength - backtrack);
++	const double v = std::max(getVelocity(), 0.);
++	secondary->setTime(time - ((v > 0.) ? (backtrack / v) : 0.));
+ 	secondary->setWeight(weight * w);
+ 	secondary->setTagOrigin(tagOrigin);
+ 	for (PropertyMap::const_iterator it = properties.begin(); it != properties.end(); ++it) {

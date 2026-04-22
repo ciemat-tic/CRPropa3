@@ -13,6 +13,7 @@
 #include "crpropa/module/EMTripletPairProduction.h"
 #include "crpropa/module/EMInverseComptonScattering.h"
 #include "crpropa/module/SynchrotronRadiation.h"
+#include "crpropa/Cosmology.h"
 #include "gtest/gtest.h"
 
 #include <fstream>
@@ -700,6 +701,103 @@ TEST(Redshift, limitRedshiftDecrease) {
 	redshift.process(&c);
 	EXPECT_DOUBLE_EQ(0, c.getRedshift());
 }
+
+
+TEST(ExactRedshift, simpleTest) {
+	ExactRedshift redshift;
+
+	Candidate c;
+	c.setRedshift(0.024);
+	c.current.setEnergy(100 * EeV);
+	c.setCurrentStep(1 * Mpc);
+
+	redshift.process(&c);
+	EXPECT_GT(0.024, c.getRedshift());
+	EXPECT_GT(100, c.current.getEnergy() / EeV);
+}
+
+TEST(ExactRedshift, nonUltrarelativisticMomentumBasedLoss) {
+	ExactRedshift exactRedshift;
+	Redshift legacyRedshift;
+
+	Candidate cExact(nucleusId(1, 1), 0.);
+	Candidate cLegacy(nucleusId(1, 1), 0.);
+
+	double m = cExact.current.getMass();
+	double E0 = 2.0 * m * c_squared; // mildly relativistic
+	cExact.current.setEnergy(E0);
+	cLegacy.current.setEnergy(E0);
+
+	cExact.setRedshift(0.024);
+	cLegacy.setRedshift(0.024);
+	cExact.setCurrentStep(1 * Mpc);
+	cLegacy.setCurrentStep(1 * Mpc);
+
+	double z0 = cExact.getRedshift();
+	double p0 = cExact.current.getMomentumExact().getR();
+	double v0 = cExact.current.getVelocityExact().getR();
+	double dz = hubbleRate(z0) / v0 * cExact.getCurrentStep();
+	dz = std::min(dz, z0);
+	double p1 = p0 * (1 - dz / (1 + z0));
+	double mc2 = m * c_squared;
+	double E1 = std::sqrt(p1 * p1 * c_squared + mc2 * mc2);
+
+	exactRedshift.process(&cExact);
+	legacyRedshift.process(&cLegacy);
+
+	EXPECT_NEAR(z0 - dz, cExact.getRedshift(), 1e-18);
+	EXPECT_NEAR(E1, cExact.current.getEnergy(), E1 * 1e-14);
+
+	EXPECT_GT(cExact.current.getEnergy(), cLegacy.current.getEnergy());
+}
+
+TEST(ExactRedshift, ultrarelativisticLimitMatchesLegacy) {
+	ExactRedshift exactRedshift;
+	Redshift legacyRedshift;
+
+	Candidate cExact(nucleusId(1, 1), 100 * EeV);
+	Candidate cLegacy(nucleusId(1, 1), 100 * EeV);
+
+	cExact.setRedshift(0.024);
+	cLegacy.setRedshift(0.024);
+	cExact.setCurrentStep(1 * Mpc);
+	cLegacy.setCurrentStep(1 * Mpc);
+
+	exactRedshift.process(&cExact);
+	legacyRedshift.process(&cLegacy);
+
+	EXPECT_NEAR(cLegacy.getRedshift(), cExact.getRedshift(), 1e-18);
+	EXPECT_NEAR(cLegacy.current.getEnergy(), cExact.current.getEnergy(),
+		cLegacy.current.getEnergy() * 1e-12);
+}
+
+TEST(ExactFutureRedshift, inverseRoundTrip) {
+	ExactRedshift exactRedshift;
+	ExactFutureRedshift exactFutureRedshift;
+
+	Candidate c(nucleusId(1, 1), 0.);
+	double m = c.current.getMass();
+	double E0 = 5.0 * m * c_squared;
+	double z0 = 0.05;
+
+	c.current.setEnergy(E0);
+	c.setRedshift(z0);
+	c.setCurrentStep(1 * Mpc);
+
+	exactRedshift.process(&c);
+	double z1 = c.getRedshift();
+	double E1 = c.current.getEnergy();
+
+	// same small step back toward larger redshift
+	c.setCurrentStep(1 * Mpc);
+	exactFutureRedshift.process(&c);
+
+	EXPECT_GT(z0, z1);
+	EXPECT_NEAR(z0, c.getRedshift(), 5e-6);
+	EXPECT_NEAR(E0, c.current.getEnergy(), E0 * 5e-6);
+	EXPECT_LT(E1, E0);
+}
+
 
 // EMPairProduction -----------------------------------------------------------
 TEST(EMPairProduction, allBackgrounds) {

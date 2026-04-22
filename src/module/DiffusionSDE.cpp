@@ -51,7 +51,8 @@ void DiffusionSDE::process(Candidate *candidate) const {
 	ParticleState &current = candidate->current;
 	candidate->previous = current;
 
-	double h = clip(candidate->getNextStep(), minStep, maxStep) / c_light;
+	double vExact = std::max(current.getVelocityExact().getR(), 1e-300);
+	double h = clip(candidate->getNextStep(), minStep, maxStep) / vExact;
 	Vector3d PosIn = current.getPosition();
 	Vector3d DirIn = current.getDirection();
 
@@ -68,14 +69,14 @@ void DiffusionSDE::process(Candidate *candidate) const {
 			driftStep(Pos, LinProp, h, time);
 		}
 
-		current.setPosition(Pos + LinProp + dir*h*c_light);
-		candidate->setCurrentStep(h * c_light);
+		current.setPosition(Pos + LinProp + dir * h * vExact);
+		candidate->setCurrentStep(h * vExact);
 		candidate->setNextStep(maxStep);
 		return;
 	}
 
 	double z = candidate->getRedshift();
-	double rig = current.getEnergy() / current.getCharge();
+	double rig = current.getRigidityExact();
 
     // Calculate the Diffusion tensor
 	double BTensor[] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
@@ -99,7 +100,7 @@ void DiffusionSDE::process(Candidate *candidate) const {
 	Vector3d DirOut = Vector3d(0.);
 
 
-	double propTime = TStep * sqrt(h) / c_light;
+	double propTime = TStep * sqrt(h) / vExact;
 	size_t counter = 0;
 	double r=42.; //arbitrary number larger than one
 
@@ -113,11 +114,11 @@ void DiffusionSDE::process(Candidate *candidate) const {
 		counter += 1;
 
     // Check for better break condition
-	} while (r > 1 && fabs(propTime) >= minStep/c_light);
+	} while (r > 1 && fabs(propTime) >= minStep / vExact);
 
 
 	size_t stepNumber = pow(2, counter-1);
-	double allowedTime = TStep * sqrt(h) / c_light / stepNumber;
+	double allowedTime = TStep * sqrt(h) / vExact / stepNumber;
 	Vector3d Start = PosIn;
 	Vector3d PosOut = Vector3d(0.);
 	Vector3d PosErr = Vector3d(0.);
@@ -138,15 +139,15 @@ void DiffusionSDE::process(Candidate *candidate) const {
 		if (advectionField){
 			driftStep(Pos, LinProp, h, time);
 			current.setPosition(Pos + LinProp);
-	 		candidate->setCurrentStep(h*c_light);
-	  		double newStep = 5*h*c_light;
+			candidate->setCurrentStep(h * vExact);
+			double newStep = 5 * h * vExact;
 			newStep = clip(newStep, minStep, maxStep);
 	  		candidate->setNextStep(newStep);
 	  		return;
 		}
-		current.setPosition(Pos + dir*h*c_light);
-	 	candidate->setCurrentStep(h*c_light);
-		double newStep = 5*h*c_light;
+		current.setPosition(Pos + dir * h * vExact);
+		candidate->setCurrentStep(h * vExact);
+		double newStep = 5 * h * vExact;
 		newStep = clip(newStep, minStep, maxStep);
 	  	candidate->setNextStep(newStep);
 	  	return;
@@ -196,14 +197,14 @@ void DiffusionSDE::process(Candidate *candidate) const {
 	DirOut = Random::instance().randConeVector(TVec, M_PI/2.);
 	current.setPosition(PO);
 	current.setDirection(DirOut);
-	candidate->setCurrentStep(h * c_light);
+	candidate->setCurrentStep(h * vExact);
 
 	double nextStep;
 	if (stepNumber>1){
-		nextStep = h*pow(stepNumber, -2.)*c_light;
+		nextStep = h * pow(stepNumber, -2.) * vExact;
 	}
 	else {
-		nextStep = 4 * h*c_light;
+		nextStep = 4 * h * vExact;
 	}
 
 	candidate->setNextStep(nextStep);

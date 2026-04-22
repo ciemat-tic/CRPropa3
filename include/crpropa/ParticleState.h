@@ -3,6 +3,8 @@
 
 #include "crpropa/Vector3.h"
 
+#include <stdexcept>
+
 namespace crpropa {
 /**
  * \addtogroup Core
@@ -13,10 +15,11 @@ namespace crpropa {
  @class ParticleState
  @brief State of the particle: ID, energy, position, direction
 
- The ParticleState defines the state of an ultra-high energy cosmic ray, which
- is assumed to be traveling at the exact speed of light.
- The cosmic ray state is defined by particle ID, energy and position and
- direction vector.
+ The ParticleState defines the state of a particle by particle ID, total energy,
+ position and direction vector.
+ Legacy helper methods keep the historical ultra-relativistic approximation
+ used throughout CRPropa, while additional exact kinematic helpers are provided
+ for modules that need finite particle velocities.
  For faster lookup mass and charge of the particle are stored as members.
  */
 class ParticleState {
@@ -66,7 +69,8 @@ public:
 	 @returns Energy of particle [in Joules]
 	 */
 	double getEnergy() const;
-	/** Get rigidity of particle, defined as E/(Z*e).
+	/** Get rigidity of particle, defined in the historical ultra-relativistic
+	 approximation as E/(Z*e).
 	 @returns Rigidity of the particle [in Volts]
 	 */
 	double getRigidity() const;
@@ -103,6 +107,31 @@ public:
 	 @returns Lorentz factor of particle
 	 */
 	double getLorentzFactor() const;
+
+
+	/** Get beta = v/c.
+	 Returns 1 for massless particles. For massive particles with energy <= m c^2,
+	 returns 0.
+	 */
+	double getBeta() const;
+
+	/** Get exact velocity: direction times beta times the speed of light.
+	 */
+	Vector3d getVelocityExact() const;
+
+	/** Get proper velocity gamma * v for massive particles.
+	 Throws std::runtime_error for massless particles.
+	 */
+	Vector3d getProperVelocity() const;
+
+	/** Get exact momentum from the relativistic invariant.
+	 */
+	Vector3d getMomentumExact() const;
+
+	/** Get exact rigidity p c / |q|.
+	 Returns +inf for neutral particles.
+	 */
+	double getRigidityExact() const;
 
 	/** Get velocity: direction times the speed of light.
 	 @returns Velocity of particle [m/s]

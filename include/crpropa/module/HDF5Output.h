@@ -65,6 +65,12 @@ class HDF5Output: public Output {
 		double Px;
 		double Py;
 		double Pz;
+		double Vx;
+		double Vy;
+		double Vz;
+		double px;
+		double py;
+		double pz;
 		uint64_t SN0;
 		int32_t ID0;
 		double E0;
@@ -74,6 +80,12 @@ class HDF5Output: public Output {
 		double P0x;
 		double P0y;
 		double P0z;
+		double V0x;
+		double V0y;
+		double V0z;
+		double p0x;
+		double p0y;
+		double p0z;
 		uint64_t SN1;
 		int32_t ID1;
 		double E1;
@@ -83,6 +95,12 @@ class HDF5Output: public Output {
 		double P1x;
 		double P1y;
 		double P1z;
+		double V1x;
+		double V1y;
+		double V1z;
+		double p1x;
+		double p1y;
+		double p1z;
 		double weight;
 		std::string tag;
 		unsigned char propertyBuffer[propertyBufferSize];

@@ -1,0 +1,138 @@
+diff --git a/include/crpropa/module/PropagationCK.h b/include/crpropa/module/PropagationCK.h
+index 11cfd1d..374d09c 100644
+--- a/include/crpropa/module/PropagationCK.h
++++ b/include/crpropa/module/PropagationCK.h
+@@ -17,7 +17,7 @@ namespace crpropa {
+  @brief Rectilinear propagation through magnetic fields using the Cash-Karp method.
+ 
+  This module solves the equations of motion of a relativistic charged particle when propagating through a magnetic field.\n
+- It uses the Runge-Kutta integration method with Cash-Karp coefficients.\n
++ It uses the Runge-Kutta integration method with Cash-Karp coefficients in phase space (x, p).\n
+  The step size control tries to keep the relative error close to, but smaller than the designated tolerance.
+  Additionally a minimum and maximum size for the steps can be set.
+  For neutral particles a rectilinear propagation is applied and a next step of the maximum step size proposed.
+@@ -26,7 +26,7 @@ class PropagationCK: public Module {
+ public:
+ 	class Y {
+ 	public:
+-		Vector3d x, u; /*< phase-point: position and direction */
++		Vector3d x, u; /*< phase-point: position and momentum */
+ 
+ 		Y() {
+ 		}
+@@ -61,16 +61,16 @@ public:
+ 	/** Constructor for the adaptive Kash Carp.
+ 	 * @param field
+ 	 * @param tolerance	 tolerance is criterion for step adjustment. Step adjustment takes place only if minStep < maxStep
+-	 * @param minStep	   minStep/c_light is the minimum integration time step
+-	 * @param maxStep	   maxStep/c_light is the maximum integration time step. 
++	 * @param minStep	   minStep/v is the minimum integration time step
++	 * @param maxStep	   maxStep/v is the maximum integration time step. 
+ 	 */
+     PropagationCK(ref_ptr<MagneticField> field = NULL, double tolerance = 1e-4,
+ 			double minStep = (0.1 * kpc), double maxStep = (1 * Gpc));
+ 
+ 	void process(Candidate *candidate) const;
+ 
+-	// derivative of phase point, dY/dt = d/dt(x, u) = (v, du/dt)
+-	// du/dt = q*c^2/E * (u x B)
++	// derivative of phase point, dY/dt = d/dt(x, p) = (v, dp/dt)
++	// v = p c^2 / E, dp/dt = q (v x B)
+ 	Y dYdt(const Y &y, ParticleState &p, double z) const;
+ 
+ 	void tryStep(const Y &y, Y &out, Y &error, double t,
+diff --git a/src/module/PropagationCK.cpp b/src/module/PropagationCK.cpp
+index 520550d..6736750 100644
+--- a/src/module/PropagationCK.cpp
++++ b/src/module/PropagationCK.cpp
+@@ -27,8 +27,7 @@ const double cash_karp_bs[] = {
+ 
+ void PropagationCK::tryStep(const Y &y, Y &out, Y &error, double h,
+ 		ParticleState &particle, double z) const {
+-	std::vector<Y> k;
+-	k.reserve(6);
++	std::vector<Y> k(6);
+ 
+ 	out = y;
+ 	error = Y(0);
+@@ -49,15 +48,26 @@ void PropagationCK::tryStep(const Y &y, Y &out, Y &error, double h,
+ }
+ 
+ PropagationCK::Y PropagationCK::dYdt(const Y &y, ParticleState &p, double z) const {
+-	// normalize direction vector to prevent numerical losses
+-	Vector3d velocity = y.u.getUnitVector() * c_light;
++	const double pabs = y.u.getR();
++	Vector3d velocity(0, 0, 0);
++	if (pabs > 0.) {
++		const double m = p.getMass();
++		double Etot = 0.;
++		if (m > 0.) {
++			const double mc2 = m * c_squared;
++			Etot = std::sqrt(pabs * pabs * c_squared + mc2 * mc2);
++		} else {
++			Etot = pabs * c_light;
++		}
++		velocity = y.u * (c_squared / Etot);
++	}
+ 	
+ 	// get B field at particle position
+ 	Vector3d B = getFieldAtPosition(y.x, z);
+ 
+-	// Lorentz force: du/dt = q*c/E * (v x B)
+-	Vector3d dudt = p.getCharge() * c_light / p.getEnergy() * velocity.cross(B);
+-	return Y(velocity, dudt);
++	// Lorentz force: dp/dt = q (v x B)
++	Vector3d dpdt = p.getCharge() * velocity.cross(B);
++	return Y(velocity, dpdt);
+ }
+ 
+ PropagationCK::PropagationCK(ref_ptr<MagneticField> field, double tolerance,
+@@ -79,7 +89,7 @@ void PropagationCK::process(Candidate *candidate) const {
+ 	ParticleState &current = candidate->current;
+ 	candidate->previous = current;
+ 
+-	Y yIn(current.getPosition(), current.getDirection());
++	Y yIn(current.getPosition(), current.getMomentumExact());
+ 	double step = maxStep;
+ 
+ 	// rectilinear propagation for neutral particles
+@@ -99,7 +109,7 @@ void PropagationCK::process(Candidate *candidate) const {
+ 	// if minStep is the same as maxStep the adaptive algorithm with its error
+ 	// estimation is not needed and the computation time can be saved:
+ 	if (minStep == maxStep){
+-		tryStep(yIn, yOut, yErr, step / c_light, current, z);
++		tryStep(yIn, yOut, yErr, step / std::max(current.getVelocityExact().getR(), 1e-300), current, z);
+ 	} else {
+ 		step = clip(candidate->getNextStep(), minStep, maxStep);
+ 		newStep = step;
+@@ -107,8 +117,8 @@ void PropagationCK::process(Candidate *candidate) const {
+ 
+ 		// try performing step until the target error (tolerance) or the minimum/maximum step size has been reached
+ 		while (true) {
+-			tryStep(yIn, yOut, yErr, step / c_light, current, z);
+-			r = yErr.u.getR() / tolerance;  // ratio of absolute direction error and tolerance
++			tryStep(yIn, yOut, yErr, step / std::max(current.getVelocityExact().getR(), 1e-300), current, z);
++			r = yErr.u.getR() / std::max(yOut.u.getR(), 1e-300) / tolerance;  // ratio of relative momentum error and tolerance
+ 			if (r > 1) {  // large direction error relative to tolerance, try to decrease step size
+ 				if (step == minStep)  // already minimum step size
+ 					break;
+@@ -130,7 +140,18 @@ void PropagationCK::process(Candidate *candidate) const {
+ 	}
+ 
+ 	current.setPosition(yOut.x);
+-	current.setDirection(yOut.u.getUnitVector());
++	if (yOut.u.getR() > 0.)
++		current.setDirection(yOut.u.getUnitVector());
++	const double pabs = yOut.u.getR();
++	const double m = current.getMass();
++	double Enew = 0.;
++	if (m > 0.) {
++		const double mc2 = m * c_squared;
++		Enew = std::sqrt(pabs * pabs * c_squared + mc2 * mc2);
++	} else {
++		Enew = pabs * c_light;
++	}
++	current.setEnergy(Enew);
+ 	candidate->setCurrentStep(step);
+ 	candidate->setNextStep(newStep);
+ }

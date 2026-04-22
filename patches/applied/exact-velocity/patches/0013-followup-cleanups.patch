@@ -1,0 +1,38 @@
+diff -urN CRPropa3-master/include/crpropa/module/DiffusionSDE.h CRPropa3-master/include/crpropa/module/DiffusionSDE.h
+--- CRPropa3-master/include/crpropa/module/DiffusionSDE.h	2026-04-17 07:39:30.444325254 +0000
++++ CRPropa3-master/include/crpropa/module/DiffusionSDE.h	2026-04-17 07:52:28.381280816 +0000
+@@ -37,8 +37,8 @@
+ private:
+ 	    ref_ptr<MagneticField> magneticField;
+ 	    ref_ptr<AdvectionField> advectionField;
+-	    double minStep; // minStep/c_light is the minimum integration timestep
+-	    double maxStep; // maxStep/c_light is the maximum integration timestep
++	    double minStep; // minStep/v is the minimum integration timestep
++	    double maxStep; // maxStep/v is the maximum integration timestep
+ 	    double tolerance; // tolerance is criterion for step adjustment. Step adjustment takes place when the tangential vector of the magnetic field line is calculated.
+ 	    double epsilon; // ratio of parallel and perpendicular diffusion coefficient D_par = epsilon*D_perp
+ 	    double alpha; // power law index of the energy dependent diffusion coefficient: D\propto E^alpha
+diff -urN CRPropa3-master/src/module/BreakCondition.cpp CRPropa3-master/src/module/BreakCondition.cpp
+--- CRPropa3-master/src/module/BreakCondition.cpp	2026-04-15 09:06:38.000000000 +0000
++++ CRPropa3-master/src/module/BreakCondition.cpp	2026-04-17 07:52:28.380604097 +0000
+@@ -107,7 +107,7 @@
+ }
+ 
+ void MinimumRigidity::process(Candidate *c) const {
+-	if (c->current.getRigidity() < minRigidity)
++	if (c->current.getRigidityExact() < minRigidity)
+ 		reject(c);
+ }
+ 
+diff -urN CRPropa3-master/src/module/DiffusionSDE.cpp CRPropa3-master/src/module/DiffusionSDE.cpp
+--- CRPropa3-master/src/module/DiffusionSDE.cpp	2026-04-17 07:39:30.444531670 +0000
++++ CRPropa3-master/src/module/DiffusionSDE.cpp	2026-04-17 07:52:28.381716617 +0000
+@@ -118,7 +118,7 @@
+ 
+ 
+ 	size_t stepNumber = pow(2, counter-1);
+-	double allowedTime = TStep * sqrt(h) / c_light / stepNumber;
++	double allowedTime = TStep * sqrt(h) / vExact / stepNumber;
+ 	Vector3d Start = PosIn;
+ 	Vector3d PosOut = Vector3d(0.);
+ 	Vector3d PosErr = Vector3d(0.);

@@ -37,7 +37,8 @@ NuclearDecay::NuclearDecay(bool electrons, bool photons, bool neutrinos, double 
 		int Z, N;
 		double lifetime;
 		stream >> Z >> N >> decay.channel >> lifetime;
-		decay.rate = 1. / lifetime / c_light; // decay rate in [1/m]
+		decay.lifetime = lifetime;
+		decay.rate = 1. / lifetime / c_light; // legacy spatial scale, kept for compatibility
 		std::vector<double> gamma;
 		double val;
 		while (stream >> val)
@@ -284,7 +285,7 @@ void NuclearDecay::nucleonEmission(Candidate *candidate, int dA, int dZ) const {
 
 }
 
-double NuclearDecay::meanFreePath(int id, double gamma) {
+double NuclearDecay::meanFreePath(int id, double gamma, double beta) {
 	if (not (isNucleus(id)))
 		return std::numeric_limits<double>::max();
 

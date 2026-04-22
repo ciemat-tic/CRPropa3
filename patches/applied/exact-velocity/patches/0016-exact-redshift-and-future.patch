@@ -1,0 +1,268 @@
+--- a/include/crpropa/module/Redshift.h
++++ b/include/crpropa/module/Redshift.h
+@@ -19,8 +19,36 @@
+ 	std::string getDescription() const;
+ };
+ 
++
+ /**
+- @class FutureRedshift
++ @class ExactRedshift
++ @brief Updates redshift and applies cosmological momentum redshifting for massive particles.
++
++ This module generalizes the legacy Redshift module to particles with exact
++ subluminal velocities. The redshift-distance relation uses the exact particle
++ speed, and the adiabatic loss is applied to the physical momentum, p \propto 1/a.
++ */
++class ExactRedshift: public Module {
++public:
++	void process(Candidate *candidate) const;
++	std::string getDescription() const;
++};
++
++/**
++ @class ExactFutureRedshift
++ @brief Reverts cosmological momentum redshifting using exact particle velocity.
++
++ This module is the inverse companion of ExactRedshift for trajectories propagated
++ toward larger redshift.
++ */
++class ExactFutureRedshift: public Module {
++public:
++	void process(Candidate *candidate) const;
++	std::string getDescription() const;
++};
++
++/**
++@class FutureRedshift
+  @brief Updates redshift and applies adiabatic energy loss according to the traveled distance. Extends to negative redshift values to allow for symmetric time windows around z=0.
+  */
+ class FutureRedshift: public Module {
+--- a/src/module/Redshift.cpp
++++ b/src/module/Redshift.cpp
+@@ -34,6 +34,87 @@
+ 	return s.str();
+ }
+ 
++
++void ExactRedshift::process(Candidate *c) const {
++	double z = c->getRedshift();
++
++	// check if z = 0
++	if (z <= std::numeric_limits<double>::min())
++		return;
++
++	// Use exact particle speed with the same small-step approximation in comoving distance.
++	double v = c->current.getVelocityExact().getR();
++	if (v <= std::numeric_limits<double>::min())
++		return;
++
++	double dz = hubbleRate(z) / v * c->getCurrentStep();
++
++	// prevent dz > z
++	dz = std::min(dz, z);
++
++	// update redshift
++	c->setRedshift(z - dz);
++
++	// Cosmological redshifting acts on physical momentum: p \propto 1 / a.
++	double p = c->current.getMomentumExact().getR();
++	double pnew = p * (1 - dz / (1 + z));
++	pnew = std::max(0.0, pnew);
++
++	double m = c->current.getMass();
++	double Enew = 0.;
++	if (m > 0.) {
++		double mc2 = m * c_squared;
++		Enew = std::sqrt(pnew * pnew * c_squared + mc2 * mc2);
++	} else {
++		Enew = pnew * c_light;
++	}
++	c->current.setEnergy(Enew);
++}
++
++std::string ExactRedshift::getDescription() const {
++	std::stringstream s;
++	s << "ExactRedshift: h0 = " << hubbleRate() / 1e5 * Mpc
++	  << ", omegaL = " << omegaL()
++	  << ", omegaM = " << omegaM()
++	  << " (momentum-based cosmological redshifting)";
++	return s.str();
++}
++
++void ExactFutureRedshift::process(Candidate *c) const {
++	double z = c->getRedshift();
++
++	double v = c->current.getVelocityExact().getR();
++	if (v <= std::numeric_limits<double>::min())
++		return;
++
++	double dz = hubbleRate(z) / v * c->getCurrentStep();
++
++	c->setRedshift(z + dz);
++
++	// Inverse of ExactRedshift on physical momentum.
++	double p = c->current.getMomentumExact().getR();
++	double pnew = p * (1 + dz / (1 + z));
++
++	double m = c->current.getMass();
++	double Enew = 0.;
++	if (m > 0.) {
++		double mc2 = m * c_squared;
++		Enew = std::sqrt(pnew * pnew * c_squared + mc2 * mc2);
++	} else {
++		Enew = pnew * c_light;
++	}
++	c->current.setEnergy(Enew);
++}
++
++std::string ExactFutureRedshift::getDescription() const {
++	std::stringstream s;
++	s << "ExactFutureRedshift: h0 = " << hubbleRate() / 1e5 * Mpc
++	  << ", omegaL = " << omegaL()
++	  << ", omegaM = " << omegaM()
++	  << " (inverse momentum-based cosmological redshifting)";
++	return s.str();
++}
++
+ void FutureRedshift::process(Candidate *c) const {
+ 	double z = c->getRedshift();
+ 
+--- a/test/testInteraction.cpp
++++ b/test/testInteraction.cpp
+@@ -701,6 +701,103 @@
+ 	EXPECT_DOUBLE_EQ(0, c.getRedshift());
+ }
+ 
++
++TEST(ExactRedshift, simpleTest) {
++	ExactRedshift redshift;
++
++	Candidate c;
++	c.setRedshift(0.024);
++	c.current.setEnergy(100 * EeV);
++	c.setCurrentStep(1 * Mpc);
++
++	redshift.process(&c);
++	EXPECT_GT(0.024, c.getRedshift());
++	EXPECT_GT(100, c.current.getEnergy() / EeV);
++}
++
++TEST(ExactRedshift, nonUltrarelativisticMomentumBasedLoss) {
++	ExactRedshift exactRedshift;
++	Redshift legacyRedshift;
++
++	Candidate cExact(nucleusId(1, 1), 0.);
++	Candidate cLegacy(nucleusId(1, 1), 0.);
++
++	double m = cExact.current.getMass();
++	double E0 = 2.0 * m * c_squared; // mildly relativistic
++	cExact.current.setEnergy(E0);
++	cLegacy.current.setEnergy(E0);
++
++	cExact.setRedshift(0.024);
++	cLegacy.setRedshift(0.024);
++	cExact.setCurrentStep(1 * Mpc);
++	cLegacy.setCurrentStep(1 * Mpc);
++
++	double z0 = cExact.getRedshift();
++	double p0 = cExact.current.getMomentumExact().getR();
++	double v0 = cExact.current.getVelocityExact().getR();
++	double dz = hubbleRate(z0) / v0 * cExact.getCurrentStep();
++	dz = std::min(dz, z0);
++	double p1 = p0 * (1 - dz / (1 + z0));
++	double mc2 = m * c_squared;
++	double E1 = std::sqrt(p1 * p1 * c_squared + mc2 * mc2);
++
++	exactRedshift.process(&cExact);
++	legacyRedshift.process(&cLegacy);
++
++	EXPECT_NEAR(z0 - dz, cExact.getRedshift(), 1e-18);
++	EXPECT_NEAR(E1, cExact.current.getEnergy(), E1 * 1e-14);
++
++	EXPECT_GT(cExact.current.getEnergy(), cLegacy.current.getEnergy());
++}
++
++TEST(ExactRedshift, ultrarelativisticLimitMatchesLegacy) {
++	ExactRedshift exactRedshift;
++	Redshift legacyRedshift;
++
++	Candidate cExact(nucleusId(1, 1), 100 * EeV);
++	Candidate cLegacy(nucleusId(1, 1), 100 * EeV);
++
++	cExact.setRedshift(0.024);
++	cLegacy.setRedshift(0.024);
++	cExact.setCurrentStep(1 * Mpc);
++	cLegacy.setCurrentStep(1 * Mpc);
++
++	exactRedshift.process(&cExact);
++	legacyRedshift.process(&cLegacy);
++
++	EXPECT_NEAR(cLegacy.getRedshift(), cExact.getRedshift(), 1e-18);
++	EXPECT_NEAR(cLegacy.current.getEnergy(), cExact.current.getEnergy(),
++		cLegacy.current.getEnergy() * 1e-12);
++}
++
++TEST(ExactFutureRedshift, inverseRoundTrip) {
++	ExactRedshift exactRedshift;
++	ExactFutureRedshift exactFutureRedshift;
++
++	Candidate c(nucleusId(1, 1), 0.);
++	double m = c.current.getMass();
++	double E0 = 5.0 * m * c_squared;
++	double z0 = 0.05;
++
++	c.current.setEnergy(E0);
++	c.setRedshift(z0);
++	c.setCurrentStep(1 * Mpc);
++
++	exactRedshift.process(&c);
++	double z1 = c.getRedshift();
++	double E1 = c.current.getEnergy();
++
++	// same small step back toward larger redshift
++	c.setCurrentStep(1 * Mpc);
++	exactFutureRedshift.process(&c);
++
++	EXPECT_GT(z0, z1);
++	EXPECT_NEAR(z0, c.getRedshift(), 5e-6);
++	EXPECT_NEAR(E0, c.current.getEnergy(), E0 * 5e-6);
++	EXPECT_LT(E1, E0);
++}
++
++
+ // EMPairProduction -----------------------------------------------------------
+ TEST(EMPairProduction, allBackgrounds) {
+ 	// Test if interaction data files are loaded.
+--- a/python/exact_redshift_example.py
++++ b/python/exact_redshift_example.py
+@@ -0,0 +1,29 @@
++#!/usr/bin/env python3
++import crpropa as crp
++
++def run(module, name, energy, redshift, step):
++    c = crp.Candidate(crp.nucleusId(1, 1), 0.)
++    c.current.setEnergy(energy)
++    c.setRedshift(redshift)
++    c.setCurrentStep(step)
++    module.process(c)
++    print(f"{name}: z -> {c.getRedshift():.12g}, E -> {c.current.getEnergy()/crp.EeV:.12g} EeV")
++
++def main():
++    redshift = 0.024
++    step = 1 * crp.Mpc
++
++    print("Ultra-relativistic example")
++    run(crp.Redshift(), "legacy", 100 * crp.EeV, redshift, step)
++    run(crp.ExactRedshift(), "exact ", 100 * crp.EeV, redshift, step)
++
++    print()
++    print("Mildly relativistic proton example")
++    ctmp = crp.Candidate(crp.nucleusId(1, 1), 0.)
++    m = ctmp.current.getMass()
++    energy = 2.0 * m * crp.c_squared
++    run(crp.Redshift(), "legacy", energy, redshift, step)
++    run(crp.ExactRedshift(), "exact ", energy, redshift, step)
++
++if __name__ == "__main__":
++    main()

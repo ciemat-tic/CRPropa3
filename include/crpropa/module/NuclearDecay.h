@@ -29,7 +29,8 @@ private:
 	bool haveNeutrinos;
 	struct DecayMode {
 		int channel; // (#beta- #beta+ #alpha #proton #neutron)
-		double rate; // decay rate in [1/m]
+		double rate; // legacy decay rate scale in [1/m]
+		double lifetime; // proper lifetime in [s]
 		std::vector<double> energy; // photon energies of ensuing gamma decays
 		std::vector<double> intensity; // probabilities of ensuing gamma decays
 	};
@@ -78,7 +79,7 @@ public:
 	 @param gamma   Lorentz factor of particle
 	 @returns The mean free path [in meters]
 	 */
-	double meanFreePath(int id, double gamma);
+	double meanFreePath(int id, double gamma, double beta);
 };
 /** @}*/
 

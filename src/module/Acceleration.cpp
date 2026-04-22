@@ -19,7 +19,7 @@ void AbstractAccelerationModule::scatter(
 	const crpropa::Vector3d &scatter_center_velocity) const {
 	// particle momentum in lab frame
 	const double E = candidate->current.getEnergy();
-	const crpropa::Vector3d p = candidate->current.getMomentum();
+	const crpropa::Vector3d p = candidate->current.getMomentumExact();
 
 	// transform to rest frame of scatter center (p: prime)
 	const double beta = scatter_center_velocity.getR() / crpropa::c_light;
@@ -96,7 +96,10 @@ DirectedFlowOfScatterCenters::DirectedFlowOfScatterCenters(
 
 double DirectedFlowOfScatterCenters::modify(double steplength, Candidate* candidate)
 {
-	double directionModifier = (-1. * __scatterVelocity.dot(candidate->current.getDirection()) + c_light) / c_light;
+	double v = candidate->current.getVelocityExact().getR();
+	if (v <= 0.)
+		return steplength;
+	double directionModifier = (-1. * __scatterVelocity.dot(candidate->current.getDirection()) + v) / v;
 	return steplength / directionModifier;
 }
 
@@ -128,14 +131,14 @@ QuasiLinearTheory::QuasiLinearTheory(double referenecEnergy,
 
 double QuasiLinearTheory::modify(double steplength, Candidate* candidate)
 {
-	if (candidate->current.getRigidity() < __minimumRigidity)
+	if (candidate->current.getRigidityExact() < __minimumRigidity)
 	{
 		return steplength * std::pow(__minimumRigidity /
 			(__referenceEnergy / eV), 2. - __turbulenceIndex);
 	}
 	else
 	{
-		return steplength * std::pow(candidate->current.getRigidity() /
+		return steplength * std::pow(candidate->current.getRigidityExact() /
 			(__referenceEnergy / eV), 2. - __turbulenceIndex);
 	}
 }

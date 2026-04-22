@@ -1,0 +1,9 @@
+diff a/test/testInteraction.cpp b/test/testInteraction.cpp	(rejected hunks)
+@@ -8,6 +8,7 @@
+ #include "crpropa/module/EMTripletPairProduction.h"
+ #include "crpropa/module/EMInverseComptonScattering.h"
+ #include "crpropa/module/SynchrotronRadiation.h"
++#include "crpropa/Cosmology.h"
+ #include "gtest/gtest.h"
+
+ using namespace crpropa;

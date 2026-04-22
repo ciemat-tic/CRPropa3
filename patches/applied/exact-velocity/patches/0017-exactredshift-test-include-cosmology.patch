@@ -1,0 +1,12 @@
+diff --git a/test/testInteraction.cpp b/test/testInteraction.cpp
+index 0c57512..0000000 100644
+--- a/test/testInteraction.cpp
++++ b/test/testInteraction.cpp
+@@ -8,6 +8,7 @@
+ #include "crpropa/module/EMTripletPairProduction.h"
+ #include "crpropa/module/EMInverseComptonScattering.h"
+ #include "crpropa/module/SynchrotronRadiation.h"
++#include "crpropa/Cosmology.h"
+ #include "gtest/gtest.h"
+
+ #include <fstream>

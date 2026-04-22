@@ -228,7 +228,8 @@ class DiffusionOneDirection(unittest.TestCase):
         Dif.process(c)
         pos = c.current.getPosition()
         self.assertEqual(pos.x, 0.)
-        self.assertAlmostEqual(pos.y, minStep/c_light*1e6)
+        expected_y = minStep / c.getVelocity() * 1e6
+        self.assertAlmostEqual(pos.y, expected_y, delta=1e-6 * expected_y)
         self.assertEqual(pos.z, 0.)
 
         # Step size is increased to maxStep

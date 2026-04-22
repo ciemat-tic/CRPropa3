@@ -1,0 +1,195 @@
+diff --git a/include/crpropa/module/HDF5Output.h b/include/crpropa/module/HDF5Output.h
+index 3c4b02c..22fb95c 100644
+--- a/include/crpropa/module/HDF5Output.h
++++ b/include/crpropa/module/HDF5Output.h
+@@ -65,6 +65,12 @@ class HDF5Output: public Output {
+ 		double Px;
+ 		double Py;
+ 		double Pz;
++		double Vx;
++		double Vy;
++		double Vz;
++		double px;
++		double py;
++		double pz;
+ 		uint64_t SN0;
+ 		int32_t ID0;
+ 		double E0;
+@@ -74,6 +80,12 @@ class HDF5Output: public Output {
+ 		double P0x;
+ 		double P0y;
+ 		double P0z;
++		double V0x;
++		double V0y;
++		double V0z;
++		double p0x;
++		double p0y;
++		double p0z;
+ 		uint64_t SN1;
+ 		int32_t ID1;
+ 		double E1;
+@@ -83,6 +95,12 @@ class HDF5Output: public Output {
+ 		double P1x;
+ 		double P1y;
+ 		double P1z;
++		double V1x;
++		double V1y;
++		double V1z;
++		double p1x;
++		double p1y;
++		double p1z;
+ 		double weight;
+ 		std::string tag;
+ 		unsigned char propertyBuffer[propertyBufferSize];
+diff --git a/include/crpropa/module/Output.h b/include/crpropa/module/Output.h
+index 863d706..25f6b93 100644
+--- a/include/crpropa/module/Output.h
++++ b/include/crpropa/module/Output.h
+@@ -28,17 +28,23 @@ namespace crpropa {
+  . ID			 CurrentIdColumn
+  . E			 CurrentEnergyColumn
+  . X/Y/Z		 CurrentPositionColumn
+- . Px/Py/Pz		 CurrentDirectionColumn
++ . nx/ny/nz		 CurrentDirectionColumn
++ . Vx/Vy/Vz		 CurrentVelocityColumn
++ . px/py/pz		 CurrentMomentumColumn
+  . SN0			 SourceSerialNumberColumn
+  . ID0			 SourceIdColumn
+  . E0			 SourceEnergyColumn
+  . X0/Y0/Z0		 SourcePositionColumn
+- . P0x/P0y/P0z	 SourceDirectionColumn
++ . n0x/n0y/n0z	 SourceDirectionColumn
++ . V0x/V0y/V0z	 SourceVelocityColumn
++ . p0x/p0y/p0z	 SourceMomentumColumn
+  . SN1			 CreatedSerialNumberColumn
+  . ID1			 CreatedIdColumn
+  . E1			 CreatedEnergyColumn
+  . X1/Y1/Z1		 CreatedPositionColumn
+- . P1x/P1y/P1z	 CreatedDirectionColumn
++ . n1x/n1y/n1z	 CreatedDirectionColumn
++ . V1x/V1y/V1z	 CreatedVelocityColumn
++ . p1x/p1y/p1z	 CreatedMomentumColumn
+  . z			 RedshiftColumn
+  . tag			 CandidateTagColumn
+  . weight		 WeightColumn
+@@ -81,14 +87,20 @@ public:
+ 		CurrentEnergyColumn,
+ 		CurrentPositionColumn,
+ 		CurrentDirectionColumn,
++		CurrentVelocityColumn,
++		CurrentMomentumColumn,
+ 		SourceIdColumn,
+ 		SourceEnergyColumn,
+ 		SourcePositionColumn,
+ 		SourceDirectionColumn,
++		SourceVelocityColumn,
++		SourceMomentumColumn,
+ 		CreatedIdColumn,
+ 		CreatedEnergyColumn,
+ 		CreatedPositionColumn,
+ 		CreatedDirectionColumn,
++		CreatedVelocityColumn,
++		CreatedMomentumColumn,
+ 		CandidateTagColumn,
+ 		SerialNumberColumn,
+ 		WeightColumn,
+diff --git a/src/module/HDF5Output.cpp b/src/module/HDF5Output.cpp
+index d90c79e..ffe4888 100644
+--- a/src/module/HDF5Output.cpp
++++ b/src/module/HDF5Output.cpp
+@@ -128,6 +128,16 @@ void HDF5Output::open(const std::string& filename) {
+ 		H5Tinsert(sid, "Py", HOFFSET(OutputRow, Py), H5T_NATIVE_DOUBLE);
+ 		H5Tinsert(sid, "Pz", HOFFSET(OutputRow, Pz), H5T_NATIVE_DOUBLE);
+ 	}
++	if (fields.test(CurrentVelocityColumn) && not oneDimensional) {
++		H5Tinsert(sid, "Vx", HOFFSET(OutputRow, Vx), H5T_NATIVE_DOUBLE);
++		H5Tinsert(sid, "Vy", HOFFSET(OutputRow, Vy), H5T_NATIVE_DOUBLE);
++		H5Tinsert(sid, "Vz", HOFFSET(OutputRow, Vz), H5T_NATIVE_DOUBLE);
++	}
++	if (fields.test(CurrentMomentumColumn) && not oneDimensional) {
++		H5Tinsert(sid, "px", HOFFSET(OutputRow, px), H5T_NATIVE_DOUBLE);
++		H5Tinsert(sid, "py", HOFFSET(OutputRow, py), H5T_NATIVE_DOUBLE);
++		H5Tinsert(sid, "pz", HOFFSET(OutputRow, pz), H5T_NATIVE_DOUBLE);
++	}
+ 	if (fields.test(SerialNumberColumn))
+ 		H5Tinsert(sid, "SN0", HOFFSET(OutputRow, SN0), H5T_NATIVE_UINT64);
+ 	if (fields.test(SourceIdColumn))
+@@ -146,6 +156,16 @@ void HDF5Output::open(const std::string& filename) {
+ 		H5Tinsert(sid, "P0y", HOFFSET(OutputRow, P0y), H5T_NATIVE_DOUBLE);
+ 		H5Tinsert(sid, "P0z", HOFFSET(OutputRow, P0z), H5T_NATIVE_DOUBLE);
+ 	}
++	if (fields.test(SourceVelocityColumn) && not oneDimensional) {
++		H5Tinsert(sid, "V0x", HOFFSET(OutputRow, V0x), H5T_NATIVE_DOUBLE);
++		H5Tinsert(sid, "V0y", HOFFSET(OutputRow, V0y), H5T_NATIVE_DOUBLE);
++		H5Tinsert(sid, "V0z", HOFFSET(OutputRow, V0z), H5T_NATIVE_DOUBLE);
++	}
++	if (fields.test(SourceMomentumColumn) && not oneDimensional) {
++		H5Tinsert(sid, "p0x", HOFFSET(OutputRow, p0x), H5T_NATIVE_DOUBLE);
++		H5Tinsert(sid, "p0y", HOFFSET(OutputRow, p0y), H5T_NATIVE_DOUBLE);
++		H5Tinsert(sid, "p0z", HOFFSET(OutputRow, p0z), H5T_NATIVE_DOUBLE);
++	}
+ 	if (fields.test(SerialNumberColumn))
+ 		H5Tinsert(sid, "SN1", HOFFSET(OutputRow, SN1), H5T_NATIVE_UINT64);
+ 	if (fields.test(CreatedIdColumn))
+@@ -164,6 +184,16 @@ void HDF5Output::open(const std::string& filename) {
+ 		H5Tinsert(sid, "P1y", HOFFSET(OutputRow, P1y), H5T_NATIVE_DOUBLE);
+ 		H5Tinsert(sid, "P1z", HOFFSET(OutputRow, P1z), H5T_NATIVE_DOUBLE);
+ 	}
++	if (fields.test(CreatedVelocityColumn) && not oneDimensional) {
++		H5Tinsert(sid, "V1x", HOFFSET(OutputRow, V1x), H5T_NATIVE_DOUBLE);
++		H5Tinsert(sid, "V1y", HOFFSET(OutputRow, V1y), H5T_NATIVE_DOUBLE);
++		H5Tinsert(sid, "V1z", HOFFSET(OutputRow, V1z), H5T_NATIVE_DOUBLE);
++	}
++	if (fields.test(CreatedMomentumColumn) && not oneDimensional) {
++		H5Tinsert(sid, "p1x", HOFFSET(OutputRow, p1x), H5T_NATIVE_DOUBLE);
++		H5Tinsert(sid, "p1y", HOFFSET(OutputRow, p1y), H5T_NATIVE_DOUBLE);
++		H5Tinsert(sid, "p1z", HOFFSET(OutputRow, p1z), H5T_NATIVE_DOUBLE);
++	}
+ 	if (fields.test(WeightColumn))
+ 		H5Tinsert(sid, "W", HOFFSET(OutputRow, weight), H5T_NATIVE_DOUBLE);
+ 	
+@@ -275,6 +305,14 @@ void HDF5Output::process(Candidate* candidate) const {
+ 	r.Px = v.x;
+ 	r.Py = v.y;
+ 	r.Pz = v.z;
++	v = candidate->current.getVelocityExact();
++	r.Vx = v.x;
++	r.Vy = v.y;
++	r.Vz = v.z;
++	v = candidate->current.getMomentumExact();
++	r.px = v.x;
++	r.py = v.y;
++	r.pz = v.z;
+ 
+ 	r.SN0 = candidate->getSourceSerialNumber();
+ 	r.ID0 = candidate->source.getId();
+@@ -287,6 +325,14 @@ void HDF5Output::process(Candidate* candidate) const {
+ 	r.P0x = v.x;
+ 	r.P0y = v.y;
+ 	r.P0z = v.z;
++	v = candidate->source.getVelocityExact();
++	r.V0x = v.x;
++	r.V0y = v.y;
++	r.V0z = v.z;
++	v = candidate->source.getMomentumExact();
++	r.p0x = v.x;
++	r.p0y = v.y;
++	r.p0z = v.z;
+ 
+ 	r.SN1 = candidate->getCreatedSerialNumber();
+ 	r.ID1 = candidate->created.getId();
+@@ -299,6 +345,14 @@ void HDF5Output::process(Candidate* candidate) const {
+ 	r.P1x = v.x;
+ 	r.P1y = v.y;
+ 	r.P1z = v.z;
++	v = candidate->created.getVelocityExact();
++	r.V1x = v.x;
++	r.V1y = v.y;
++	r.V1z = v.z;
++	v = candidate->created.getMomentumExact();
++	r.p1x = v.x;
++	r.p1y = v.y;
++	r.p1z = v.z;
+ 
+ 	r.weight= candidate->getWeight();
+ 

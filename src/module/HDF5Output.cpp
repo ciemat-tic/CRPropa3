@@ -128,6 +128,16 @@ void HDF5Output::open(const std::string& filename) {
 		H5Tinsert(sid, "Py", HOFFSET(OutputRow, Py), H5T_NATIVE_DOUBLE);
 		H5Tinsert(sid, "Pz", HOFFSET(OutputRow, Pz), H5T_NATIVE_DOUBLE);
 	}
+	if (fields.test(CurrentVelocityColumn) && not oneDimensional) {
+		H5Tinsert(sid, "Vx", HOFFSET(OutputRow, Vx), H5T_NATIVE_DOUBLE);
+		H5Tinsert(sid, "Vy", HOFFSET(OutputRow, Vy), H5T_NATIVE_DOUBLE);
+		H5Tinsert(sid, "Vz", HOFFSET(OutputRow, Vz), H5T_NATIVE_DOUBLE);
+	}
+	if (fields.test(CurrentMomentumColumn) && not oneDimensional) {
+		H5Tinsert(sid, "px", HOFFSET(OutputRow, px), H5T_NATIVE_DOUBLE);
+		H5Tinsert(sid, "py", HOFFSET(OutputRow, py), H5T_NATIVE_DOUBLE);
+		H5Tinsert(sid, "pz", HOFFSET(OutputRow, pz), H5T_NATIVE_DOUBLE);
+	}
 	if (fields.test(SerialNumberColumn))
 		H5Tinsert(sid, "SN0", HOFFSET(OutputRow, SN0), H5T_NATIVE_UINT64);
 	if (fields.test(SourceIdColumn))
@@ -146,6 +156,16 @@ void HDF5Output::open(const std::string& filename) {
 		H5Tinsert(sid, "P0y", HOFFSET(OutputRow, P0y), H5T_NATIVE_DOUBLE);
 		H5Tinsert(sid, "P0z", HOFFSET(OutputRow, P0z), H5T_NATIVE_DOUBLE);
 	}
+	if (fields.test(SourceVelocityColumn) && not oneDimensional) {
+		H5Tinsert(sid, "V0x", HOFFSET(OutputRow, V0x), H5T_NATIVE_DOUBLE);
+		H5Tinsert(sid, "V0y", HOFFSET(OutputRow, V0y), H5T_NATIVE_DOUBLE);
+		H5Tinsert(sid, "V0z", HOFFSET(OutputRow, V0z), H5T_NATIVE_DOUBLE);
+	}
+	if (fields.test(SourceMomentumColumn) && not oneDimensional) {
+		H5Tinsert(sid, "p0x", HOFFSET(OutputRow, p0x), H5T_NATIVE_DOUBLE);
+		H5Tinsert(sid, "p0y", HOFFSET(OutputRow, p0y), H5T_NATIVE_DOUBLE);
+		H5Tinsert(sid, "p0z", HOFFSET(OutputRow, p0z), H5T_NATIVE_DOUBLE);
+	}
 	if (fields.test(SerialNumberColumn))
 		H5Tinsert(sid, "SN1", HOFFSET(OutputRow, SN1), H5T_NATIVE_UINT64);
 	if (fields.test(CreatedIdColumn))
@@ -163,6 +183,16 @@ void HDF5Output::open(const std::string& filename) {
 		H5Tinsert(sid, "P1x", HOFFSET(OutputRow, P1x), H5T_NATIVE_DOUBLE);
 		H5Tinsert(sid, "P1y", HOFFSET(OutputRow, P1y), H5T_NATIVE_DOUBLE);
 		H5Tinsert(sid, "P1z", HOFFSET(OutputRow, P1z), H5T_NATIVE_DOUBLE);
+	}
+	if (fields.test(CreatedVelocityColumn) && not oneDimensional) {
+		H5Tinsert(sid, "V1x", HOFFSET(OutputRow, V1x), H5T_NATIVE_DOUBLE);
+		H5Tinsert(sid, "V1y", HOFFSET(OutputRow, V1y), H5T_NATIVE_DOUBLE);
+		H5Tinsert(sid, "V1z", HOFFSET(OutputRow, V1z), H5T_NATIVE_DOUBLE);
+	}
+	if (fields.test(CreatedMomentumColumn) && not oneDimensional) {
+		H5Tinsert(sid, "p1x", HOFFSET(OutputRow, p1x), H5T_NATIVE_DOUBLE);
+		H5Tinsert(sid, "p1y", HOFFSET(OutputRow, p1y), H5T_NATIVE_DOUBLE);
+		H5Tinsert(sid, "p1z", HOFFSET(OutputRow, p1z), H5T_NATIVE_DOUBLE);
 	}
 	if (fields.test(WeightColumn))
 		H5Tinsert(sid, "W", HOFFSET(OutputRow, weight), H5T_NATIVE_DOUBLE);
@@ -275,6 +305,14 @@ void HDF5Output::process(Candidate* candidate) const {
 	r.Px = v.x;
 	r.Py = v.y;
 	r.Pz = v.z;
+	v = candidate->current.getVelocityExact();
+	r.Vx = v.x;
+	r.Vy = v.y;
+	r.Vz = v.z;
+	v = candidate->current.getMomentumExact();
+	r.px = v.x;
+	r.py = v.y;
+	r.pz = v.z;
 
 	r.SN0 = candidate->getSourceSerialNumber();
 	r.ID0 = candidate->source.getId();
@@ -287,6 +325,14 @@ void HDF5Output::process(Candidate* candidate) const {
 	r.P0x = v.x;
 	r.P0y = v.y;
 	r.P0z = v.z;
+	v = candidate->source.getVelocityExact();
+	r.V0x = v.x;
+	r.V0y = v.y;
+	r.V0z = v.z;
+	v = candidate->source.getMomentumExact();
+	r.p0x = v.x;
+	r.p0y = v.y;
+	r.p0z = v.z;
 
 	r.SN1 = candidate->getCreatedSerialNumber();
 	r.ID1 = candidate->created.getId();
@@ -299,6 +345,14 @@ void HDF5Output::process(Candidate* candidate) const {
 	r.P1x = v.x;
 	r.P1y = v.y;
 	r.P1z = v.z;
+	v = candidate->created.getVelocityExact();
+	r.V1x = v.x;
+	r.V1y = v.y;
+	r.V1z = v.z;
+	v = candidate->created.getMomentumExact();
+	r.p1x = v.x;
+	r.p1y = v.y;
+	r.p1z = v.z;
 
 	r.weight= candidate->getWeight();
 

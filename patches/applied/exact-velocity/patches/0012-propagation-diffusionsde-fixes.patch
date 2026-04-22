@@ -1,0 +1,155 @@
+diff -urN a/include/crpropa/module/PropagationBP.h b/include/crpropa/module/PropagationBP.h
+--- a/include/crpropa/module/PropagationBP.h	2026-04-17 07:39:30.426948349 +0000
++++ b/include/crpropa/module/PropagationBP.h	2026-04-17 07:39:31.288564226 +0000
+@@ -86,7 +86,7 @@
+ 	 * @param E		current total energy of the candidate
+ 	 * @return	  return the new calculated position and momentum of the candidate
+ 	 */
+-	Y dY(Vector3d  pos, Vector3d  mom, double dt, double z, double q, double E) const;
++	Y dY(Vector3d  pos, Vector3d  mom, double dt, double z, double q, double m) const;
+ 
+ 	/** comparison of the position after one step with the position after two steps with step/2.
+ 	 * @param x1	position after one step of size step
+@@ -111,9 +111,9 @@
+ 	 * @param p		 current particle state
+ 	 * @param z		 current red shift
+ 	 * @param q		 current charge of the candidate 
+-	 * @param E		 current total energy of the candidate
++	 * @param m		 current rest mass of the candidate
+ 	 */
+-	void tryStep(const Y &y, Y &out, Y &error, double h, ParticleState &p, double z, double q, double E) const;
++	void tryStep(const Y &y, Y &out, Y &error, double h, ParticleState &p, double z, double q, double m) const;
+ 
+ 	/** Set functions for the parameters of the class PropagationBP */
+ 
+diff -urN a/src/module/PropagationBP.cpp b/src/module/PropagationBP.cpp
+--- a/src/module/PropagationBP.cpp	2026-04-17 07:39:30.427057952 +0000
++++ b/src/module/PropagationBP.cpp	2026-04-17 07:39:31.305241308 +0000
+@@ -6,18 +6,27 @@
+ 
+ namespace crpropa {
+ 	void PropagationBP::tryStep(const Y &y, Y &out, Y &error, double h,
+-			ParticleState &particle, double z, double q, double E) const {
+-		out = dY(y.x, y.u, h, z, q, E);  // 1 step with h
++			ParticleState &particle, double z, double q, double m) const {
++		out = dY(y.x, y.u, h, z, q, m);  // 1 step with h
+ 
+-		Y outHelp = dY(y.x, y.u, h/2, z, q, E);  // 2 steps with h/2
+-		Y outCompare = dY(outHelp.x, outHelp.u, h/2, z, q, E);
++		Y outHelp = dY(y.x, y.u, h/2, z, q, m);  // 2 steps with h/2
++		Y outCompare = dY(outHelp.x, outHelp.u, h/2, z, q, m);
+ 
+ 		error = errorEstimation(out.x , outCompare.x , h);
+ 	}
+ 
+ 
+ 	PropagationBP::Y PropagationBP::dY(Vector3d pos, Vector3d mom, double dt,
+-			double z, double q, double E) const {
++			double z, double q, double m) const {
++		const double pabs = mom.getR();
++		double E = 0.;
++		if (m > 0.) {
++			const double mc2 = m * c_squared;
++			E = std::sqrt(pabs * pabs * c_squared + mc2 * mc2);
++		} else {
++			E = pabs * c_light;
++		}
++
+ 		Vector3d vel = (E > 0.) ? mom * (c_squared / E) : Vector3d(0,0,0);
+ 		// half leap frog step in the position
+ 		pos += vel * dt / 2.;
+@@ -26,7 +35,7 @@
+ 		Vector3d B = getFieldAtPosition(pos, z);
+ 
+ 		// Boris help vectors
+-		Vector3d t = B * q * dt * c_squared / (2. * E);
++		Vector3d t = (E > 0.) ? B * q * dt * c_squared / (2. * E) : Vector3d(0,0,0);
+ 		Vector3d s = t * 2 / (1 + t.dot(t));
+ 		Vector3d p_help;
+ 
+@@ -35,6 +44,13 @@
+ 		mom = mom + p_help.cross(s);
+ 
+ 		// the other half leap frog step in the position
++		const double pabs2 = mom.getR();
++		if (m > 0.) {
++			const double mc2 = m * c_squared;
++			E = std::sqrt(pabs2 * pabs2 * c_squared + mc2 * mc2);
++		} else {
++			E = pabs2 * c_light;
++		}
+ 		vel = (E > 0.) ? mom * (c_squared / E) : Vector3d(0,0,0);
+ 		pos += vel * dt / 2.;
+ 		return Y(pos, mom);
+@@ -75,7 +91,7 @@
+ 		// rectilinear propagation for neutral particles
+ 		if (q == 0) {
+ 			step = clip(candidate->getNextStep(), minStep, maxStep);
+-			current.setPosition(yIn.x + yIn.u * step);
++			current.setPosition(yIn.x + current.getDirection() * step);
+ 			candidate->setCurrentStep(step);
+ 			candidate->setNextStep(maxStep);
+ 			return;
+@@ -84,12 +100,12 @@
+ 		Y yOut, yErr;
+ 		double newStep = step;
+ 		double z = candidate->getRedshift();
+-		double E = current.getEnergy();
++		double m = current.getMass();
+ 
+ 		// if minStep is the same as maxStep the adaptive algorithm with its error
+ 		// estimation is not needed and the computation time can be saved:
+ 		if (minStep == maxStep){
+-			yOut = dY(yIn.x, yIn.u, step / std::max(current.getVelocityExact().getR(), 1e-300), z, q, E);
++			yOut = dY(yIn.x, yIn.u, step / std::max(current.getVelocityExact().getR(), 1e-300), z, q, m);
+ 		} else {
+ 			step = clip(candidate->getNextStep(), minStep, maxStep);
+ 			newStep = step;
+@@ -97,7 +113,7 @@
+ 
+ 			// try performing step until the target error (tolerance) or the minimum/maximum step size has been reached
+ 			while (true) {
+-				tryStep(yIn, yOut, yErr, step / std::max(current.getVelocityExact().getR(), 1e-300), current, z, q, E);
++				tryStep(yIn, yOut, yErr, step / std::max(current.getVelocityExact().getR(), 1e-300), current, z, q, m);
+ 				r = yErr.x.getR() / std::max(step, 1e-300) / tolerance;  // ratio of absolute direction error and tolerance
+ 				if (r > 1) {  // large direction error relative to tolerance, try to decrease step size
+ 					if (step == minStep)  // already minimum step size
+@@ -123,10 +139,10 @@
+ 		if (yOut.u.getR() > 0.)
+ 			current.setDirection(yOut.u.getUnitVector());
+ 		const double pabs = yOut.u.getR();
+-		const double m = current.getMass();
++		const double mfinal = current.getMass();
+ 		double Enew = 0.;
+-		if (m > 0.) {
+-			const double mc2 = m * c_squared;
++		if (mfinal > 0.) {
++			const double mc2 = mfinal * c_squared;
+ 			Enew = std::sqrt(pabs * pabs * c_squared + mc2 * mc2);
+ 		} else {
+ 			Enew = pabs * c_light;
+diff -urN a/src/module/PropagationCK.cpp b/src/module/PropagationCK.cpp
+--- a/src/module/PropagationCK.cpp	2026-04-17 07:39:30.413186807 +0000
++++ b/src/module/PropagationCK.cpp	2026-04-17 07:39:31.318857527 +0000
+@@ -95,7 +95,7 @@
+ 	// rectilinear propagation for neutral particles
+ 	if (current.getCharge() == 0) {
+ 		step = clip(candidate->getNextStep(), minStep, maxStep);
+-		current.setPosition(yIn.x + yIn.u * step);
++		current.setPosition(yIn.x + current.getDirection() * step);
+ 		candidate->setCurrentStep(step);
+ 		candidate->setNextStep(maxStep);
+ 		return;
+diff -urN a/test/testDiffusionSDE.py b/test/testDiffusionSDE.py
+--- a/test/testDiffusionSDE.py	2026-04-15 09:06:38.000000000 +0000
++++ b/test/testDiffusionSDE.py	2026-04-17 07:39:31.333832927 +0000
+@@ -228,7 +228,8 @@
+         Dif.process(c)
+         pos = c.current.getPosition()
+         self.assertEqual(pos.x, 0.)
+-        self.assertAlmostEqual(pos.y, minStep/c_light*1e6)
++        expected_y = minStep / c.getVelocity() * 1e6
++        self.assertAlmostEqual(pos.y, expected_y, delta=1e-6 * expected_y)
+         self.assertEqual(pos.z, 0.)
+ 
+         # Step size is increased to maxStep
