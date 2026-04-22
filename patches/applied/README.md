@@ -1,40 +1,40 @@
 # TextOutput precision bundle
 
-Incluye todo en un mismo zip:
+Includes: everything in a single zip:
 
 - `0001-textoutput-precision.patch`
-  - añade `TextOutput::setPrecision(int)`
-  - añade `TextOutput::getPrecision() const`
-  - mantiene la precisión por defecto en `5`
-  - permite imprimir con mayor precisión en texto, por ejemplo `17`
+  - adds `TextOutput::setPrecision(int)`
+  - adds `TextOutput::getPrecision() const`
+  - keeps the default precision at `5`
+  - allows printing with higher precision in text output, for example `17`
 
 - `0002-textoutput-python-test.patch`
-  - añade un test Python que comprueba que `setPrecision/getPrecision` están disponibles desde Python
+  - adds a Python test that checks that `setPrecision/getPrecision` are available from Python
 
-## Nota sobre Python bindings
+## Note on Python bindings
 
-No hace falta parchear `python/2_headers.i` para exponer estos métodos.
-`TextOutput.h` ya está incluido desde SWIG con:
+There is no need to patch `python/2_headers.i` to expose these methods.  
+`TextOutput.h` is already included by SWIG through:
 
 `%include "crpropa/module/TextOutput.h"`
 
-por lo que, tras recompilar la extensión Python, los nuevos métodos públicos quedan disponibles automáticamente.
+so, after rebuilding the Python extension, the new public methods become available automatically.
 
-## Aplicación
+## Applying the patches
 
 ```bash
 git apply patches/0001-textoutput-precision.patch
 git apply patches/0002-textoutput-python-test.patch
 ```
 
-## Uso en C++
+## Usage in C++
 
 ```cpp
 crpropa::TextOutput out("output.txt");
 out.setPrecision(17);
 ```
 
-## Uso en Python
+## Usage in Python
 
 ```python
 import crpropa as crp
@@ -42,7 +42,7 @@ out = crp.TextOutput("output.txt")
 out.setPrecision(17)
 ```
 
-## Verificación
+## Verification
 
 ```bash
 ctest -R testOutput --output-on-failure
