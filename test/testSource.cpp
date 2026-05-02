@@ -35,25 +35,25 @@ TEST(SourceMultiplePositions, simpleTest) {
 
 TEST(SourceUniformSphere, simpleTest) {
 	Vector3d center(0, 0, 0);
-	double radius = 110;
+	long double radius = 110;
 	SourceUniformSphere source(center, radius);
 	ParticleState ps;
 	source.prepareParticle(ps);
-	double distance = ps.getPosition().getDistanceTo(center);
+	long double distance = ps.getPosition().getDistanceTo(center);
 	EXPECT_GE(radius, distance);
 }
 
 TEST(SourceUniformHollowSphere, simpleTest) {
 	Vector3d center(0, 0, 0);
-	double radius_inner = 50;
-	double radius_outer = 110;
+	long double radius_inner = 50;
+	long double radius_outer = 110;
 	SourceUniformHollowSphere source(center,
 			radius_inner,
 			radius_outer);
 	for (int i=0; i < 100; ++i) {
 		ParticleState ps;
 		source.prepareParticle(ps);
-		double distance = ps.getPosition().getDistanceTo(center);
+		long double distance = ps.getPosition().getDistanceTo(center);
 		EXPECT_GE(radius_outer, distance);
 		EXPECT_LE(radius_inner, distance);
 	}
@@ -76,32 +76,32 @@ TEST(SourceUniformBox, simpleTest) {
 
 TEST(SourceUniformCylinder, simpleTest) {
 	Vector3d center(0, 0, 0);
-	double radius = 15;
-	double height = 2;
+	long double radius = 15;
+	long double height = 2;
 	SourceUniformCylinder cylinder(center, height, radius);
 	ParticleState ps;
 	cylinder.prepareParticle(ps);
 	Vector3d pos = ps.getPosition();
-	double R2 = pos.x*pos.x+pos.y*pos.y;
-	double H = pow(pos.z*pos.z, 0.5);
+	long double R2 = pos.x*pos.x+pos.y*pos.y;
+	long double H = pow(pos.z*pos.z, 0.5);
 	EXPECT_GE(radius*radius, R2);
 	EXPECT_GE(height/2., H);
 }
 
 TEST(SourceSNRDistribution, simpleTest) {
-	double R_earth = 8.5*kpc;
-	double alpha = 2.0;
-	double beta = 3.53;
-	double Z_G = 0.3*kpc;
+	long double R_earth = 8.5*kpc;
+	long double alpha = 2.0;
+	long double beta = 3.53;
+	long double Z_G = 0.3*kpc;
 	SourceSNRDistribution snr(R_earth,alpha, beta, Z_G);
 	ParticleState ps;
 	snr.prepareParticle(ps);
 	Vector3d pos = ps.getPosition();
-	double R2 = pos.x*pos.x+pos.y*pos.y;
+	long double R2 = pos.x*pos.x+pos.y*pos.y;
 	EXPECT_GE(20*kpc*20*kpc, R2); // radius must be smaller than 20 kpc
 	
-	double R2_mean = 0.;
-	double Z_mean = 0.;
+	long double R2_mean = 0.;
+	long double Z_mean = 0.;
 	for (size_t i=0; i<100000; i++) {
 		snr.prepareParticle(ps);
 		Vector3d pos = ps.getPosition();
@@ -118,7 +118,7 @@ TEST(SourceDensityGrid, withInRange) {
 	// Create a grid with 10^3 cells ranging from (0, 0, 0) to (10, 10, 10)
 	Vector3d origin(0, 0, 0);
 	int cells = 10;
-	double spacing = 1;
+	long double spacing = 1;
 	auto grid = new Grid1f(origin, cells, spacing);
 	for (int ix = 0; ix < cells; ix++)
 		for (int iy = 0; iy < cells; iy++)
@@ -144,7 +144,7 @@ TEST(SourceDensityGrid, OneAllowedCell) {
 	// Create a grid with 2^3 cells ranging from (0, 0, 0) to (4, 4, 4)
 	Vector3d origin(0, 0, 0);
 	int cells = 2;
-	double spacing = 2;
+	long double spacing = 2;
 	auto grid = new Grid1f(origin, cells, spacing);
 	
 	// set all but one cells to 0
@@ -184,7 +184,7 @@ TEST(SourceDensityGrid1D, withInRange) {
 	// Create a grid with 10 cells ranging from 0 to 10
 	Vector3d origin(0, 0, 0);
 	int nCells = 10;
-	double spacing = 1.;
+	long double spacing = 1.;
 	auto grid = new Grid1f(origin, nCells, 1, 1, spacing);
 
 	// set some values
@@ -206,7 +206,7 @@ TEST(SourceDensityGrid1D, OneAllowedCell) {
 	// Test if the only allowed cells is repeatedly selected
 	Vector3d origin(0, 0, 0);
 	int nCells = 10;
-	double spacing = 1.;
+	long double spacing = 1.;
 	auto grid = new Grid1f(origin, nCells, 1, 1, spacing);
 
 	// set some values
@@ -228,9 +228,9 @@ TEST(SourceDensityGrid1D, OneAllowedCell) {
 }
 
 TEST(SourcePowerLawSpectrum, simpleTest) {
-	double Emin = 4 * EeV;
-	double Emax = 200 * EeV;
-	double index = -2.7;
+	long double Emin = 4 * EeV;
+	long double Emax = 200 * EeV;
+	long double index = -2.7;
 	SourcePowerLawSpectrum spectrum(Emin, Emax, index);
 	ParticleState ps;
 	spectrum.prepareParticle(ps);
@@ -241,9 +241,9 @@ TEST(SourcePowerLawSpectrum, simpleTest) {
 }
 
 TEST(SourceComposition, simpleTest) {
-	double Emin = 10;
-	double Rmax = 100;
-	double index = -1;
+	long double Emin = 10;
+	long double Rmax = 100;
+	long double index = -1;
 	SourceComposition source(Emin, Rmax, index);
 	source.add(nucleusId(6, 3), 1);
 	ParticleState p;
@@ -255,14 +255,14 @@ TEST(SourceComposition, simpleTest) {
 
 TEST(SourceDirectedEmission, simpleTest) {
 	Vector3d mu(1., 0., 0.);
-	double kappa = 1000.;
+	long double kappa = 1000.;
 	SourceDirectedEmission source(mu, kappa);
 	Candidate c;
 	Vector3d meanDir(0., 0., 0.);
 	for (size_t i = 0; i < 1000; i++) {
 		source.prepareCandidate(c);
 		meanDir += c.source.getDirection();
-		double w = c.getWeight();
+		long double w = c.getWeight();
 		EXPECT_GE(w, 0.);
 	}
 	meanDir /= 1000.;
@@ -273,20 +273,20 @@ TEST(SourceDirectedEmission, simpleTest) {
 
 TEST(SourceEmissionCone, simpleTest) {
 	Vector3d direction(42., 0., 0.);
-	double aperture = 1/42.;
+	long double aperture = 1/42.;
 	
 	SourceEmissionCone source(direction, aperture);
 	
 	ParticleState p;
 	source.prepareParticle(p);
-	double angle = direction.getAngleTo(p.getDirection());
+	long double angle = direction.getAngleTo(p.getDirection());
 	EXPECT_LE(angle, aperture);
 }
 
 #ifdef CRPROPA_HAVE_MUPARSER
 TEST(SourceGenericComposition, simpleTest) {
-	double Emin = 10;
-	double Emax = 100;
+	long double Emin = 10;
+	long double Emax = 100;
 	SourceGenericComposition source(Emin, Emax, "E^-2");
 	int id1 = nucleusId(6, 3);
 	int id2 = nucleusId(12, 6);
@@ -302,7 +302,7 @@ TEST(SourceGenericComposition, simpleTest) {
 			id1Count++;
 		if (p.getId() == id2)
 			id2Count++;
-		double e = p.getEnergy();
+		long double e = p.getEnergy();
 		if ( (e >= Emin) && (e < 20))
 			ElowCount++;
 		if ( (e >= 20) && (e <= Emax))
@@ -325,8 +325,8 @@ TEST(SourceComposition, throwNoIsotope) {
 TEST(SourceRedshiftEvolution, testInRange) {
 	Candidate c;
 
-	double zmin = 0.5;
-	double zmax = 2.5;
+	long double zmin = 0.5;
+	long double zmax = 2.5;
 
 	// general case: m
 	SourceRedshiftEvolution source1(3.2, zmin, zmax);
@@ -416,7 +416,7 @@ TEST(SourceList, luminosity) {
 	source2->add(new SourceEnergy(0));
 	sourceList.add(source2, 20);
 
-	double meanE = 0;
+	long double meanE = 0;
 	for (int i = 0; i < 1000; i++) {
 		ref_ptr<Candidate> c = sourceList.getCandidate();
 		meanE += c->created.getEnergy();

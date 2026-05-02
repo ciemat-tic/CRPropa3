@@ -7,51 +7,51 @@
 
 namespace crpropa {
 
-double Nakanishi::getHIScaleheight(const Vector3d &position) const {
-	double R = sqrt(pow_integer<2>(position.x)+pow_integer<2>(position.y));	 // radius in galactic plane
-	double scaleheight = 1.06*pc*(116.3 +19.3*R/kpc+4.1*pow_integer<2>(R/kpc)-0.05*pow_integer<3>(R/kpc));
+long double Nakanishi::getHIScaleheight(const Vector3d &position) const {
+	long double R = sqrt(pow_integer<2>(position.x)+pow_integer<2>(position.y));	 // radius in galactic plane
+	long double scaleheight = 1.06*pc*(116.3 +19.3*R/kpc+4.1*pow_integer<2>(R/kpc)-0.05*pow_integer<3>(R/kpc));
 	return scaleheight;
 	}
 
-double Nakanishi::getHIPlanedensity(const Vector3d &position) const {
-	double R = sqrt(pow_integer<2>(position.x)+pow_integer<2>(position.y));	 // radius in galactic plane
-	double planedensity = 0.94/ccm*(0.6*exp(-R/(2.4*kpc))+0.24*exp(-pow_integer<2>((R-9.5*kpc)/(4.8*kpc))));
+long double Nakanishi::getHIPlanedensity(const Vector3d &position) const {
+	long double R = sqrt(pow_integer<2>(position.x)+pow_integer<2>(position.y));	 // radius in galactic plane
+	long double planedensity = 0.94/ccm*(0.6*exp(-R/(2.4*kpc))+0.24*exp(-pow_integer<2>((R-9.5*kpc)/(4.8*kpc))));
 	return planedensity;
 	}
 
 
-double Nakanishi::getH2Scaleheight(const Vector3d &position) const {
-	double R = sqrt(pow_integer<2>(position.x)+ pow_integer<2>(position.y));  // radius in galactic plane
-	double scaleheight = 1.06*pc*( 10.8*exp(0.28*R/kpc)+42.78);
+long double Nakanishi::getH2Scaleheight(const Vector3d &position) const {
+	long double R = sqrt(pow_integer<2>(position.x)+ pow_integer<2>(position.y));  // radius in galactic plane
+	long double scaleheight = 1.06*pc*( 10.8*exp(0.28*R/kpc)+42.78);
 	return scaleheight;
 }
 
-double Nakanishi::getH2Planedensity(const Vector3d &position) const {
-	double R = sqrt(pow_integer<2>(position.x)+pow_integer<2>(position.y));  // radius in galactic plane
-	double planedensity =0.94/ccm*(11.2*exp(-R*R/(0.874*kpc*kpc)) +0.83*exp(-pow_integer<2>((R-4*kpc)/(3.2*kpc))));
+long double Nakanishi::getH2Planedensity(const Vector3d &position) const {
+	long double R = sqrt(pow_integer<2>(position.x)+pow_integer<2>(position.y));  // radius in galactic plane
+	long double planedensity =0.94/ccm*(11.2*exp(-R*R/(0.874*kpc*kpc)) +0.83*exp(-pow_integer<2>((R-4*kpc)/(3.2*kpc))));
 	return planedensity;
 }
 
-double Nakanishi::getHIDensity(const Vector3d &position) const {
-	double n = 0;  // density
-	double planedensity = getHIPlanedensity(position);
-	double scaleheight = getHIScaleheight(position);
+long double Nakanishi::getHIDensity(const Vector3d &position) const {
+	long double n = 0;  // density
+	long double planedensity = getHIPlanedensity(position);
+	long double scaleheight = getHIScaleheight(position);
 	n = planedensity*pow(0.5,pow_integer<2>(position.z/scaleheight));
 
 	return n;
 }
 
-double Nakanishi::getH2Density(const Vector3d &position) const {
-	double n = 0;  // density
-	double planedensity = getH2Planedensity(position);
-	double scaleheight = getH2Scaleheight(position);
+long double Nakanishi::getH2Density(const Vector3d &position) const {
+	long double n = 0;  // density
+	long double planedensity = getH2Planedensity(position);
+	long double scaleheight = getH2Scaleheight(position);
 	n = planedensity*pow(0.5,pow_integer<2>(position.z/scaleheight));
 
 	return n;
 }
 
-double Nakanishi::getDensity(const Vector3d &position) const {
-	double n = 0;
+long double Nakanishi::getDensity(const Vector3d &position) const {
+	long double n = 0;
 	if(isforHI)
 		n += getHIDensity(position);
 	if(isforH2)
@@ -66,8 +66,8 @@ double Nakanishi::getDensity(const Vector3d &position) const {
 	return n;
 }
 
-double Nakanishi::getNucleonDensity(const Vector3d &position) const {
-	double n = 0;
+long double Nakanishi::getNucleonDensity(const Vector3d &position) const {
+	long double n = 0;
 	if(isforHI)
 		n += getHIDensity(position);
 	if(isforH2)

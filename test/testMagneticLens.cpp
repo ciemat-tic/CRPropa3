@@ -32,7 +32,7 @@ TEST(MagneticLens, Deflection)
 	// Map any direction (p,t) to (p, -t)
 	for (int i=0;i<P.nPix();i++)
 	{
-		double theta, phi;
+		long double theta, phi;
 		P.pix2Direction(i, phi, theta);
 		theta*= -1;
 		int j = P.direction2Pix(phi, theta);
@@ -43,9 +43,9 @@ TEST(MagneticLens, Deflection)
 
 	for (int i=0; i < P.nPix(); i++)
 	{
-		double theta, phi;
+		long double theta, phi;
 		P.pix2Direction(i, phi, theta);
-		double theta0 = theta;
+		long double theta0 = theta;
 
 		// No CR is allowed to be lost in this lens
 		EXPECT_TRUE(magneticLens.transformCosmicRay(20 * EeV, phi, theta));
@@ -95,7 +95,7 @@ TEST(MagneticLens, OutOfBoundsEnergy)
 	M.resize(P.nPix(), P.nPix());
 	M.reserve(P.nPix());
 	magneticLens.setLensPart(M,10. * EeV, 100. * EeV);
-	double theta = 0, phi = 0;
+	long double theta = 0, phi = 0;
 	EXPECT_FALSE(magneticLens.transformCosmicRay(1. * EeV, phi, theta));
 }
 
@@ -106,7 +106,7 @@ TEST(Pixelization, angularDistance)
 	Pixelization P(6);
 	for (int idx =0; idx < P.nPix(); idx++)
 	{
-		double ang = P.angularDistance(idx,idx);
+		long double ang = P.angularDistance(idx,idx);
 		EXPECT_TRUE(ang == ang);
 	}
 }
@@ -120,7 +120,7 @@ TEST(ParticleMapsContainer, addParticle)
   EXPECT_EQ(pids.size(), 1);
   EXPECT_EQ(pids[0], 1000010010);
 
-  std::vector<double> energies = maps.getEnergies(1000010010);
+  std::vector<long double> energies = maps.getEnergies(1000010010);
   EXPECT_EQ(energies.size(), 1);
 }
 
@@ -128,9 +128,9 @@ TEST(ParticleMapsContainer, getRandomParticles)
 {
   ParticleMapsContainer maps(0.002);
   maps.addParticle(1000010010, 1 * EeV, 0 , 0 );
-  std::vector<double> energies;
-  std::vector<double> lons;
-  std::vector<double> lats;
+  std::vector<long double> energies;
+  std::vector<long double> lons;
+  std::vector<long double> lats;
   std::vector<int> particleIds;
 
   size_t N = 420;
@@ -154,12 +154,12 @@ TEST(ParticleMapsContainer, getRandomParticles)
 TEST(Pixelization, randomDirectionInPixel)
 {
   Pixelization p(6);
-  const double long0 = -35./180 * M_PI;
-  const double lat0 =  12.08/180 * M_PI;
+  const long double long0 = -35./180 * M_PI;
+  const long double lat0 =  12.08/180 * M_PI;
 
   int pix = p.direction2Pix(long0, lat0);
 
-  double rlon, rlat;
+  long double rlon, rlat;
   p.getRandomDirectionInPixel(pix, rlon, rlat);
 
   // new direction should be inside the pixel

@@ -46,7 +46,7 @@ public:
 
 	/// Returns the time in ms since the last call to reset or since
 	/// the btClock was created.
-	double getSecond() {
+	long double getSecond() {
 		LARGE_INTEGER currentTime;
 		QueryPerformanceCounter(&currentTime);
 		LONGLONG elapsedTime = currentTime.QuadPart - startTime.QuadPart;
@@ -76,7 +76,7 @@ public:
 		unsigned long usecTicks = (unsigned long) (1000000 * elapsedTime
 				/ clockFrequency.QuadPart);
 
-		return double(usecTicks) / 1000000;
+		return long double(usecTicks) / 1000000;
 	}
 };
 #else
@@ -94,11 +94,11 @@ public:
 
 	/// Returns the time in since the last call to reset or since
 	/// the btClock was created.
-	double getTime() {
+	long double getTime() {
 		struct timeval currentTime;
 		gettimeofday(&currentTime, 0);
-		double t = double(currentTime.tv_sec - startTime.tv_sec);
-		t += double(currentTime.tv_usec - startTime.tv_usec) / 1000000.;
+		long double t = long double(currentTime.tv_sec - startTime.tv_sec);
+		t += long double(currentTime.tv_usec - startTime.tv_usec) / 1000000.;
 		return t;
 	}
 };
@@ -116,11 +116,11 @@ void Clock::reset() {
 	impl->reset();
 }
 
-double Clock::getSecond() {
+long double Clock::getSecond() {
 	return impl->getTime();
 }
 
-double Clock::getMillisecond() {
+long double Clock::getMillisecond() {
 	return impl->getTime() * 1000;
 }
 

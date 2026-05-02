@@ -59,8 +59,8 @@ TEST(testMagneticFieldList, SimpleTest) {
 TEST(testMagneticFieldEvolution, SimpleTest) {
 	// Test if this decorator scales the underlying field as (1+z)^m
 	ref_ptr<UniformMagneticField> B = new UniformMagneticField(Vector3d(1,0,0));
-	double z = 1.2;
-	double m = 3;
+	long double z = 1.2;
+	long double m = 3;
 	MagneticFieldEvolution Bz(B, m);
 
 	// scaled field
@@ -319,7 +319,7 @@ TEST(testUF23Field, SimpleTest) {
   const std::vector<std::vector<Vector3d>> referenceValues =
     getUF23ReferenceValues();
 
-  const double precision = 1e-6;
+  const long double precision = 1e-6;
 
   for (unsigned int i = 0; i < models.size(); ++i) {
     const auto& model = models[i];

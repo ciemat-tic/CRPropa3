@@ -8,7 +8,7 @@
 
 namespace crpropa {
 
-EMDoublePairProduction::EMDoublePairProduction(ref_ptr<PhotonField> photonField, bool haveElectrons, double thinning, double limit) {
+EMDoublePairProduction::EMDoublePairProduction(ref_ptr<PhotonField> photonField, bool haveElectrons, long double thinning, long double limit) {
 	setPhotonField(photonField);
 	setHaveElectrons(haveElectrons);
 	setLimit(limit);
@@ -26,11 +26,11 @@ void EMDoublePairProduction::setHaveElectrons(bool haveElectrons) {
 	this->haveElectrons = haveElectrons;
 }
 
-void EMDoublePairProduction::setLimit(double limit) {
+void EMDoublePairProduction::setLimit(long double limit) {
 	this->limit = limit;
 }
 
-void EMDoublePairProduction::setThinning(double thinning) {
+void EMDoublePairProduction::setThinning(long double thinning) {
 	this->thinning = thinning;
 }
 
@@ -46,7 +46,7 @@ void EMDoublePairProduction::initRate(std::string filename) {
 
 	while (infile.good()) {
 		if (infile.peek() != '#') {
-			double a, b;
+			long double a, b;
 			infile >> a >> b;
 			if (infile) {
 				tabEnergy.push_back(pow(10, a) * eV);
@@ -69,21 +69,21 @@ void EMDoublePairProduction::performInteraction(Candidate *candidate) const {
 	// Use assumption of Lee 96 arXiv:9604098
 	// Energy is equally shared between one e+e- pair, but take mass of second e+e- pair into account.
 	// This approximation has been shown to be valid within -1.5%.
-	double z = candidate->getRedshift();
-	double E = candidate->current.getEnergy() * (1 + z);
-	double Ee = (E - 2 * mass_electron * c_squared) / 2;
+	long double z = candidate->getRedshift();
+	long double E = candidate->current.getEnergy() * (1 + z);
+	long double Ee = (E - 2 * mass_electron * c_squared) / 2;
 
 	Random &random = Random::instance();
 	Vector3d pos = random.randomInterpolatedPosition(candidate->previous.getPosition(), candidate->current.getPosition());
 
-	double f = Ee / E;
+	long double f = Ee / E;
 
 		if (random.rand() < pow(1 - f, thinning)) {
-			double w = 1. / pow(1 - f, thinning);
+			long double w = 1. / pow(1 - f, thinning);
 			candidate->addSecondary( 11, Ee / (1 + z), pos, w, interactionTag);
 		} 
 		if (random.rand() < pow(f, thinning)) {
-			double w = 1. / pow(f, thinning);
+			long double w = 1. / pow(f, thinning);
 			candidate->addSecondary(-11, Ee / (1 + z), pos, w, interactionTag);
 		}
 }
@@ -94,21 +94,21 @@ void EMDoublePairProduction::process(Candidate *candidate) const {
 		return;
 
 	// scale the electron energy instead of background photons
-	double z = candidate->getRedshift();
-	double E = (1 + z) * candidate->current.getEnergy();
+	long double z = candidate->getRedshift();
+	long double E = (1 + z) * candidate->current.getEnergy();
 
 	// check if in tabulated energy range
 	if (E < tabEnergy.front() or (E > tabEnergy.back()))
 		return;
 
 	// interaction rate
-	double rate = interpolate(E, tabEnergy, tabRate);
+	long double rate = interpolate(E, tabEnergy, tabRate);
 	rate *= pow_integer<2>(1 + z) * photonField->getRedshiftScaling(z);
 
 	// check for interaction
 	Random &random = Random::instance();
-	double randDistance = -log(random.rand()) / rate;
-	double step = candidate->getCurrentStep();
+	long double randDistance = -log(random.rand()) / rate;
+	long double step = candidate->getCurrentStep();
 	if (step < randDistance) {
 		candidate->limitNextStep(limit / rate);
 		return;

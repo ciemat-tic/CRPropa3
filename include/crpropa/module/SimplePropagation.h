@@ -20,15 +20,15 @@ namespace crpropa {
  */
 class SimplePropagation: public Module {
 private:
-	double minStep, maxStep;
+	long double minStep, maxStep;
 
 public:
-	SimplePropagation(double minStep = (0.1 * kpc), double maxStep = (1 * Gpc));
+	SimplePropagation(long double minStep = (0.1 * kpc), long double maxStep = (1 * Gpc));
 	void process(Candidate *candidate) const;
-	void setMinimumStep(double minStep);
-	void setMaximumStep(double maxStep);
-	double getMinimumStep() const;
-	double getMaximumStep() const;
+	void setMinimumStep(long double minStep);
+	void setMaximumStep(long double maxStep);
+	long double getMinimumStep() const;
+	long double getMaximumStep() const;
 	std::string getDescription() const;
 };
 /** @}*/

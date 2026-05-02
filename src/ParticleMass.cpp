@@ -15,7 +15,7 @@ namespace crpropa {
 
 struct NuclearMassTable {
 	bool initialized;
-	std::vector<double> table;
+	std::vector<long double> table;
 
 	NuclearMassTable() {
 		initialized = false;
@@ -29,7 +29,7 @@ struct NuclearMassTable {
 			throw std::runtime_error("crpropa: could not open file " + filename);
 
 		int Z, N;
-		double mass;
+		long double mass;
 		while (infile.good()) {
 			if (infile.peek() != '#') {
 				infile >> Z >> N >> mass;
@@ -42,7 +42,7 @@ struct NuclearMassTable {
 		initialized = true;
 	}
 
-	double getMass(std::size_t idx) {
+	long double getMass(std::size_t idx) {
 		if (!initialized) {
 #pragma omp critical(init)
 			init();
@@ -53,7 +53,7 @@ struct NuclearMassTable {
 
 static NuclearMassTable nuclearMassTable;
 
-double particleMass(int id) {
+long double particleMass(int id) {
 	if (isNucleus(id))
 		return nuclearMass(id);
 	if (abs(id) == 11)
@@ -61,13 +61,13 @@ double particleMass(int id) {
 	return 0.0;
 }
 
-double nuclearMass(int id) {
+long double nuclearMass(int id) {
 	int A = massNumber(id);
 	int Z = chargeNumber(id);
 	return nuclearMass(A, Z);
 }
 
-double nuclearMass(int A, int Z) {
+long double nuclearMass(int A, int Z) {
 	if ((A < 1) or (A > 56) or (Z < 0) or (Z > 26) or (Z > A)) {
 		KISS_LOG_WARNING <<
 		"nuclearMass: nuclear mass not found in the mass table for " <<

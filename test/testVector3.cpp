@@ -35,15 +35,15 @@ TEST(Vector3, division) {
 TEST(Vector3, mod) {
 	Vector3d v(10.1, 10.2, 10.3);
 	v %= 10.2;
-	EXPECT_NEAR(v.x, 10.1, 1e-10); // mod doesn't preserve double precision
+	EXPECT_NEAR(v.x, 10.1, 1e-10); // mod doesn't preserve long double precision
 	EXPECT_NEAR(v.y, 0, 1e-10);
 	EXPECT_NEAR(v.z, 0.1, 1e-10);
 }
 
 TEST(Vector3, dot) {
-	double a = Vector3d(1, 0, 0).dot(Vector3d(0, 1, 0));
+	long double a = Vector3d(1, 0, 0).dot(Vector3d(0, 1, 0));
 	EXPECT_DOUBLE_EQ(a, 0);
-	double b = Vector3d(-1, 10, 2).dot(Vector3d(5, 1, -3));
+	long double b = Vector3d(-1, 10, 2).dot(Vector3d(5, 1, -3));
 	EXPECT_DOUBLE_EQ(b, -1);
 }
 
@@ -54,10 +54,10 @@ TEST(Vector3, cross) {
 
 TEST(Vector3, angle) {
 	// 45 degrees
-	double a = Vector3d(1, 1, 0).getAngleTo(Vector3d(1, 0, 0));
+	long double a = Vector3d(1, 1, 0).getAngleTo(Vector3d(1, 0, 0));
 	EXPECT_DOUBLE_EQ(a, 45 * M_PI / 180);
 	// perpendicular vectors
-	double b = Vector3d(0, 0, 1).getAngleTo(Vector3d(0, 0, 1));
+	long double b = Vector3d(0, 0, 1).getAngleTo(Vector3d(0, 0, 1));
 	EXPECT_DOUBLE_EQ(b, 0);
 }
 
@@ -67,8 +67,8 @@ TEST(Vector3, unitVectors) {
 	Vector3d et = v.getUnitVectorTheta();
 	Vector3d ep = v.getUnitVectorPhi();
 
-	// trigonometrical functions don't preserve double precision
-	double eps = 1e-16;
+	// trigonometrical functions don't preserve long double precision
+	long double eps = 1e-16;
 	EXPECT_NEAR(er.x, 1, eps);
 	EXPECT_NEAR(er.y, 0, eps);
 	EXPECT_NEAR(er.z, 0, eps);
@@ -89,7 +89,7 @@ TEST(Vector3, magnitude) {
 }
 
 TEST(Vector3, distance) {
-	double a = Vector3d(10, 0, 10).getDistanceTo(Vector3d(10, 0, 0));
+	long double a = Vector3d(10, 0, 10).getDistanceTo(Vector3d(10, 0, 0));
 	EXPECT_DOUBLE_EQ(a, 10);
 }
 

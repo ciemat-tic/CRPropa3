@@ -16,15 +16,15 @@ class ElasticScattering: public Module {
 private:
 	ref_ptr<PhotonField> photonField;
 
-	std::vector<double> tabRate; // elastic scattering rate
-	std::vector<std::vector<double> > tabCDF; // CDF as function of background photon energy
+	std::vector<long double> tabRate; // elastic scattering rate
+	std::vector<std::vector<long double> > tabCDF; // CDF as function of background photon energy
 	std::string interactionTag = "ES";
 
-	static const double lgmin; // minimum log10(Lorentz-factor)
-	static const double lgmax; // maximum log10(Lorentz-factor)
+	static const long double lgmin; // minimum log10(Lorentz-factor)
+	static const long double lgmax; // maximum log10(Lorentz-factor)
 	static const size_t nlg;   // number of Lorentz-factor steps
-	static const double epsmin; // minimum log10(eps / J)
-	static const double epsmax; // maximum log10(eps / J)
+	static const long double epsmin; // minimum log10(eps / J)
+	static const long double epsmax; // maximum log10(eps / J)
 	static const size_t neps;   // number of eps steps
 
 public:

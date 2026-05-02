@@ -69,12 +69,12 @@ Vector3d MagneticFieldList::getField(const Vector3d &position) const {
 }
 
 MagneticFieldEvolution::MagneticFieldEvolution(ref_ptr<MagneticField> field,
-	double m) :
+	long double m) :
 	field(field), m(m) {
 }
 
 Vector3d MagneticFieldEvolution::getField(const Vector3d &position,
-	double z) const {
+	long double z) const {
 	return field->getField(position) * pow(1+z, m);
 }
 

@@ -28,7 +28,7 @@ enum interpolationType {
 };
 
 /** Lower and upper neighbour in a periodically continued unit grid */
-inline void periodicClamp(double x, int n, int &lo, int &hi) {
+inline void periodicClamp(long double x, int n, int &lo, int &hi) {
 	lo = ((int(floor(x)) % (n)) + (n)) % (n);
 	hi = (lo + 1) % (n);
 }
@@ -46,7 +46,7 @@ inline int periodicBoundary(int index, int n) {
 }
 
 /** Lower and upper neighbour in a reflectively repeated unit grid */
-inline void reflectiveClamp(double x, int n, int &lo, int &hi, double &res) {
+inline void reflectiveClamp(long double x, int n, int &lo, int &hi, long double &res) {
 	while ((x < -0.5) or (x > (n-0.5)))
 		x = 2 * n * (x > (n-0.5)) -x-1;
 	res = x;
@@ -59,7 +59,7 @@ inline void reflectiveClamp(double x, int n, int &lo, int &hi, double &res) {
 }
 
 /** Symmetrical round */
-inline double round(double r) {
+inline long double round(long double r) {
 	return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
 }
 
@@ -86,7 +86,7 @@ public:
 	 @param	N		Number of grid points in one direction
 	 @param spacing	Spacing between grid points
 	 */
-	GridProperties(Vector3d origin, size_t N, double spacing) :
+	GridProperties(Vector3d origin, size_t N, long double spacing) :
 		origin(origin), Nx(N), Ny(N), Nz(N), spacing(Vector3d(spacing)), reflective(false), ipol(TRILINEAR), clipVolume(false) {
 	}
 
@@ -97,7 +97,7 @@ public:
 	 @param	Nz		Number of grid points in z-direction
 	 @param spacing	Spacing between grid points
 	 */
-	GridProperties(Vector3d origin, size_t Nx, size_t Ny, size_t Nz, double spacing) :
+	GridProperties(Vector3d origin, size_t Nx, size_t Ny, size_t Nz, long double spacing) :
 		origin(origin), Nx(Nx), Ny(Ny), Nz(Nz), spacing(Vector3d(spacing)), reflective(false), ipol(TRILINEAR), clipVolume(false) {
 	}
 
@@ -134,7 +134,7 @@ public:
 	/** show all GridProperty parameters
 	 * @param unit unit for the lengthscale (origin, spacing). Default is 1 = SI units
 	 */
-	std::string getDescription(double unit = 1) const {
+	std::string getDescription(long double unit = 1) const {
 		std::stringstream ss;
 		ss 	<< "GridProperties:\torigin: " << origin / unit
 			<< "\t" << "Nx: " << Nx << " Ny: " << Ny << " Nz: " << Nz 
@@ -172,7 +172,7 @@ public:
 	 @param	N		Number of grid points in one direction
 	 @param spacing	Spacing between grid points
 	 */
-	Grid(Vector3d origin, size_t N, double spacing) {
+	Grid(Vector3d origin, size_t N, long double spacing) {
 		setOrigin(origin);
 		setGridSize(N, N, N);
 		setSpacing(Vector3d(spacing));
@@ -188,7 +188,7 @@ public:
 	 @param	Nz		Number of grid points in z-direction
 	 @param spacing	Spacing between grid points
 	 */
-	Grid(Vector3d origin, size_t Nx, size_t Ny, size_t Nz, double spacing) {
+	Grid(Vector3d origin, size_t Nx, size_t Ny, size_t Nz, long double spacing) {
 		setOrigin(origin);
 		setGridSize(Nx, Ny, Nz);
 		setSpacing(Vector3d(spacing));
@@ -433,7 +433,7 @@ private:
 	}
 
 	/** Vectorized cubic Interpolator in 1D */
-	__m128 CubicInterpolate(__m128 p0,__m128 p1,__m128 p2,__m128 p3,double position) const {
+	__m128 CubicInterpolate(__m128 p0,__m128 p1,__m128 p2,__m128 p3,long double position) const {
 		__m128 c1 = _mm_set1_ps (1/2.);
 		__m128 c2 = _mm_set1_ps (3/2.);
 		__m128 c3 = _mm_set1_ps (2.);
@@ -466,7 +466,7 @@ private:
 		iY0 = floor(r.y);
 		iZ0 = floor(r.z);
 
-		double fX, fY, fZ;
+		long double fX, fY, fZ;
 		fX = r.x - iX0;
 		fY = r.y - iY0;
 		fZ = r.z - iZ0;
@@ -496,12 +496,12 @@ private:
 	}
 
 	/** Vectorized cubic Interpolator in 1D that returns a scalar (see https://www.paulinternet.nl/?page=bicubic, http://graphics.cs.cmu.edu/nsp/course/15-462/Fall04/assts/catmullRom.pdf) */
-	double CubicInterpolateScalar(double p0,double p1,double p2,double p3,double pos) const {
+	long double CubicInterpolateScalar(long double p0,long double p1,long double p2,long double p3,long double pos) const {
 		return((-0.5*p0+3/2.*p1-3/2.*p2+0.5*p3)*pos*pos*pos+(p0-5/2.*p1+p2*2-0.5*p3)*pos*pos+(-0.5*p0+0.5*p2)*pos+p1);
 	}
 
   /** Interpolate the grid tricubic at a given position (see https://www.paulinternet.nl/?page=bicubic, http://graphics.cs.cmu.edu/nsp/course/15-462/Fall04/assts/catmullRom.pdf) */
-	double tricubicInterpolate(double, const Vector3d &position) const {
+	long double tricubicInterpolate(long double, const Vector3d &position) const {
 		/** position on a unit grid */
 		Vector3d r = (position - gridOrigin) / spacing;
 
@@ -510,15 +510,15 @@ private:
 		iY0 = floor(r.y);
 		iZ0 = floor(r.z);
 
-		double fX, fY, fZ;
+		long double fX, fY, fZ;
 		fX = r.x - iX0;
 		fY = r.y - iY0;
 		fZ = r.z - iZ0;
 
 		int nrCubicInterpolations = 4;
-		double interpolateVaryX[nrCubicInterpolations];
-		double interpolateVaryY[nrCubicInterpolations];
-		double interpolateVaryZ[nrCubicInterpolations];
+		long double interpolateVaryX[nrCubicInterpolations];
+		long double interpolateVaryY[nrCubicInterpolations];
+		long double interpolateVaryZ[nrCubicInterpolations];
 		/** Perform 1D interpolations while iterating in each for loop over the index of another direction */
 		for (int iLoopX = -1; iLoopX < nrCubicInterpolations-1; iLoopX++) {
 			for (int iLoopY = -1; iLoopY < nrCubicInterpolations-1; iLoopY++) {
@@ -532,7 +532,7 @@ private:
 			}
 			interpolateVaryX[iLoopX+1] = CubicInterpolateScalar(interpolateVaryY[0], interpolateVaryY[1], interpolateVaryY[2], interpolateVaryY[3], fY);
 		}
-		double result = CubicInterpolateScalar(interpolateVaryX[0], interpolateVaryX[1], interpolateVaryX[2], interpolateVaryX[3], fX);
+		long double result = CubicInterpolateScalar(interpolateVaryX[0], interpolateVaryX[1], interpolateVaryX[2], interpolateVaryX[3], fX);
 		return result;
 	}
 
@@ -544,7 +544,7 @@ private:
 		/** indices of lower (0) and upper (1) neighbours. The neighbours span a grid
 		  with the origin at [iX0, iY0, iZ0] and the most distant corner [iX1, iY1, iZ1]. */
 		int iX0, iX1, iY0, iY1, iZ0, iZ1;
-		double resX, resY, resZ, fX0, fY0, fZ0;
+		long double resX, resY, resZ, fX0, fY0, fZ0;
 
 		if (reflective) {
 			reflectiveClamp(r.x, Nx, iX0, iX1, resX);
@@ -563,9 +563,9 @@ private:
 		}
 
 		/** linear fraction to upper neighbours based on lower neighbours calculated above */
-		double fX1 = 1 - fX0;
-		double fY1 = 1 - fY0;
-		double fZ1 = 1 - fZ0;
+		long double fX1 = 1 - fX0;
+		long double fY1 = 1 - fY0;
+		long double fZ1 = 1 - fZ0;
 
 		/** trilinear interpolation (see http://paulbourke.net/miscellaneous/interpolation) */
 		T b(0.);
@@ -583,7 +583,7 @@ private:
 
 }; // class Grid
 
-typedef Grid<double> Grid1d;
+typedef Grid<long double> Grid1d;
 typedef Grid<float> Grid1f;
 typedef Grid<Vector3f> Grid3f;
 typedef Grid<Vector3d> Grid3d;

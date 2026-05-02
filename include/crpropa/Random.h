@@ -118,12 +118,12 @@ public:
 	/// reading 624 consecutive values.
 	Random();
 	// Access to 32-bit random numbers
-	double rand();///< real number in [0,1]
-	double rand( const double& n );///< real number in [0,n]
-	double randExc();///< real number in [0,1)
-	double randExc( const double& n );///< real number in [0,n)
-	double randDblExc();///< real number in (0,1)
-	double randDblExc( const double& n );///< real number in (0,n)
+	long double rand();///< real number in [0,1]
+	long double rand( const long double& n );///< real number in [0,n]
+	long double randExc();///< real number in [0,1)
+	long double randExc( const long double& n );///< real number in [0,n)
+	long double randDblExc();///< real number in (0,1)
+	long double randDblExc( const long double& n );///< real number in (0,n)
 	// Pull a 32-bit integer from the generator state
 	// Every other access function simply transforms the numbers extracted here
 	uint32_t randInt();///< integer in [0,2**32-1]
@@ -132,33 +132,33 @@ public:
 	uint64_t randInt64(); ///< integer in [0, 2**64 -1]. PROBABLY NOT SECURE TO USE
 	uint64_t randInt64(const uint64_t &n); ///< integer in [0, n] for n < 2**64 -1. PROBABLY NOT SECURE TO USE
 
-	double operator()() {return rand();} ///< same as rand()
+	long double operator()() {return rand();} ///< same as rand()
 
-	// Access to 53-bit random numbers (capacity of IEEE double precision)
-	double rand53();///< real number in [0,1)  (capacity of IEEE double precision)
+	// Access to 53-bit random numbers (capacity of IEEE long double precision)
+	long double rand53();///< real number in [0,1)  (capacity of IEEE long double precision)
 	///Exponential distribution in (0,inf)
-	double randExponential();
+	long double randExponential();
 	/// Normal distributed random number
-	double randNorm( const double& mean = 0.0, const double& variance = 1.0 );
+	long double randNorm( const long double& mean = 0.0, const long double& variance = 1.0 );
 	/// Uniform distribution in [min, max]
-	double randUniform(double min, double max);
+	long double randUniform(long double min, long double max);
 	/// Rayleigh distributed random number
-	double randRayleigh(double sigma);
+	long double randRayleigh(long double sigma);
 	/// Fisher distributed random number
-	double randFisher(double k);
+	long double randFisher(long double k);
 
 	/// Draw a random bin from a (unnormalized) cumulative distribution function, without leading zero.
 	size_t randBin(const std::vector<float> &cdf);
-	size_t randBin(const std::vector<double> &cdf);
+	size_t randBin(const std::vector<long double> &cdf);
 
 	/// Random point on a unit-sphere
 	Vector3d randVector();
 	/// Random vector with given angular separation around mean direction
-	Vector3d randVectorAroundMean(const Vector3d &meanDirection, double angle);
+	Vector3d randVectorAroundMean(const Vector3d &meanDirection, long double angle);
 	/// Fisher distributed random vector
-	Vector3d randFisherVector(const Vector3d &meanDirection, double kappa);
+	Vector3d randFisherVector(const Vector3d &meanDirection, long double kappa);
 	/// Uniform distributed random vector inside a cone
-	Vector3d randConeVector(const Vector3d &meanDirection, double angularRadius);
+	Vector3d randConeVector(const Vector3d &meanDirection, long double angularRadius);
 	/// Random lamberts distributed vector with theta distribution: sin(t) * cos(t),
 	/// aka cosine law (https://en.wikipedia.org/wiki/Lambert%27s_cosine_law),
 	/// for a surface element with normal vector pointing in positive z-axis (0, 0, 1)
@@ -169,9 +169,9 @@ public:
 	Vector3d randomInterpolatedPosition(const Vector3d &a, const Vector3d &b);
 
 	/// Power-law distribution of a given differential spectral index
-	double randPowerLaw(double index, double min, double max);
+	long double randPowerLaw(long double index, long double min, long double max);
 	/// Broken power-law distribution
-	double randBrokenPowerLaw(double index1, double index2, double breakpoint, double min, double max );
+	long double randBrokenPowerLaw(long double index1, long double index2, long double breakpoint, long double min, long double max );
 
 	/// Seed the generator with a simple uint32_t
 	void seed( const uint32_t oneSeed );

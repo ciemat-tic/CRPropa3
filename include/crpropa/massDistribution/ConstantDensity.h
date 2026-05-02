@@ -16,9 +16,9 @@ namespace crpropa {
 class ConstantDensity: public Density {
 private:
 	// default mode: all density types set to 0 and no activ component
-	double HIdensitynumber  = 0;  /**< density for atomic hydrogen */
-	double HIIdensitynumber = 0;  /**< density for ioniesd hydrogen */
-	double H2densitynumber  = 0;  /**< density for molecular hydrogen */
+	long double HIdensitynumber  = 0;  /**< density for atomic hydrogen */
+	long double HIIdensitynumber = 0;  /**< density for ioniesd hydrogen */
+	long double H2densitynumber  = 0;  /**< density for molecular hydrogen */
 
 	bool isHI = false;  /**< If true, HI is used for sum up in getDensity */
 	bool isHII = false;  /**< If true, HII is used for sum up in getDensity */
@@ -30,33 +30,33 @@ public:
 	 @param HII density for ionised hydrogen
 	 @param H2 density for molecular hydrogen
 	 */
-	ConstantDensity(double HI, double HII, double H2);
+	ConstantDensity(long double HI, long double HII, long double H2);
 
 	/** Get density at a given position.
 	 @param position 	position in galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns Density in parts/m^3, sum up all activated parts
 	 */
-	double getDensity(const Vector3d &position) const;
+	long double getDensity(const Vector3d &position) const;
 	/** Get HI density at a given position.
 	 @param position position in galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns (constant) density of HI in parts/m^3
 	 */
-	double getHIDensity(const Vector3d &position) const;
+	long double getHIDensity(const Vector3d &position) const;
 	/** Get HII density at a given position.
 	 @param position position in galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns (constant) density of HII in parts/m^3 
 	 */
-	double getHIIDensity(const Vector3d &position) const;
+	long double getHIIDensity(const Vector3d &position) const;
 	/** Get H2 density at a given position.
 	 @param position position in galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns (constant) density of H2 in parts/m^3 
 	*/
-	double getH2Density(const Vector3d &position) const;
+	long double getH2Density(const Vector3d &position) const;
 	/** Get density at a given position.
 	 @param position position in galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns number of nucleons/m^3, sum up all activated parts and weights H2 twice 
 	 */
-	double getNucleonDensity(const Vector3d &position) const;
+	long double getNucleonDensity(const Vector3d &position) const;
 
 	/** Status of HI -- active or not.
 	 @returns Boolean flag with activation status of HI 
@@ -75,7 +75,7 @@ public:
 	 @param activate 		new activation status
 	 @param densityNumber	new density [in units of 1/meter ^ 3]
 	 */
-	void setHI(bool activate, double densityNumber);
+	void setHI(bool activate, long double densityNumber);
 	/** Change HI status and keep density unaltered.
 	 @param activate 		new activation status
 	 */
@@ -83,13 +83,13 @@ public:
 	/** Change HI density and keep activation status unaltered
 	 @param densityNumber	new density [in units of 1/meter ^ 3]
 	 */
-	void setHI(double densityNumber);
+	void setHI(long double densityNumber);
 
 	/** Change HII status and the value of the density.
 	 @param activate 		new activation status
 	 @param densityNumber	new density [in units of 1/meter ^ 3]
 	 */
-	void setHII(bool activate, double densityNumber);
+	void setHII(bool activate, long double densityNumber);
 	/** Change HII status and keep density unaltered.
 	 @param activate 		new activation status
 	 */
@@ -97,13 +97,13 @@ public:
 	/** Change HII density and keep activation status unaltered
 	 @param densityNumber	new density [in units of 1/meter ^ 3]
 	 */
-	void setHII(double densityNumber);
+	void setHII(long double densityNumber);
 
 	/** Change H2 status and the value of the density.
 	 @param activate 		new activation status
 	 @param densityNumber	new density [in units of 1/meter ^ 3]
  	 */
-	void setH2(bool activate, double densityNumber);
+	void setH2(bool activate, long double densityNumber);
 	/** Change H2 status and keep density unaltered.
 	 @param activate 		new activation status
 	 */
@@ -111,7 +111,7 @@ public:
 	/** Change H2 density and keep activation status unaltered
 	 @param densityNumber	new density [in units of 1/meter ^ 3]
 	 */
-	void setH2(double densityNumber);
+	void setH2(long double densityNumber);
 
 	std::string getDescription();
 };

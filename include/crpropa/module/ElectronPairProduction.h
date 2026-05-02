@@ -23,10 +23,10 @@ namespace crpropa {
 class ElectronPairProduction: public Module {
 private:
 	ref_ptr<PhotonField> photonField;
-	std::vector<double> tabLossRate; /*< tabulated energy loss rate in [J/m] for protons at z = 0 */
-	std::vector<double> tabLorentzFactor; /*< tabulated Lorentz factor */
-	std::vector<std::vector<double> > tabSpectrum; /*< electron/positron cdf(Ee|log10(gamma)) for log10(Ee/eV)=7-24 in 170 steps and log10(gamma)=6-13 in 70 steps and*/
-	double limit; ///< fraction of energy loss length to limit the next step
+	std::vector<long double> tabLossRate; /*< tabulated energy loss rate in [J/m] for protons at z = 0 */
+	std::vector<long double> tabLorentzFactor; /*< tabulated Lorentz factor */
+	std::vector<std::vector<long double> > tabSpectrum; /*< electron/positron cdf(Ee|log10(gamma)) for log10(Ee/eV)=7-24 in 170 steps and log10(gamma)=6-13 in 70 steps and*/
+	long double limit; ///< fraction of energy loss length to limit the next step
 	bool haveElectrons; /*< if true, secondary electrons will be added to the simulation */
 	std::string interactionTag = "EPP";
 
@@ -39,7 +39,7 @@ public:
 	 * @param limit 		step size limit as fraction of mean free path
 	 */
 	ElectronPairProduction(ref_ptr<PhotonField> photonField, bool haveElectrons =
-			false, double limit = 0.1);
+			false, long double limit = 0.1);
 
 	// set the target photon field
 	void setPhotonField(ref_ptr<PhotonField> photonField);
@@ -50,7 +50,7 @@ public:
 	/** Limit the propagation step to a fraction of the mean free path
 	 * @param limit fraction of the mean free path
 	 */
-	void setLimit(double limit);
+	void setLimit(long double limit);
 	
 	/** set a custom interaction tag to trace back this interaction
 	 * @param tag string that will be added to the candidate and output
@@ -74,7 +74,7 @@ public:
 	 beta_A,Z(E) = Z^2 / A * beta_p(E/A)
 	 beta(E,z) = (1+z)^3 beta((1+z)E).
 	 */
-	double lossLength(int id, double lf, double z=0) const;
+	long double lossLength(int id, long double lf, long double z=0) const;
 	
 };
 /** @}*/

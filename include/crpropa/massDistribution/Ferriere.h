@@ -22,7 +22,7 @@ private:
 	bool isforHI = true;
 	bool isforHII = true;
 	bool isforH2 = true;
-	double Rsun = 8.5 * kpc;  // distance sun-galactic center
+	long double Rsun = 8.5 * kpc;  // distance sun-galactic center
 
 public:
 	/** Coordinate transformation for the CentralMolecularZone region. Rotation arround z-axis such that X is the major axis and Y is the minor axis
@@ -39,19 +39,19 @@ public:
 
 	/** @param position position in galactic coordinates with Earth at (-8.5kpc, 0, 0)
 	 @return density in parts/m^3, only acitvated parts are summed up */
-	double getDensity(const Vector3d &position) const;
+	long double getDensity(const Vector3d &position) const;
 	/** @param position position in galactic coordinates with Earth at (-8.5kpc, 0, 0)
 	 @return density of atomic hydrogen in parts/m^3 */
-	double getHIDensity(const Vector3d &position) const;
+	long double getHIDensity(const Vector3d &position) const;
 	/** @param position position in galactic coordinates with Earth at (-8.5kpc, 0, 0)
 	 @return density of ionised hydrogen in parts/m^3 */
-	double getHIIDensity(const Vector3d &position) const;
+	long double getHIIDensity(const Vector3d &position) const;
 	/** @param position position in galactic coordinates with Earth at (-8.5kpc, 0, 0)
 	 @return density of molecular hydrogen in parts/m^3 */
-	double getH2Density(const Vector3d &position) const;
+	long double getH2Density(const Vector3d &position) const;
 	/** @param position position in galactic coordinates with Earth at (-8.5kpc, 0, 0)
 	 @return nucleon density in parts/m^3, only activated parts are summed up and H2 is weighted twice */
-	double getNucleonDensity(const Vector3d &position) const;
+	long double getNucleonDensity(const Vector3d &position) const;
 
 	/** changes activation status for atomic hydrogen */
 	void setIsForHI(bool HI);

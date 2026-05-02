@@ -6,15 +6,15 @@
 
 namespace crpropa {
 
-MaximumTrajectoryLength::MaximumTrajectoryLength(double maxLength) :
+MaximumTrajectoryLength::MaximumTrajectoryLength(long double maxLength) :
 		maxLength(maxLength) {
 }
 
-void MaximumTrajectoryLength::setMaximumTrajectoryLength(double length) {
+void MaximumTrajectoryLength::setMaximumTrajectoryLength(long double length) {
 	maxLength = length;
 }
 
-double MaximumTrajectoryLength::getMaximumTrajectoryLength() const {
+long double MaximumTrajectoryLength::getMaximumTrajectoryLength() const {
 	return maxLength;
 }
 
@@ -40,13 +40,13 @@ std::string MaximumTrajectoryLength::getDescription() const {
 }
 
 void MaximumTrajectoryLength::process(Candidate *c) const {
-	double length = c->getTrajectoryLength();
+	long double length = c->getTrajectoryLength();
 	Vector3d position = c->current.getPosition();
 
 	if(observerPositions.size()) {
 		bool inRange = false;
 		for (size_t i = 0; i < observerPositions.size(); i++) {
-			double distance = position.getDistanceTo(observerPositions[i]);
+			long double distance = position.getDistanceTo(observerPositions[i]);
 			if (distance + length < maxLength)
 				inRange = true;
 		}
@@ -64,15 +64,15 @@ void MaximumTrajectoryLength::process(Candidate *c) const {
 }
 
 //*****************************************************************************
-MinimumEnergy::MinimumEnergy(double minEnergy) :
+MinimumEnergy::MinimumEnergy(long double minEnergy) :
 		minEnergy(minEnergy) {
 }
 
-void MinimumEnergy::setMinimumEnergy(double energy) {
+void MinimumEnergy::setMinimumEnergy(long double energy) {
 	minEnergy = energy;
 }
 
-double MinimumEnergy::getMinimumEnergy() const {
+long double MinimumEnergy::getMinimumEnergy() const {
 	return minEnergy;
 }
 
@@ -94,15 +94,15 @@ std::string MinimumEnergy::getDescription() const {
 }
 
 //*****************************************************************************
-MinimumRigidity::MinimumRigidity(double minRigidity) :
+MinimumRigidity::MinimumRigidity(long double minRigidity) :
 		minRigidity(minRigidity) {
 }
 
-void MinimumRigidity::setMinimumRigidity(double minRigidity) {
+void MinimumRigidity::setMinimumRigidity(long double minRigidity) {
 	this->minRigidity = minRigidity;
 }
 
-double MinimumRigidity::getMinimumRigidity() const {
+long double MinimumRigidity::getMinimumRigidity() const {
 	return minRigidity;
 }
 
@@ -122,15 +122,15 @@ std::string MinimumRigidity::getDescription() const {
 }
 
 //*****************************************************************************
-MinimumRedshift::MinimumRedshift(double zmin) :
+MinimumRedshift::MinimumRedshift(long double zmin) :
 		zmin(zmin) {
 }
 
-void MinimumRedshift::setMinimumRedshift(double z) {
+void MinimumRedshift::setMinimumRedshift(long double z) {
 	zmin = z;
 }
 
-double MinimumRedshift::getMinimumRedshift() {
+long double MinimumRedshift::getMinimumRedshift() {
 	return zmin;
 }
 
@@ -182,20 +182,20 @@ std::string MinimumChargeNumber::getDescription() const {
 }
 
 //*****************************************************************************
-MinimumEnergyPerParticleId::MinimumEnergyPerParticleId(double minEnergyOthers) {
+MinimumEnergyPerParticleId::MinimumEnergyPerParticleId(long double minEnergyOthers) {
 	setMinimumEnergyOthers(minEnergyOthers);
 }
 
-void MinimumEnergyPerParticleId::add(int id, double energy) {
+void MinimumEnergyPerParticleId::add(int id, long double energy) {
 	particleIds.push_back(id);
 	minEnergies.push_back(energy);
 }
 
-void MinimumEnergyPerParticleId::setMinimumEnergyOthers(double energy) {
+void MinimumEnergyPerParticleId::setMinimumEnergyOthers(long double energy) {
 	minEnergyOthers = energy;
 }
 
-double MinimumEnergyPerParticleId::getMinimumEnergyOthers() const {
+long double MinimumEnergyPerParticleId::getMinimumEnergyOthers() const {
 	return minEnergyOthers;
 }
 
@@ -229,15 +229,15 @@ std::string MinimumEnergyPerParticleId::getDescription() const {
 }
 
 //*****************************************************************************
-DetectionLength::DetectionLength(double detLength) :
+DetectionLength::DetectionLength(long double detLength) :
 		detLength(detLength) {
 }
 
-void DetectionLength::setDetectionLength(double length) {
+void DetectionLength::setDetectionLength(long double length) {
 	detLength = length;
 }
 
-double DetectionLength::getDetectionLength() const {
+long double DetectionLength::getDetectionLength() const {
 	return detLength;
 }
 
@@ -253,8 +253,8 @@ std::string DetectionLength::getDescription() const {
 }
 
 void DetectionLength::process(Candidate *c) const {
-	double length = c->getTrajectoryLength();
-	double step = c->getCurrentStep();
+	long double length = c->getTrajectoryLength();
+	long double step = c->getCurrentStep();
 
 	if (length >= detLength && length - step < detLength) {
 		reject(c);

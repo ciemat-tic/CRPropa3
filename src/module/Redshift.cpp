@@ -7,14 +7,14 @@
 namespace crpropa {
 
 void Redshift::process(Candidate *c) const {
-	double z = c->getRedshift();
+	long double z = c->getRedshift();
 
 	// check if z = 0
-	if (z <= std::numeric_limits<double>::min())
+	if (z <= std::numeric_limits<long double>::min())
 		return;
 
 	// use small step approximation:  dz = H(z) / c * ds
-	double dz = hubbleRate(z) / c_light * c->getCurrentStep();
+	long double dz = hubbleRate(z) / c_light * c->getCurrentStep();
 
 	// prevent dz > z
 	dz = std::min(dz, z);
@@ -23,7 +23,7 @@ void Redshift::process(Candidate *c) const {
 	c->setRedshift(z - dz);
 
 	// adiabatic energy loss: dE / dz = E / (1 + z)
-	double E = c->current.getEnergy();
+	long double E = c->current.getEnergy();
 	c->current.setEnergy(E * (1 - dz / (1 + z)));
 }
 
@@ -35,20 +35,20 @@ std::string Redshift::getDescription() const {
 }
 
 void FutureRedshift::process(Candidate *c) const {
-	double z = c->getRedshift();
+	long double z = c->getRedshift();
 
 	// check if z = -1
 	if (z <= -1)
 		return;
 
 	// use small step approximation:  dz = H(z) / c * ds
-	double dz = hubbleRate(z) / c_light * c->getCurrentStep();
+	long double dz = hubbleRate(z) / c_light * c->getCurrentStep();
 
 	// update redshift
 	c->setRedshift(z - dz);
 
 	// adiabatic energy loss: dE / dz = E / (1 + z)
-	double E = c->current.getEnergy();
+	long double E = c->current.getEnergy();
 	c->current.setEnergy(E * (1 - dz / (1 + z)));
 }
 

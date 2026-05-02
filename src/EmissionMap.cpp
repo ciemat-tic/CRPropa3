@@ -18,12 +18,12 @@ CylindricalProjectionMap::CylindricalProjectionMap(size_t nPhi, size_t nTheta) :
 	sTheta = 2. / nTheta;
 }
 
-void CylindricalProjectionMap::fillBin(const Vector3d& direction, double weight) {
+void CylindricalProjectionMap::fillBin(const Vector3d& direction, long double weight) {
 	size_t bin = binFromDirection(direction);
 	fillBin(bin, weight);
 }
 
-void CylindricalProjectionMap::fillBin(size_t bin, double weight) {
+void CylindricalProjectionMap::fillBin(size_t bin, long double weight) {
 	pdf[bin] += weight;
 	dirty = true;
 }
@@ -43,15 +43,15 @@ bool CylindricalProjectionMap::checkDirection(const Vector3d &direction) const {
 }
 
 
-const std::vector<double>& CylindricalProjectionMap::getPdf() const {
+const std::vector<long double>& CylindricalProjectionMap::getPdf() const {
 	return pdf;
 }
 
-std::vector<double>& CylindricalProjectionMap::getPdf() {
+std::vector<long double>& CylindricalProjectionMap::getPdf() {
 	return pdf;
 }
 
-const std::vector<double>& CylindricalProjectionMap::getCdf() const {
+const std::vector<long double>& CylindricalProjectionMap::getCdf() const {
 	return cdf;
 }
 
@@ -74,8 +74,8 @@ size_t CylindricalProjectionMap::getNTheta() {
  */
 size_t CylindricalProjectionMap::binFromDirection(const Vector3d& direction) const {
 	// convert to cylindrical
-	double phi = direction.getPhi() + M_PI;
-	double theta = sin(M_PI_2 - direction.getTheta()) + 1;
+	long double phi = direction.getPhi() + M_PI;
+	long double theta = sin(M_PI_2 - direction.getTheta()) + 1;
 
 	// to indices
 	size_t iPhi = phi / sPhi;
@@ -88,16 +88,16 @@ size_t CylindricalProjectionMap::binFromDirection(const Vector3d& direction) con
 
 Vector3d CylindricalProjectionMap::directionFromBin(size_t bin) const {
 	// deinterleave
-	double iPhi = bin % nPhi;
-	double iTheta = bin / nPhi;
+	long double iPhi = bin % nPhi;
+	long double iTheta = bin / nPhi;
 
 	// any where in the bin
 	iPhi += Random::instance().rand();
 	iTheta += Random::instance().rand();
 
 	// cylindrical Coordinates
-	double phi = iPhi * sPhi;
-	double theta = iTheta * sTheta;
+	long double phi = iPhi * sPhi;
+	long double theta = iTheta * sTheta;
 
 	// sphericala Coordinates
 	phi = phi - M_PI;
@@ -128,23 +128,23 @@ EmissionMap::EmissionMap(size_t nPhi, size_t nTheta, size_t nEnergy) : minEnergy
 	logStep = log10(maxEnergy / minEnergy) / nEnergy;
 }
 
-EmissionMap::EmissionMap(size_t nPhi, size_t nTheta, size_t nEnergy, double minEnergy, double maxEnergy) : minEnergy(minEnergy), maxEnergy(maxEnergy), nEnergy(nEnergy), nPhi(nPhi), nTheta(nTheta) {
+EmissionMap::EmissionMap(size_t nPhi, size_t nTheta, size_t nEnergy, long double minEnergy, long double maxEnergy) : minEnergy(minEnergy), maxEnergy(maxEnergy), nEnergy(nEnergy), nPhi(nPhi), nTheta(nTheta) {
 	logStep = log10(maxEnergy / minEnergy) / nEnergy;
 }
 
-double EmissionMap::energyFromBin(size_t bin) const {
+long double EmissionMap::energyFromBin(size_t bin) const {
 	return pow(10, log10(minEnergy) + logStep * bin);
 }
 
-size_t EmissionMap::binFromEnergy(double energy) const {
+size_t EmissionMap::binFromEnergy(long double energy) const {
 	return log10(energy / minEnergy) / logStep;
 }
 
-void EmissionMap::fillMap(int pid, double energy, const Vector3d& direction, double weight) {
+void EmissionMap::fillMap(int pid, long double energy, const Vector3d& direction, long double weight) {
 	getMap(pid, energy)->fillBin(direction, weight);
 }
 
-void EmissionMap::fillMap(const ParticleState& state, double weight) {
+void EmissionMap::fillMap(const ParticleState& state, long double weight) {
 	fillMap(state.getId(), state.getEnergy(), state.getDirection(), weight);
 }
 
@@ -156,7 +156,7 @@ const EmissionMap::map_t &EmissionMap::getMaps() const {
 	return maps;
 }
 
-bool EmissionMap::drawDirection(int pid, double energy, Vector3d& direction) const {
+bool EmissionMap::drawDirection(int pid, long double energy, Vector3d& direction) const {
 	key_t key(pid, binFromEnergy(energy));
 	map_t::const_iterator i = maps.find(key);
 
@@ -172,7 +172,7 @@ bool EmissionMap::drawDirection(const ParticleState& state, Vector3d& direction)
 	return drawDirection(state.getId(), state.getEnergy(), direction);
 }
 
-bool EmissionMap::checkDirection(int pid, double energy, const Vector3d& direction) const {
+bool EmissionMap::checkDirection(int pid, long double energy, const Vector3d& direction) const {
 	key_t key(pid, binFromEnergy(energy));
 	map_t::const_iterator i = maps.find(key);
 
@@ -187,7 +187,7 @@ bool EmissionMap::checkDirection(const ParticleState& state) const {
 	return checkDirection(state.getId(), state.getEnergy(), state.getDirection());
 }
 
-bool EmissionMap::hasMap(int pid, double energy) {
+bool EmissionMap::hasMap(int pid, long double energy) {
     key_t key(pid, binFromEnergy(energy));
     map_t::iterator i = maps.find(key);
     if (i == maps.end() || !i->second.valid())
@@ -196,7 +196,7 @@ bool EmissionMap::hasMap(int pid, double energy) {
 		return true;
 }
 
-ref_ptr<CylindricalProjectionMap> EmissionMap::getMap(int pid, double energy) {
+ref_ptr<CylindricalProjectionMap> EmissionMap::getMap(int pid, long double energy) {
 	key_t key(pid, binFromEnergy(energy));
 	map_t::iterator i = maps.find(key);
 	if (i == maps.end() || !i->second.valid()) {
@@ -217,7 +217,7 @@ void EmissionMap::save(const std::string &filename) {
 			continue;
 		out << i->first.first << " " << i->first.second << " " << energyFromBin(i->first.second) << " ";
 		out << i->second->getNPhi() << " " << i->second->getNTheta();
-		const std::vector<double> &pdf = i->second->getPdf();
+		const std::vector<long double> &pdf = i->second->getPdf();
 		for (size_t i = 0; i < pdf.size(); i++)
 			out << " " << pdf[i];
 		out << std::endl;
@@ -233,7 +233,7 @@ void EmissionMap::merge(const EmissionMap *other) {
 		if (!i->second.valid())
 			continue;
 
-		std::vector<double> &otherpdf = i->second->getPdf();
+		std::vector<long double> &otherpdf = i->second->getPdf();
 		ref_ptr<CylindricalProjectionMap> cpm = getMap(i->first.first, i->first.second);
 
 		if (otherpdf.size() != cpm->getPdf().size()) {
@@ -259,7 +259,7 @@ void EmissionMap::load(const std::string &filename) {
 
 	while(in.good()) {
 		key_t key;
-		double tmp;
+		long double tmp;
 		size_t nPhi_, nTheta_;
 		in >> key.first >> key.second >> tmp;
 		in >> nPhi_ >> nTheta_;
@@ -277,7 +277,7 @@ void EmissionMap::load(const std::string &filename) {
 		}
 
 		ref_ptr<CylindricalProjectionMap> cpm = new CylindricalProjectionMap(nPhi_, nTheta_);
-		std::vector<double> &pdf = cpm->getPdf();
+		std::vector<long double> &pdf = cpm->getPdf();
 		for (size_t i = 0; i < pdf.size(); i++)
 			in >> pdf[i];
 

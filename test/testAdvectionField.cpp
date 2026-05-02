@@ -12,7 +12,7 @@ namespace crpropa {
 TEST(testUniformAdvectionField, SimpleTest) {
 	UniformAdvectionField A(Vector3d(-1, 5, 3));
 	Vector3d a = A.getField(Vector3d(1, 0, 0));
-	double D = A.getDivergence(Vector3d(1, 0, 0));
+	long double D = A.getDivergence(Vector3d(1, 0, 0));
 	EXPECT_DOUBLE_EQ(a.x, -1);
 	EXPECT_DOUBLE_EQ(a.y, 5);
 	EXPECT_DOUBLE_EQ(a.z, 3);
@@ -26,7 +26,7 @@ TEST(testAdvectionFieldList, SimpleTest) {
 	A.addField(new UniformAdvectionField(Vector3d(0, 2, 0)));
 	A.addField(new UniformAdvectionField(Vector3d(0, 0, 3)));
 	Vector3d a = A.getField(Vector3d(0.));
-	double D = A.getDivergence(Vector3d(1, 2, 3));
+	long double D = A.getDivergence(Vector3d(1, 2, 3));
 	EXPECT_DOUBLE_EQ(a.x, 1);
 	EXPECT_DOUBLE_EQ(a.y, 2);
 	EXPECT_DOUBLE_EQ(a.z, 3);
@@ -36,7 +36,7 @@ TEST(testAdvectionFieldList, SimpleTest) {
 TEST(testConstantSphericalAdvectionField, SimpleTest) {
 	
 	Vector3d origin(1, 0, 0);
-	double V_wind(10);
+	long double V_wind(10);
 	
 	ConstantSphericalAdvectionField A(origin, V_wind);
 	
@@ -57,17 +57,17 @@ TEST(testConstantSphericalAdvectionField, SimpleTest) {
 	
 	// Divergence should be 2*V/r
 	Vector3d Pos2(2, 0, 0);
-	double D = A.getDivergence(Pos2);
+	long double D = A.getDivergence(Pos2);
 	EXPECT_DOUBLE_EQ(D, 2*10);
 }
 
 TEST(testSphericalAdvectionField, SimpleTest) {
 
 	Vector3d origin(1, 0, 0);
-	double R_max(10);
-	double V_max(1000);
-	double tau(3.);
-	double alpha(2.);
+	long double R_max(10);
+	long double V_max(1000);
+	long double tau(3.);
+	long double alpha(2.);
 
 	SphericalAdvectionField A(origin, R_max, V_max, tau, alpha);
 
@@ -89,7 +89,7 @@ TEST(testSphericalAdvectionField, SimpleTest) {
 	Vector3d Pos(2, 0, 0);
 	Vector3d a = A.getField(Pos);
 	Vector3d a0 = a.getUnitVector();
-	double d = A.getDivergence(Pos);
+	long double d = A.getDivergence(Pos);
 
 	EXPECT_DOUBLE_EQ(a0.x, 1.);
 	EXPECT_DOUBLE_EQ(a0.y, 0.);
@@ -109,11 +109,11 @@ TEST(testSphericalAdvectionField, SimpleTest) {
 TEST(testSphericalAdvectionShock, SimpleTest) {
 
 	Vector3d origin(0, 0, 0);
-	double R_0(10);
-	double V_0(1000);
-	double lambda(0.1);
-	double R_rot(1.);
-	double V_rot(100);
+	long double R_0(10);
+	long double V_0(1000);
+	long double lambda(0.1);
+	long double R_rot(1.);
+	long double V_rot(100);
 	
 
 	SphericalAdvectionShock A(origin, R_0, V_0, lambda);
@@ -144,7 +144,7 @@ TEST(testSphericalAdvectionShock, SimpleTest) {
 	Vector3d Pos(2, 0, 0);
 	Vector3d a = A.getField(Pos);
 	Vector3d a0 = a.getUnitVector();
-	double d = A.getDivergence(Pos);
+	long double d = A.getDivergence(Pos);
 
 	EXPECT_DOUBLE_EQ(a0.x, 1.);
 	EXPECT_DOUBLE_EQ(a0.y, 0.);
@@ -169,12 +169,12 @@ TEST(testSphericalAdvectionShock, SimpleTest) {
 
 TEST(testOneDimensionalTimeDependentShock, SimpleTest) {
 
-    double V_sh(1);
-    double V_1(3./4.);
-    double V_0(0.);
-    double L_sh(.01);
-    double X_sh0(0);
-    double T_sh0(0);
+    long double V_sh(1);
+    long double V_1(3./4.);
+    long double V_0(0.);
+    long double L_sh(.01);
+    long double X_sh0(0);
+    long double T_sh0(0);
 
     OneDimensionalTimeDependentShock A(V_sh, V_1, V_0, L_sh);
 
@@ -191,7 +191,7 @@ TEST(testOneDimensionalTimeDependentShock, SimpleTest) {
     EXPECT_DOUBLE_EQ(A.getDivergence(Vector3d(1,0,0)), 0.);
 
     // Shock position at t=1
-    double xsh = A.getShockPosition(10.);
+    long double xsh = A.getShockPosition(10.);
     EXPECT_DOUBLE_EQ(xsh, V_sh * 10.);
 
     // Preshock and postshock speeds:
@@ -202,9 +202,9 @@ TEST(testOneDimensionalTimeDependentShock, SimpleTest) {
 
 TEST(testSedovTaylorBlastWave, SimpleTest) {
 
-    double E0(1);
-    double rho0(1);
-    double L_sh(0.01);
+    long double E0(1);
+    long double rho0(1);
+    long double L_sh(0.01);
 
     SedovTaylorBlastWave A(E0, rho0, L_sh);
 
@@ -218,11 +218,11 @@ TEST(testSedovTaylorBlastWave, SimpleTest) {
     EXPECT_DOUBLE_EQ(A.getDivergence(Vector3d(1,0,0)), 0.);
 
     // Shock position at t=1
-    double R = A.getShockRadius(1.);
+    long double R = A.getShockRadius(1.);
     EXPECT_DOUBLE_EQ(R, pow(E0 / rho0, 1./5.));
 
     // Shock speed at t=1
-    double V = A.getShockSpeed(1.);
+    long double V = A.getShockSpeed(1.);
     EXPECT_DOUBLE_EQ(V, 2. / 5. * pow(E0 / rho0, 1. / 5.));
 
     // Check field 

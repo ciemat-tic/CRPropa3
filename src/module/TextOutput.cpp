@@ -21,11 +21,11 @@
 namespace crpropa {
 
 namespace {
-inline int appendScientific(char *buffer, size_t buffersize, size_t pos, int precision, double value) {
+inline int appendScientific(char *buffer, size_t buffersize, size_t pos, int precision, long double value) {
 	return std::snprintf(buffer + pos, buffersize - pos, "%.*E\t", precision, value);
 }
 
-inline int appendScientific3(char *buffer, size_t buffersize, size_t pos, int precision, double x, double y, double z) {
+inline int appendScientific3(char *buffer, size_t buffersize, size_t pos, int precision, long double x, long double y, long double z) {
 	return std::snprintf(buffer + pos, buffersize - pos, "%.*E\t%.*E\t%.*E\t",
 		precision, x, precision, y, precision, z);
 }
@@ -310,9 +310,9 @@ void TextOutput::load(const std::string &filename, ParticleCollector *collector)
 	std::ifstream infile(filename.c_str());
 	
 	Output output;
-	double lengthScale = output.getLengthScale();
-	double timeScale = output.getTimeScale();
-	double energyScale = output.getEnergyScale();
+	long double lengthScale = output.getLengthScale();
+	long double timeScale = output.getTimeScale();
+	long double energyScale = output.getEnergyScale();
 
 	if (!infile.good())
 		throw std::runtime_error("crpropa::TextOutput: could not open file " + filename);
@@ -332,8 +332,8 @@ void TextOutput::load(const std::string &filename, ParticleCollector *collector)
 			continue;
 
 		ref_ptr<Candidate> c = new Candidate(); 
-		double val_d; int val_i;
-		double x, y, z;
+		long double val_d; int val_i;
+		long double x, y, z;
 		stream >> val_d;
 		c->setTrajectoryLength(val_d * lengthScale); // D
 		stream >> val_d;

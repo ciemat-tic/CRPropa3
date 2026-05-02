@@ -8,13 +8,13 @@ CandidateSplitting::CandidateSplitting() {
 	setMinimalWeight(1.);
 }
 
-CandidateSplitting::CandidateSplitting(int nSplit, double Emin, double Emax,  double nBins, double minWeight, bool log) {
+CandidateSplitting::CandidateSplitting(int nSplit, long double Emin, long double Emax,  long double nBins, long double minWeight, bool log) {
 	setNsplit(nSplit);
 	setEnergyBins(Emin, Emax, nBins, log);
 	setMinimalWeight(minWeight);
 }
 
-CandidateSplitting::CandidateSplitting(double spectralIndex, double Emin, int nBins)  {
+CandidateSplitting::CandidateSplitting(long double spectralIndex, long double Emin, int nBins)  {
 	// to use with Diffusive Shock Acceleration
 	if (spectralIndex > 0){
 		throw std::runtime_error(
@@ -22,14 +22,14 @@ CandidateSplitting::CandidateSplitting(double spectralIndex, double Emin, int nB
 	}
 
 	setNsplit(2); // always split in 2, calculate bins in energy for given spectrum:
-	double dE = pow(1. / 2, 1. / (spectralIndex + 1)); 
+	long double dE = pow(1. / 2, 1. / (spectralIndex + 1));
 	setEnergyBinsDSA(Emin, dE, nBins);
 	setMinimalWeight(1. / pow(2, nBins));
 }
 
 void CandidateSplitting::process(Candidate *c) const {
-	double currE = c->current.getEnergy(); 
-	double prevE = c->previous.getEnergy();
+	long double currE = c->current.getEnergy();
+	long double prevE = c->previous.getEnergy();
 
 	if (c->getWeight() <= minWeight){
 		// minimal weight reached, no splitting
@@ -71,13 +71,13 @@ void CandidateSplitting::process(Candidate *c) const {
 	}
 }
 
-void CandidateSplitting::setEnergyBins(double Emin, double Emax, double nBins, bool log) {
+void CandidateSplitting::setEnergyBins(long double Emin, long double Emax, long double nBins, bool log) {
 	Ebins.resize(0);
 	if (Emin > Emax){
 		throw std::runtime_error(
 				"CandidateSplitting: Emin > Emax!");
 	}
-	double dE = (Emax-Emin)/nBins;
+	long double dE = (Emax-Emin)/nBins;
 	for (size_t i = 0; i < nBins; ++i) {
 		if (log == true) {
 			Ebins.push_back(Emin * pow(Emax / Emin, i / (nBins - 1.0)));
@@ -87,14 +87,14 @@ void CandidateSplitting::setEnergyBins(double Emin, double Emax, double nBins, b
 	}
 }
 
-void CandidateSplitting::setEnergyBinsDSA(double Emin, double dE, int n) {
+void CandidateSplitting::setEnergyBinsDSA(long double Emin, long double dE, int n) {
 	Ebins.resize(0);
 	for (size_t i = 1; i < n + 1; ++i) {
 		Ebins.push_back(Emin * pow(dE, i));
 	}
 }
 
-const std::vector<double>& CandidateSplitting::getEnergyBins() const {
+const std::vector<long double>& CandidateSplitting::getEnergyBins() const {
 	return Ebins;
 }
 
@@ -102,7 +102,7 @@ void CandidateSplitting::setNsplit(int n) {
 	nSplit = n;
 }
 
-void CandidateSplitting::setMinimalWeight(double w) {
+void CandidateSplitting::setMinimalWeight(long double w) {
 	minWeight = w;
 }
 
@@ -110,7 +110,7 @@ int CandidateSplitting::getNsplit() const {
 	return nSplit;
 }
 
-double CandidateSplitting::getMinimalWeight() const {
+long double CandidateSplitting::getMinimalWeight() const {
 	return minWeight;
 }
 

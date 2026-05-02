@@ -66,13 +66,13 @@ public:
  */
 class SourceList: public SourceInterface {
 	std::vector<ref_ptr<Source> > sources;
-	std::vector<double> cdf;
+	std::vector<long double> cdf;
 public:
 	/** Add an individual source to the list.
 	 @param source		source to be added
 	 @param weight		weight of the source; defaults to 1.
 	 */
-	void add(Source* source, double weight = 1);
+	void add(Source* source, long double weight = 1);
 	ref_ptr<Candidate> getCandidate() const;
 	std::string getDescription() const;
 };
@@ -110,7 +110,7 @@ public:
  */
 class SourceMultipleParticleTypes: public SourceFeature {
 	std::vector<int> particleTypes;
-	std::vector<double> cdf;
+	std::vector<long double> cdf;
 public:
 	/** Constructor
 	 */
@@ -119,7 +119,7 @@ public:
 	 @param id			id of the particle following the PDG numbering scheme
 	 @param weight		relative abundance of individual particle species
 	 */
-	void add(int id, double weight = 1);
+	void add(int id, long double weight = 1);
 	void prepareParticle(ParticleState &particle) const;
 	void setDescription();
 };
@@ -132,12 +132,12 @@ public:
  This feature assigns a monochromatic spectrum, i.e., a single energy to all particles.
  */
 class SourceEnergy: public SourceFeature {
-	double E;
+	long double E;
 public:
 	/** Constructor
 	 @param energy		energy of the particle (in Joules)
 	 */
-	SourceEnergy(double energy);
+	SourceEnergy(long double energy);
 	void prepareParticle(ParticleState &particle) const;
 	void setDescription();
 };
@@ -150,16 +150,16 @@ public:
  The power law is of the form: dN/dE ~ E^index, for energies in the interval [Emin, Emax].
  */
 class SourcePowerLawSpectrum: public SourceFeature {
-	double Emin;
-	double Emax;
-	double index;
+	long double Emin;
+	long double Emax;
+	long double index;
 public:
 	/** Constructor
 	 @param Emin		minimum energy (in Joules)
 	 @param Emax		maximum energy (in Joules)
 	 @param index		spectral index of the power law
 	 */
-	SourcePowerLawSpectrum(double Emin, double Emax, double index);
+	SourcePowerLawSpectrum(long double Emin, long double Emax, long double index);
 	void prepareParticle(ParticleState &particle) const;
 	void setDescription();
 };
@@ -172,29 +172,29 @@ public:
  The power law is of the form: E^index, for energies in the interval [Emin, Z * Rmax].
  */
 class SourceComposition: public SourceFeature {
-	double Emin;
-	double Rmax;
-	double index;
+	long double Emin;
+	long double Rmax;
+	long double index;
 	std::vector<int> nuclei;
-	std::vector<double> cdf;
+	std::vector<long double> cdf;
 public:
 	/** Constructor
 	 @param Emin		minimum energy (in Joules)
 	 @param Rmax		maximum rigidity (in Volts)
 	 @param index		spectral index of the power law
 	 */
-	SourceComposition(double Emin, double Rmax, double index);
+	SourceComposition(long double Emin, long double Rmax, long double index);
 	/** Add individual particle species with a given abundance
 	 @param id			id of the particle following the PDG numbering scheme
 	 @param abundance	relative abundance of the particle species
 	 */
-	void add(int id, double abundance);
+	void add(int id, long double abundance);
 	/** Add individual particle species with a given abundance
 	 @param A			atomic mass of the cosmic-ray nucleus
 	 @param Z			atomic number of the cosmic-ray nucleus
 	 @param abundance	relative abundance of the particle species
 	 */
-	void add(int A, int Z, double abundance);
+	void add(int A, int Z, long double abundance);
 	void prepareParticle(ParticleState &particle) const;
 	void setDescription();
 };
@@ -215,7 +215,7 @@ public:
 	 @param d	distance of the point source to the observer at x = 0 [in meters]; 
 	 			internally this will be converted to a vector with x-coordinate equal to d
 	 */
-	SourcePosition(double d);
+	SourcePosition(long double d);
 	void prepareParticle(ParticleState &state) const;
 	void setDescription();
 };
@@ -227,7 +227,7 @@ public:
  */
 class SourceMultiplePositions: public SourceFeature {
 	std::vector<Vector3d> positions;
-	std::vector<double> cdf;
+	std::vector<long double> cdf;
 public:
 	/** Constructor.
 	 The sources must be added individually to the object.
@@ -237,7 +237,7 @@ public:
 	 @param position	vector containing the coordinates of the point source [in meters]
 	 @param weight		luminosity/contribution of the individual source
 	 */
-	void add(Vector3d position, double weight = 1);
+	void add(Vector3d position, long double weight = 1);
 	void prepareParticle(ParticleState &particle) const;
 	void setDescription();
 };
@@ -249,13 +249,13 @@ public:
  */
 class SourceUniformSphere: public SourceFeature {
 	Vector3d center;
-	double radius;
+	long double radius;
 public:
 	/** Constructor
 	 @param center		vector containing the coordinates of the center of the sphere
 	 @param radius		radius of the sphere
 	 */
-	SourceUniformSphere(Vector3d center, double radius);
+	SourceUniformSphere(Vector3d center, long double radius);
 	void prepareParticle(ParticleState &particle) const;
 	void setDescription();
 };
@@ -267,8 +267,8 @@ public:
  */
 class SourceUniformHollowSphere: public SourceFeature {
 	Vector3d center;
-	double radius_inner;
-	double radius_outer;
+	long double radius_inner;
+	long double radius_outer;
 public:
 	/** Constructor
 	 @param center			vector containing the coordinates of the center of the sphere
@@ -276,7 +276,7 @@ public:
 	 @param radius_outer	radius of the outer sphere
 	 */
 	SourceUniformHollowSphere(Vector3d center,
-			double radius_inner, double radius_outer);
+			long double radius_inner, long double radius_outer);
 	void prepareParticle(ParticleState &particle) const;
 	void setDescription();
 };
@@ -288,13 +288,13 @@ public:
  */
 class SourceUniformShell: public SourceFeature {
 	Vector3d center;
-	double radius;
+	long double radius;
 public:
 	/** Constructor
 	 @param center		vector containing the coordinates of the center of the sphere
 	 @param radius		radius of the sphere
 	 */
-	SourceUniformShell(Vector3d center, double radius);
+	SourceUniformShell(Vector3d center, long double radius);
 	void prepareParticle(ParticleState &particle) const;
 	void setDescription();
 };
@@ -326,15 +326,15 @@ public:
  */
 class SourceUniformCylinder: public SourceFeature {
 	Vector3d origin;	// central point of cylinder 
-	double height;		// total height of the cylinder along z-axis. Half over/under the center.
-	double radius;		// radius of the cylinder in the xy-plane
+	long double height;		// total height of the cylinder along z-axis. Half over/under the center.
+	long double radius;		// radius of the cylinder in the xy-plane
 public:
 	/** Constructor
 	 @param origin	vector corresponding to the center of the cylinder axis
 	 @param height	height of the cylinder, half lays over the origin, half is lower
 	 @param radius	radius of the cylinder
 	 */
-	SourceUniformCylinder(Vector3d origin, double height, double radius);
+	SourceUniformCylinder(Vector3d origin, long double height, long double radius);
 	void prepareParticle(ParticleState &particle) const;
 	void setDescription();
 };
@@ -349,15 +349,15 @@ public:
  See G. Case and D. Bhattacharya (1996) for the details of the distribution.
  */
 class SourceSNRDistribution: public SourceFeature {
-	double rEarth; // parameter given by observation
-	double alpha; // parameter to shift the maximum in R direction
-	double beta; // parameter to shift the maximum in R direction
-	double zg; // exponential cut parameter in z direction
-	double frMax; // helper for efficient sampling
-	double fzMax; // helper for efficient sampling
-	double rMax; // maximum radial distance - default 20 kpc 
+	long double rEarth; // parameter given by observation
+	long double alpha; // parameter to shift the maximum in R direction
+	long double beta; // parameter to shift the maximum in R direction
+	long double zg; // exponential cut parameter in z direction
+	long double frMax; // helper for efficient sampling
+	long double fzMax; // helper for efficient sampling
+	long double rMax; // maximum radial distance - default 20 kpc
 		      // (due to the extension of the JF12 field)
-	double zMax; // maximum distance from galactic plane - default 5 kpc
+	long double zMax; // maximum distance from galactic plane - default 5 kpc
 	void setFrMax(); // calculate frMax with the current parameter. 
 
 public:
@@ -377,46 +377,46 @@ public:
 	 @param beta	  parameter that shifts radially the maximum of the distributions 
 	 @param zg		  exponential cut-off parameter in the z-direction [in meters]
 	*/	
-	SourceSNRDistribution(double rEarth,double alpha, double beta, double zg);
+	SourceSNRDistribution(long double rEarth,long double alpha, long double beta, long double zg);
 
 	void prepareParticle(ParticleState &particle) const;
 	/**
 	 radial distribution of the SNR density.
 	 @param r	galactocentric radius in [meter]
 	*/
-	double fr(double r) const;
+	long double fr(long double r) const;
 	/**
 	 height distribution of the SNR density.
 	 @param z	height over/under the galactic plane in [meter]
 	*/
-	double fz(double z) const;
+	long double fz(long double z) const;
 
 	/**
 	 Set the exponential cut-off parameter in the z-direction.
 	 @param Zg	cut-off parameter
 	*/
-	void setFzMax(double Zg);
+	void setFzMax(long double Zg);
 
 	/**
 	 @param rMax maximal radius up to which sources are possible
 	*/
-	void setRMax(double rMax);
+	void setRMax(long double rMax);
 
 	/**
 	 @param zMax maximal height up to which sources are possible
 	*/
-	void setZMax(double zMax);
+	void setZMax(long double zMax);
 
 	// parameter for the raidal distribution
-	void setAlpha(double a);
+	void setAlpha(long double a);
 	// parameter for the exponential cut-off in the radial distribution
-	void setBeta(double b);
-	double getFrMax() const;
-	double getFzMax() const;
-	double getRMax() const;
-	double getZMax() const;
-	double getAlpha() const;
-	double getBeta() const;
+	void setBeta(long double b);
+	long double getFrMax() const;
+	long double getFzMax() const;
+	long double getRMax() const;
+	long double getZMax() const;
+	long double getAlpha() const;
+	long double getBeta() const;
 	void setDescription();
 };
 
@@ -432,15 +432,15 @@ public:
  parametrized as in Blasi and Amato, JCAP 1 (Jan., 2012) 10.
  */
 class SourcePulsarDistribution: public SourceFeature {
-	double rEarth; // parameter given by observation
-	double beta; // parameter to shift the maximum in R direction
-	double zg; // exponential cut parameter in z direction
-	double frMax; // helper for efficient sampling
-	double fzMax; // helper for efficient sampling
-	double rMax; // maximum radial distance - default 22 kpc 
-	double zMax; // maximum distance from galactic plane - default 5 kpc
-	double rBlur; // relative smearing factor for the radius
-	double thetaBlur; // smearing factor for the angle. Unit = [1/length]
+	long double rEarth; // parameter given by observation
+	long double beta; // parameter to shift the maximum in R direction
+	long double zg; // exponential cut parameter in z direction
+	long double frMax; // helper for efficient sampling
+	long double fzMax; // helper for efficient sampling
+	long double rMax; // maximum radial distance - default 22 kpc
+	long double zMax; // maximum distance from galactic plane - default 5 kpc
+	long double rBlur; // relative smearing factor for the radius
+	long double thetaBlur; // smearing factor for the angle. Unit = [1/length]
 public:
 	/** Default constructor. 
 	 Default parameters are:
@@ -460,34 +460,34 @@ public:
 	 @param rBlur		relative smearing factor for radius
 	 @param thetaBlur	smearing factor for the angle [in 1 / meters]
 	 */	
-	SourcePulsarDistribution(double rEarth, double beta, double zg, double rBlur, double thetaBlur);
+	SourcePulsarDistribution(long double rEarth, long double beta, long double zg, long double rBlur, long double thetaBlur);
 	void prepareParticle(ParticleState &particle) const;
 
 	/** 
 	 radial distribution of pulsars
 	 @param r	galactocentric radius
 	*/
-	double fr(double r) const;
+	long double fr(long double r) const;
 	/**
 	 z distribution of pulsars
 	 @param z	height over/under the galactic plane
 	*/
-	double fz(double z) const;
-	double ftheta(int i, double r) const;
-	double blurR(double r_tilde) const;
-	double blurTheta(double theta_tilde, double r_tilde) const;
-	void setFrMax(double R, double b);
-	void setFzMax(double zg);
-	void setRMax(double rMax);
-	void setZMax(double zMax);
-	void setRBlur(double rBlur);
-	void setThetaBlur(double thetaBlur);
-	double getFrMax();
-	double getFzMax();
-	double getRMax();
-	double getZMax();
-	double getRBlur();
-	double getThetaBlur();
+	long double fz(long double z) const;
+	long double ftheta(int i, long double r) const;
+	long double blurR(long double r_tilde) const;
+	long double blurTheta(long double theta_tilde, long double r_tilde) const;
+	void setFrMax(long double R, long double b);
+	void setFzMax(long double zg);
+	void setRMax(long double rMax);
+	void setZMax(long double zMax);
+	void setRBlur(long double rBlur);
+	void setThetaBlur(long double thetaBlur);
+	long double getFrMax();
+	long double getFzMax();
+	long double getRMax();
+	long double getZMax();
+	long double getRBlur();
+	long double getThetaBlur();
 	void setDescription();
 };
 
@@ -506,8 +506,8 @@ public:
  in this one-dimensional case.
  */
 class SourceUniform1D: public SourceFeature {
-	double minD; // minimum light-travel distance
-	double maxD; // maximum light-travel distance
+	long double minD; // minimum light-travel distance
+	long double maxD; // maximum light-travel distance
 	bool withCosmology;	// whether to account for cosmological effects (expansion of the Universe)
 public:
 	/** Constructor
@@ -515,7 +515,7 @@ public:
 	 @param maxD 			maximum distance; comoving if withCosmology is True
 	 @param withCosmology	whether to account for cosmological effects (expansion of the Universe)
 	 */
-	SourceUniform1D(double minD, double maxD, bool withCosmology = true);
+	SourceUniform1D(long double minD, long double maxD, bool withCosmology = true);
 	void prepareParticle(ParticleState& particle) const;
 	void setDescription();
 };
@@ -581,13 +581,13 @@ public:
  */
 class SourceDirectedEmission: public SourceFeature {
 	Vector3d mu; // Mean emission direction in the vMF distribution
-	double kappa; // Concentration parameter of the vMF distribution
+	long double kappa; // Concentration parameter of the vMF distribution
 public:
 	/** Constructor
 	 @param mu	mean direction of the emission, mu should be normelized
 	 @param kappa	concentration parameter
 	*/
-	SourceDirectedEmission(Vector3d mu, double kappa);
+	SourceDirectedEmission(Vector3d mu, long double kappa);
 	void prepareCandidate(Candidate &candidate) const;
 	void setDescription();
 };
@@ -603,7 +603,7 @@ public:
  */
 class SourceLambertDistributionOnSphere: public SourceFeature {
 	Vector3d center;	// center of the sphere
-	double radius;		// radius of the sphere
+	long double radius;		// radius of the sphere
 	bool inward;		// if true, direction point inwards
 public:
 	/** Constructor
@@ -611,7 +611,7 @@ public:
 	 @param radius		radius of the sphere
 	 @param inward		if true, the directions point inwards
 	 */
-	SourceLambertDistributionOnSphere(const Vector3d &center, double radius, bool inward);
+	SourceLambertDistributionOnSphere(const Vector3d &center, long double radius, bool inward);
 	void prepareParticle(ParticleState &particle) const;
 	void setDescription();
 };
@@ -659,13 +659,13 @@ public:
  */
 class SourceEmissionCone: public SourceFeature {
 	Vector3d direction;
-	double aperture;
+	long double aperture;
 public:
 	/** Constructor
 	 @param direction		Vector3d corresponding to the cone axis 
 	 @param aperture		opening angle of the cone
 	 */
-	SourceEmissionCone(Vector3d direction, double aperture);
+	SourceEmissionCone(Vector3d direction, long double aperture);
 	void prepareParticle(ParticleState &particle) const;
 
 	/**
@@ -689,12 +689,12 @@ public:
  This treatment is also useful for time-dependent studies (e.g. transient sources).
  */
 class SourceRedshift: public SourceFeature {
-	double z;
+	long double z;
 public:
 	/** Constructor
 	 @param z		redshift of emission
 	 */
-	SourceRedshift(double z);
+	SourceRedshift(long double z);
 	void prepareCandidate(Candidate &candidate) const;
 	void setDescription();
 };
@@ -715,13 +715,13 @@ public:
  This treatment is also useful for time-dependent studies (e.g. transient sources).
  */
 class SourceUniformRedshift: public SourceFeature {
-	double zmin, zmax;
+	long double zmin, zmax;
 public:
 	/** Constructor
 	 @param zmin	minimum redshift
 	 @param zmax	maximum redshift
 	 */
-	SourceUniformRedshift(double zmin, double zmax);
+	SourceUniformRedshift(long double zmin, long double zmax);
 	void prepareCandidate(Candidate &candidate) const;
 	void setDescription();
 };
@@ -741,15 +741,15 @@ public:
  This treatment is also useful for time-dependent studies (e.g. transient sources).
  */
 class SourceRedshiftEvolution: public SourceFeature {
-	double zmin, zmax;
-	double m;
+	long double zmin, zmax;
+	long double m;
 public:
 	/** Constructor
 	 @param m		index of the power law (1 + z)^m
 	 @param zmin	minimum redshift
 	 @param zmax	maximum redshift
 	 */
-	SourceRedshiftEvolution(double m, double zmin, double zmax);
+	SourceRedshiftEvolution(long double m, long double zmin, long double zmax);
 	void prepareCandidate(Candidate &candidate) const;
 };
 
@@ -790,7 +790,7 @@ class SourceGenericComposition: public SourceFeature {
 public:
 	struct Nucleus {
 		int id;
-		std::vector<double> cdf;
+		std::vector<long double> cdf;
 	};
 	/** Constructor
 	 @param Emin		minimum energy [in Joules]
@@ -798,22 +798,22 @@ public:
 	 @param expression	string containing the expression to generate the composition
 	 @param bins		number of energy bins
 	 */
-	SourceGenericComposition(double Emin, double Emax, std::string expression, size_t bins = 1024);
+	SourceGenericComposition(long double Emin, long double Emax, std::string expression, size_t bins = 1024);
 	/** Add an individual particle id.
 	 @param id			id of the particle following the PDG numbering scheme
 	 @param abundance	relative abundance of individual particle species
 	 */
-	void add(int id, double abundance);
+	void add(int id, long double abundance);
 	/** Add an individual particle id.
 	 @param A			atomic mass of the cosmic-ray nucleus
 	 @param Z			atomic number of the cosmic-ray nucleus
 	 @param abundance	relative abundance of individual particle species
 	 */
-	void add(int A, int Z, double abundance);
+	void add(int A, int Z, long double abundance);
 	void prepareParticle(ParticleState &particle) const;
 	void setDescription();
 
-	const std::vector<double> *getNucleusCDF(int id) const {
+	const std::vector<long double> *getNucleusCDF(int id) const {
 		for (size_t i = 0; i < nuclei.size(); i++) {
 			if (nuclei[i].id == id)
 				return &nuclei[i].cdf;
@@ -822,13 +822,13 @@ public:
 	}
 
 protected:
-	double Emin, Emax;
+	long double Emin, Emax;
 	size_t bins;
 	std::string expression;
-	std::vector<double> energy;
+	std::vector<long double> energy;
 
 	std::vector<Nucleus> nuclei;
-	std::vector<double> cdf;
+	std::vector<long double> cdf;
 
 };
 #endif
@@ -864,10 +864,10 @@ public:
 class SourceMassDistribution: public SourceFeature {
 private: 
 	ref_ptr<Density> density;	//< density distribution
-	double maxDensity; 			//< maximal value of the density in the region of interest
-	double xMin, xMax;			//< x-range to sample positions
-	double yMin, yMax; 			//< y-range to sample positions
-	double zMin, zMax;			//< z-range to sample positions
+	long double maxDensity; 			//< maximal value of the density in the region of interest
+	long double xMin, xMax;			//< x-range to sample positions
+	long double yMin, yMax; 			//< y-range to sample positions
+	long double zMin, zMax;			//< z-range to sample positions
 	int maxTries = 10000;		//< maximal number of tries to sample the position 
 
 public: 
@@ -878,32 +878,32 @@ public:
 	@param y:	the position will be sampled in the range [-y, y]. Non symmetric values can be set with setYrange.
 	@param z:	the position will be sampled in the range [-z, z]. Non symmetric values can be set with setZrange.
 	*/
-	SourceMassDistribution(ref_ptr<Density> density, double maxDensity = 0, double x = 20 * kpc, double y = 20 * kpc, double z = 4 * kpc);
+	SourceMassDistribution(ref_ptr<Density> density, long double maxDensity = 0, long double x = 20 * kpc, long double y = 20 * kpc, long double z = 4 * kpc);
 
 	void prepareParticle(ParticleState &particle) const;
 
 	/** Set the maximal density in the region of interest. This parameter is necessary for the sampling
 	@param maxDensity:	maximal density in [particle / m^3]
 	*/
-	void setMaximalDensity(double maxDensity);
+	void setMaximalDensity(long double maxDensity);
 
 	/** set x-range in which the position of the candidate will be sampled. x in [xMin, xMax].
 	@param xMin: minimal x value of the allowed sample range in [m]
 	@param xMax: maximal x value of the allowed sample range in [m]
 	*/
-	void setXrange(double xMin, double xMax);
+	void setXrange(long double xMin, long double xMax);
 
 	/** set y-range in which the position of the candidate will be sampled. y in [yMin, yMax].
 	@param yMin: minimal y value of the allowed sample range in [m]
 	@param yMax: maximal y value of the allowed sample range in [m]
 	*/
-	void setYrange(double yMin, double yMax);
+	void setYrange(long double yMin, long double yMax);
 
 	/** set z-range in which the position of the candidate will be sampled. z in [zMin, zMax].
 	@param zMin: minimal z value of the allowed sample range in [m]
 	@param zMax: maximal z value of the allowed sample range in [m]
 	*/
-	void setZrange(double zMin, double zMax);
+	void setZrange(long double zMin, long double zMax);
 
 	/*	samples the position. Can be used for testing.
 		@return Vector3d with sampled position

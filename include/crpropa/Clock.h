@@ -21,8 +21,8 @@ public:
 	virtual ~Clock();
 
 	void reset();
-	double getSecond();
-	double getMillisecond();
+	long double getSecond();
+	long double getMillisecond();
 	static Clock &getInstance();
 };
 /** @} */

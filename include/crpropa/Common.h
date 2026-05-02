@@ -33,50 +33,50 @@ T clip(const T& x, const T& lower, const T& upper) {
 
 // Perform linear interpolation on a set of n tabulated data points X[0 .. n-1] -> Y[0 .. n-1]
 // Returns Y[0] if x < X[0] and Y[n-1] if x > X[n-1]
-double interpolate(double x, const std::vector<double>& X,
-		const std::vector<double>& Y);
+long double interpolate(long double x, const std::vector<long double>& X,
+		const std::vector<long double>& Y);
 
 
 // Perform bilinear interpolation on a set of (n,m) tabulated data points X[0 .. n-1], Y[0 .. m-1] -> Z[0.. n-1*m-1]
 // Returns 0 if x < X[0] or x > X[n-1] or y < Y[0] or y > Y[m-1]
-double interpolate2d(double x, double y, const std::vector<double>& X,
-		const std::vector<double>& Y, const std::vector<double>& Z);
+long double interpolate2d(long double x, long double y, const std::vector<long double>& X,
+		const std::vector<long double>& Y, const std::vector<long double>& Z);
 
 // Perform linear interpolation on equidistant tabulated data
 // Returns Y[0] if x < lo and Y[n-1] if x > hi
-double interpolateEquidistant(double x, double lo, double hi,
-		const std::vector<double>& Y);
+long double interpolateEquidistant(long double x, long double lo, long double hi,
+		const std::vector<long double>& Y);
 
 // Find index of value in a sorted vector X that is closest to x
-size_t closestIndex(double x, const std::vector<double> &X);
+size_t closestIndex(long double x, const std::vector<long double> &X);
 /** @}*/
 
 
 // pow implementation as template for integer exponents pow_integer<2>(x)
 // evaluates to x*x
 template <unsigned int exponent>
-inline double pow_integer(double base)
+inline long double pow_integer(long double base)
 {
   return pow_integer<(exponent >> 1)>(base*base) * (((exponent & 1) > 0) ? base : 1);
 }
 
 template <>
-inline double pow_integer<0>(double base)
+inline long double pow_integer<0>(long double base)
 {
   return 1;
 }
 
 // - input:  function over which to integrate, integration limits A and B
 // - output: 8-points Gauß-Legendre integral
-static const double X[8] = {.0950125098, .2816035507, .4580167776, .6178762444, .7554044083, .8656312023, .9445750230, .9894009349};
-static const double W[8] = {.1894506104, .1826034150, .1691565193, .1495959888, .1246289712, .0951585116, .0622535239, .0271524594};
+static const long double X[8] = {.0950125098, .2816035507, .4580167776, .6178762444, .7554044083, .8656312023, .9445750230, .9894009349};
+static const long double W[8] = {.1894506104, .1826034150, .1691565193, .1495959888, .1246289712, .0951585116, .0622535239, .0271524594};
 template<typename Integrand>
-double gaussInt(Integrand&& integrand, double A, double B) {
-	const double XM = 0.5 * (B + A);
-	const double XR = 0.5 * (B - A);
-	double SS = 0.;
+long double gaussInt(Integrand&& integrand, long double A, long double B) {
+	const long double XM = 0.5 * (B + A);
+	const long double XR = 0.5 * (B - A);
+	long double SS = 0.;
 	for (int i = 0; i < 8; ++i) {
-		double DX = XR * X[i];
+		long double DX = XR * X[i];
 		SS += W[i] * (integrand(XM + DX) + integrand(XM - DX));
 	}
 	return XR * SS;

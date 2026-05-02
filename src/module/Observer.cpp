@@ -99,7 +99,7 @@ std::string ObserverDetectAll::getDescription() const {
 }
 
 // ObserverTracking --------------------------------------------------------
-ObserverTracking::ObserverTracking(Vector3d center, double radius, double stepSize) :
+ObserverTracking::ObserverTracking(Vector3d center, long double radius, long double stepSize) :
 		center(center), radius(radius), stepSize(stepSize) {
 	if (stepSize == 0) {
 		stepSize = radius / 10.;
@@ -108,7 +108,7 @@ ObserverTracking::ObserverTracking(Vector3d center, double radius, double stepSi
 
 DetectionState ObserverTracking::checkDetection(Candidate *candidate) const {
 	// current distance to observer sphere center
-	double d = (candidate->current.getPosition() - center).getR();
+	long double d = (candidate->current.getPosition() - center).getR();
 
 	// no detection if outside of observer sphere
 	if (d > radius) {
@@ -135,7 +135,7 @@ std::string ObserverTracking::getDescription() const {
 
 // Observer1D --------------------------------------------------------------
 DetectionState Observer1D::checkDetection(Candidate *candidate) const {
-	double x = candidate->current.getPosition().x;
+	long double x = candidate->current.getPosition().x;
 	if (x > 0) {
 		// Limits the next step size to prevent candidates from overshooting in case of non-detection
 		candidate->limitNextStep(x);
@@ -150,13 +150,13 @@ std::string Observer1D::getDescription() const {
 }
 
 // ObserverRedshiftWindow -----------------------------------------------------
-ObserverRedshiftWindow::ObserverRedshiftWindow(double zmin, double zmax) :
+ObserverRedshiftWindow::ObserverRedshiftWindow(long double zmin, long double zmax) :
 		zmin(zmin), zmax(zmax) {
 }
 
 DetectionState ObserverRedshiftWindow::checkDetection(
 		Candidate *candidate) const {
-	double z = candidate->getRedshift();
+	long double z = candidate->getRedshift();
 	if (z > zmax)
 		return VETO;
 	if (z < zmin)
@@ -245,28 +245,28 @@ std::string ObserverParticleIdVeto::getDescription() const {
 // ObserverTimeEvolution --------------------------------------------------------
 ObserverTimeEvolution::ObserverTimeEvolution() {}
 
-ObserverTimeEvolution::ObserverTimeEvolution(double min, double dist, double numb) {
+ObserverTimeEvolution::ObserverTimeEvolution(long double min, long double dist, long double numb) {
 	setIsLogarithmicScaling(false);
 	setMaximum(min + (numb - 1) * dist);
 	setMinimum(min);
 	setNIntervals(numb);
 }
 
-ObserverTimeEvolution::ObserverTimeEvolution(double min, double max, double numb, bool log) {
+ObserverTimeEvolution::ObserverTimeEvolution(long double min, long double max, long double numb, bool log) {
 	setIsLogarithmicScaling(log);
 	setMinimum(min);
 	setMaximum(max);
 	setNIntervals(numb);
 }
 
-ObserverTimeEvolution::ObserverTimeEvolution(const std::vector<double> &detList){
+ObserverTimeEvolution::ObserverTimeEvolution(const std::vector<long double> &detList){
 	setTimes(detList);
 }
 
 DetectionState ObserverTimeEvolution::checkDetection(Candidate *c) const {
 
 	if (nIntervals) {
-		double length = c->getTrajectoryLength();
+		long double length = c->getTrajectoryLength();
 		size_t index;
 		const std::string DI = "DetectionIndex";
 
@@ -284,7 +284,7 @@ DetectionState ObserverTimeEvolution::checkDetection(Candidate *c) const {
 		}
 
 		// Calculate the distance to next detection
-		double distance = length - getTime(index);
+		long double distance = length - getTime(index);
 
 		// Limit next step and detect candidate.
 		// Increase the index by one in case of detection
@@ -314,7 +314,7 @@ void ObserverTimeEvolution::clear(){
 
 void ObserverTimeEvolution::constructDetListIfEmpty(){
 	if (detList.empty() && doDetListConstruction) {
-		std::vector<double> detListTemp;
+		std::vector<long double> detListTemp;
 		size_t counter = 0;
 		while (getTime(counter)<=maximum) {
 			detListTemp.push_back(getTime(counter));
@@ -324,13 +324,13 @@ void ObserverTimeEvolution::constructDetListIfEmpty(){
 	}
 }
 
-void ObserverTimeEvolution::addTime(const double &time){
+void ObserverTimeEvolution::addTime(const long double &time){
 	constructDetListIfEmpty();
 	detList.push_back(time);
 	setNIntervals(nIntervals + 1);  // increase number of entries by one
 }
 
-void ObserverTimeEvolution::addTimeRange(double min, double max, double numb, bool log) {
+void ObserverTimeEvolution::addTimeRange(long double min, long double max, long double numb, bool log) {
 	for (size_t i = 0; i < numb; i++) {
 		if (log) {
 			if ( min <= 0 ){
@@ -346,7 +346,7 @@ void ObserverTimeEvolution::addTimeRange(double min, double max, double numb, bo
 	setNIntervals(detList.size());
 }
 
-void ObserverTimeEvolution::setTimes(const std::vector<double> &detList){
+void ObserverTimeEvolution::setTimes(const std::vector<long double> &detList){
 	this->detList.assign(detList.begin(), detList.end());
 	setNIntervals(detList.size());
 	setMinimum(detList.front());
@@ -354,7 +354,7 @@ void ObserverTimeEvolution::setTimes(const std::vector<double> &detList){
 	doDetListConstruction = false;
 }
 
-void ObserverTimeEvolution::setMinimum(double min){
+void ObserverTimeEvolution::setMinimum(long double min){
 	if ( (min <= 0) && isLogarithmicScaling){
 		std::cout << "minimum can not be <= 0 if isLogarithmicScaling=true" << std::endl;
 		throw new std::runtime_error("minimum can not be <= 0 if isLogarithmicScaling=true");
@@ -362,7 +362,7 @@ void ObserverTimeEvolution::setMinimum(double min){
 	this->minimum = min;
 }
 
-double ObserverTimeEvolution::getTime(size_t index) const {
+long double ObserverTimeEvolution::getTime(size_t index) const {
 	if (!detList.empty()) {
 		return detList.at(index);
 	} else if (isLogarithmicScaling) {
@@ -372,7 +372,7 @@ double ObserverTimeEvolution::getTime(size_t index) const {
 	}
 }
 
-const std::vector<double>& ObserverTimeEvolution::getTimes() const {
+const std::vector<long double>& ObserverTimeEvolution::getTimes() const {
 	tempDetList.resize(nIntervals);
 	for (size_t i = 0; i < nIntervals; i++){
 		tempDetList[i] = getTime(i);
@@ -393,8 +393,8 @@ ObserverSurface::ObserverSurface(Surface* _surface) : surface(_surface) { }
 
 DetectionState ObserverSurface::checkDetection(Candidate *candidate) const
 {
-		double currentDistance = surface->distance(candidate->current.getPosition());
-		double previousDistance = surface->distance(candidate->previous.getPosition());
+		long double currentDistance = surface->distance(candidate->current.getPosition());
+		long double previousDistance = surface->distance(candidate->previous.getPosition());
 		candidate->limitNextStep(fabs(currentDistance));
 
 		if (currentDistance * previousDistance > 0)

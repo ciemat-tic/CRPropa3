@@ -176,11 +176,11 @@ Vector3d KST24Field::getField(const Vector3d& pos) const
 	return vals*gauss;
 }
 
-bool KST24Field::is_LB(const Vector3d pos_kpc, const double LB_rmin_kpc, const double LB_dr_kpc,
-					   const double LB_x0_kpc, const double LB_y0_kpc, const double LB_z0_kpc) const
+bool KST24Field::is_LB(const Vector3d pos_kpc, const long double LB_rmin_kpc, const long double LB_dr_kpc,
+					   const long double LB_x0_kpc, const long double LB_y0_kpc, const long double LB_z0_kpc) const
 {
-	double eRx, eRy, eRz;
-	double cR;
+	long double eRx, eRy, eRz;
+	long double cR;
 
 	eRx = pos_kpc.x - LB_x0_kpc;
 	eRy = pos_kpc.y - LB_y0_kpc;
@@ -191,15 +191,15 @@ bool KST24Field::is_LB(const Vector3d pos_kpc, const double LB_rmin_kpc, const d
 	return false;
 }
 
-Vector3d KST24Field::get_toroidal(const Vector3d pos_kpc, const double tor_B_gauss, 
-								  const double tor_zmin_kpc, const double tor_zmax_kpc, 
-								  const double tor_rmin_kpc, const double tor_rmax_kpc) const 
+Vector3d KST24Field::get_toroidal(const Vector3d pos_kpc, const long double tor_B_gauss,
+								  const long double tor_zmin_kpc, const long double tor_zmax_kpc,
+								  const long double tor_rmin_kpc, const long double tor_rmax_kpc) const
 {
 	Vector3d vals_gauss(0, 0, 0);
 	if ((pos_kpc.z <= tor_zmin_kpc) or (tor_zmax_kpc <= pos_kpc.z))
 		return vals_gauss;
 	
-	double cR, theta;
+	long double cR, theta;
 	cR = sqrt(pow(pos_kpc.x, 2) + pow(pos_kpc.y, 2));
 	if ((tor_rmin_kpc <= cR) and (cR <= tor_rmax_kpc))
 	{
@@ -211,9 +211,9 @@ Vector3d KST24Field::get_toroidal(const Vector3d pos_kpc, const double tor_B_gau
 	return vals_gauss;
 }
 
-Vector3d KST24Field::get_Xfield(const Vector3d pos_kpc, const double Xfield_B_gauss, 
-								const double Xfield_rmin_kpc, const double Xfield_rmax_kpc, 
-								const double Xfield_theta_rad) const
+Vector3d KST24Field::get_Xfield(const Vector3d pos_kpc, const long double Xfield_B_gauss,
+								const long double Xfield_rmin_kpc, const long double Xfield_rmax_kpc,
+								const long double Xfield_theta_rad) const
 {
 	Vector3d vals_gauss(0, 0, 0);
 
@@ -223,15 +223,15 @@ Vector3d KST24Field::get_Xfield(const Vector3d pos_kpc, const double Xfield_B_ga
 	if (fabs(pos_kpc.z) > 10)
 		return vals_gauss;
 
-	double cR, cR_0;
+	long double cR, cR_0;
 	cR = sqrt(pos_kpc.x*pos_kpc.x + pos_kpc.y*pos_kpc.y);
 	cR_0 = cR - pos_kpc.z*sign*tan(Xfield_theta_rad);
 
 	if ((cR_0 < Xfield_rmin_kpc) or (Xfield_rmax_kpc < cR_0))
 		return vals_gauss;
 
-	double mgn_frc = cR_0/cR;
-	double xy_theta = atan2(pos_kpc.y, pos_kpc.x);
+	long double mgn_frc = cR_0/cR;
+	long double xy_theta = atan2(pos_kpc.y, pos_kpc.x);
 	vals_gauss.x =  Xfield_B_gauss*mgn_frc*cos(xy_theta)*sign*sin(Xfield_theta_rad);
 	vals_gauss.y =  Xfield_B_gauss*mgn_frc*sin(xy_theta)*sign*sin(Xfield_theta_rad);
 	vals_gauss.z =  Xfield_B_gauss*mgn_frc*cos(Xfield_theta_rad);
@@ -239,14 +239,14 @@ Vector3d KST24Field::get_Xfield(const Vector3d pos_kpc, const double Xfield_B_ga
 	return vals_gauss;
 }
 
-Vector3d KST24Field::get_LB(const Vector3d pos_kpc, const double LB_B_gauss, 
-							const double LB_lB_deg, const double LB_bB_deg, 
-							const double LB_rmin_kpc, const double LB_dr_kpc,
-							const double LB_x0_kpc, const double LB_y0_kpc, const double LB_z0_kpc) const
+Vector3d KST24Field::get_LB(const Vector3d pos_kpc, const long double LB_B_gauss,
+							const long double LB_lB_deg, const long double LB_bB_deg,
+							const long double LB_rmin_kpc, const long double LB_dr_kpc,
+							const long double LB_x0_kpc, const long double LB_y0_kpc, const long double LB_z0_kpc) const
 {
 	Vector3d vals_gauss(0, 0, 0);
 
-	double eRx, eRy, eRz, cR;
+	long double eRx, eRy, eRz, cR;
 	eRx = pos_kpc.x - LB_x0_kpc;
 	eRy = pos_kpc.y - LB_y0_kpc;
 	eRz = pos_kpc.z - LB_z0_kpc;
@@ -257,14 +257,14 @@ Vector3d KST24Field::get_LB(const Vector3d pos_kpc, const double LB_B_gauss,
 	eRy /= cR;
 	eRz /= cR;
 
-	double fdir_x, fdir_y, fdir_z, cosTheta;
+	long double fdir_x, fdir_y, fdir_z, cosTheta;
 	cosTheta = eRx*LB_Bdir_x + eRy*LB_Bdir_y + eRz*LB_Bdir_z; // expanding cross product: b(ac) - c(ab)
 	fdir_x = LB_Bdir_x - eRx*cosTheta;
 	fdir_y = LB_Bdir_y - eRy*cosTheta;
 	fdir_z = LB_Bdir_z - eRz*cosTheta;
 
 	// magnetic field amplification factor
-	double ampl, ampl_elec;
+	long double ampl, ampl_elec;
 	ampl = (1 + pow(LB_rmin_kpc, 2)/(2*LB_rmin_kpc*LB_dr_kpc + LB_dr_kpc*LB_dr_kpc));
 
 	vals_gauss.x = LB_B_gauss*ampl*fdir_x;
@@ -274,40 +274,40 @@ Vector3d KST24Field::get_LB(const Vector3d pos_kpc, const double LB_B_gauss,
 	return vals_gauss;
 }
 
-Vector3d KST24Field::get_logspiral(const Vector3d pos_kpc, const double B_gauss,  
-								   const double pitch_deg, const double phi0_deg,
-								   const double x_shift_kpc, const double y_shift_kpc,
-								   const double arc_radius1_kpc, const double arc_radius2_kpc, 
-								   const double arc_eps , const double arc_div_deg, 
-								   const double rmin_kpc, const double rmax_kpc, 
-								   const double zmin_kpc, const double zmax_kpc) const
+Vector3d KST24Field::get_logspiral(const Vector3d pos_kpc, const long double B_gauss,
+								   const long double pitch_deg, const long double phi0_deg,
+								   const long double x_shift_kpc, const long double y_shift_kpc,
+								   const long double arc_radius1_kpc, const long double arc_radius2_kpc,
+								   const long double arc_eps , const long double arc_div_deg,
+								   const long double rmin_kpc, const long double rmax_kpc,
+								   const long double zmin_kpc, const long double zmax_kpc) const
 {
 	Vector3d vals_gauss(0, 0, 0);
 
 	if ((pos_kpc.z < zmin_kpc) or (zmax_kpc < pos_kpc.z))
 		return vals_gauss;
 
-	std::vector<double> pos_v;
+	std::vector<long double> pos_v;
 	pos_v.push_back(pos_kpc.x + x_shift_kpc);
 	pos_v.push_back(pos_kpc.y + y_shift_kpc);
 	pos_v.push_back(pos_kpc.z);
 
-	double r = sqrt(pos_v[0]*pos_v[0] + pos_v[1]*pos_v[1]);
+	long double r = sqrt(pos_v[0]*pos_v[0] + pos_v[1]*pos_v[1]);
 	if ((r < rmin_kpc) or (rmax_kpc < r))
 		return vals_gauss;
 
-	double a_kpc = 3;
-	double k = tan(pitch_deg*M_PI/180.);
-	double cos_pitch = cos(pitch_deg*M_PI/180.);
-	double sin_pitch = sin(pitch_deg*M_PI/180.);
-	double phi0 = phi0_deg*M_PI/180.;
-	double arc_div_rad = arc_div_deg*M_PI/180.;
+	long double a_kpc = 3;
+	long double k = tan(pitch_deg*M_PI/180.);
+	long double cos_pitch = cos(pitch_deg*M_PI/180.);
+	long double sin_pitch = sin(pitch_deg*M_PI/180.);
+	long double phi0 = phi0_deg*M_PI/180.;
+	long double arc_div_rad = arc_div_deg*M_PI/180.;
 
 	int nn;
-	double phi = atan2(pos_v[1], pos_v[0]);	
+	long double phi = atan2(pos_v[1], pos_v[0]);
 	nn = floor((log(r/a_kpc) - k*(phi + phi0))/(2*M_PI*k));
 
-	double r1, r2;
+	long double r1, r2;
 	r1 = a_kpc*exp(k*(phi + phi0 + 2*M_PI*nn));
 	r2 = r1*exp(k*2*M_PI);
 
@@ -319,7 +319,7 @@ Vector3d KST24Field::get_logspiral(const Vector3d pos_kpc, const double B_gauss,
 
 
 	// perpendicular to the spiral arm axis
-	double xi, yi, dir1, dir2, dirtmp;
+	long double xi, yi, dir1, dir2, dirtmp;
 	xi = r1*cos(phi);
 	yi = r1*sin(phi);
 	dir1 = k*xi - yi;
@@ -331,7 +331,7 @@ Vector3d KST24Field::get_logspiral(const Vector3d pos_kpc, const double B_gauss,
 
 
 	// first order correction 
-	double delta_phi;
+	long double delta_phi;
 	delta_phi = -((xi - pos_v[0])*dir1 + (yi - pos_v[1])*dir2)/(r1/cos_pitch);
 	r1 = a_kpc*exp(k*(phi + phi0 + delta_phi + 2*M_PI*nn));
 	xi = r1*cos(phi + delta_phi);
@@ -343,12 +343,12 @@ Vector3d KST24Field::get_logspiral(const Vector3d pos_kpc, const double B_gauss,
 	dir2 /= dirtmp;
 
 
-	double d1, L1, d_at_L1;
+	long double d1, L1, d_at_L1;
 	d1 = sqrt(pow((xi - pos_v[0]), 2) + pow((yi - pos_v[1]), 2));
 	L1 = r1/sin_pitch;
 
-	double r_scale = 5;
-	double L1_at_r_scale, arc_r_plane, arc_r_z;
+	long double r_scale = 5;
+	long double L1_at_r_scale, arc_r_plane, arc_r_z;
 	L1_at_r_scale = r_scale/sin_pitch;
 	arc_r_plane = std::max(arc_radius2_kpc, arc_radius2_kpc*(1 + (L1 - L1_at_r_scale)*arc_div_rad));
 	// arc_r_plane = arc_radius2_kpc;
@@ -364,7 +364,7 @@ Vector3d KST24Field::get_logspiral(const Vector3d pos_kpc, const double B_gauss,
 		return vals_gauss;
 	else
 	{
-		double scaling_factor = (arc_radius1_kpc*arc_radius2_kpc)/(arc_r_plane*arc_r_z);
+		long double scaling_factor = (arc_radius1_kpc*arc_radius2_kpc)/(arc_r_plane*arc_r_z);
 		vals_gauss.x = B_gauss*dir1*scaling_factor;
 		vals_gauss.y = B_gauss*dir2*scaling_factor;
 		vals_gauss.z = 0;

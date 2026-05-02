@@ -59,7 +59,7 @@ const char* Variant::getTypeName(Type t) {
 	else if (t == TYPE_FLOAT)
 		return "float";
 	else if (t == TYPE_DOUBLE)
-		return "double";
+		return "long double";
 	else if (t == TYPE_LONGDOUBLE)
 		return "ldouble";
 	else if (t == TYPE_COMPLEXF)
@@ -164,7 +164,7 @@ Variant::Type Variant::toType(const std::string& name) {
 		return TYPE_UINT64;
 	else if (name == "float")
 		return TYPE_FLOAT;
-	else if (name == "double")
+	else if (name == "long double")
 		return TYPE_DOUBLE;
 	else if (name == "long double")
 		return TYPE_LONGDOUBLE;
@@ -317,60 +317,60 @@ float Variant::toFloat() const {
 	return 0.;
 }
 
-double Variant::toDouble() const {
+long double Variant::toDouble() const {
 	switch (type) {
 		case TYPE_BOOL:
-			return data._t_bool ? (double) 1.0 : (double) 0.0; 
+			return data._t_bool ? (long double) 1.0 : (long double) 0.0;
 			break;
 		case TYPE_CHAR:
-			return static_cast<double>(data._t_char);
+			return static_cast<long double>(data._t_char);
 			break;
 		case TYPE_UCHAR:
-			return static_cast<double>(data._t_uchar);
+			return static_cast<long double>(data._t_uchar);
 			break;
 		case TYPE_INT16:
-			return static_cast<double>(data._t_int16);
+			return static_cast<long double>(data._t_int16);
 			break;
 		case TYPE_INT32:
-			return static_cast<double>(data._t_int32);
+			return static_cast<long double>(data._t_int32);
 			break;
 		case TYPE_INT64:
-			return static_cast<double>(data._t_int64);
+			return static_cast<long double>(data._t_int64);
 			break;
 		case TYPE_UINT16:
-			return static_cast<double>(data._t_uint16);
+			return static_cast<long double>(data._t_uint16);
 			break;
 		case TYPE_UINT32:
-			return static_cast<double>(data._t_uint32);
+			return static_cast<long double>(data._t_uint32);
 			break;
 		case TYPE_UINT64:
-			return static_cast<double>(data._t_uint64);
+			return static_cast<long double>(data._t_uint64);
 			break;
 		case TYPE_FLOAT:
-			return static_cast<double>(data._t_float);
+			return static_cast<long double>(data._t_float);
 			break;
 		case TYPE_DOUBLE:
-			return static_cast<double>(data._t_double);
+			return static_cast<long double>(data._t_double);
 			break;
 		case TYPE_LONGDOUBLE:
-			return static_cast<double>(data._t_ldouble);
+			return static_cast<long double>(data._t_ldouble);
 			break;
 		case TYPE_COMPLEXF: {
 				if (data._t_complex_f->imag() == 0)
-					return static_cast<double>(data._t_complex_f->real());
+					return static_cast<long double>(data._t_complex_f->real());
 				else
 					throw bad_conversion(type, TYPE_COMPLEXF);
 			}
 			break;
 		case TYPE_COMPLEXD: {
 				if (data._t_complex_d->imag() == 0)
-					return static_cast<double>(data._t_complex_d->real());
+					return static_cast<long double>(data._t_complex_d->real());
 				else
 					throw bad_conversion(type, TYPE_COMPLEXD);
 			}
 			break;
 		case TYPE_STRING:
-			return static_cast<double>(std::atof(data._t_string->c_str()));
+			return static_cast<long double>(std::atof(data._t_string->c_str()));
 			break;
 		default:
 			throw bad_conversion(type, TYPE_DOUBLE);
@@ -433,7 +433,7 @@ long double Variant::toLongDouble() const {
 			}
 			break;
 		case TYPE_STRING:
-			return static_cast<double>(std::atof(data._t_string->c_str()));
+			return static_cast<long double>(std::atof(data._t_string->c_str()));
 			break;
 		default:
 			throw bad_conversion(type, TYPE_LONGDOUBLE);
@@ -457,13 +457,13 @@ std::complex<float> Variant::toComplexFloat() const {
 	}
 }  
 
-std::complex<double> Variant::toComplexDouble() const {
+std::complex<long double> Variant::toComplexDouble() const {
 	switch (type) {
 		case TYPE_COMPLEXF:
-			return static_cast<std::complex<double>>(*data._t_complex_f);
+			return static_cast<std::complex<long double>>(*data._t_complex_f);
 			break;
 		case TYPE_COMPLEXD:
-			return static_cast<std::complex<double>>(*data._t_complex_d);
+			return static_cast<std::complex<long double>>(*data._t_complex_d);
 			break;
 		default:
 			throw bad_conversion(type, TYPE_COMPLEXD);
@@ -499,7 +499,7 @@ Vector3d Variant::toVector3d() const {
 	}
 }
 
-Vector3<std::complex<double>> Variant::toVector3c() const {
+Vector3<std::complex<long double>> Variant::toVector3c() const {
 	switch (type) {
 		case TYPE_VECTOR3C:
 			return static_cast<Vector3c>(*data._t_vector3c);
@@ -612,7 +612,7 @@ Variant Variant::fromString(const std::string& s, Type t) {
 		ss >> c;
 		return Variant(c);
 	} else if (t == TYPE_DOUBLE) {
-		double c;
+		long double c;
 		ss >> c;
 		return Variant(c);
 	} else if (t == TYPE_LONGDOUBLE) {
@@ -627,7 +627,7 @@ Variant Variant::fromString(const std::string& s, Type t) {
 		complex_f v(_vr, _vi);
 		return Variant(v);
 	} else if (t == TYPE_COMPLEXD) {
-		double _vr, _vi;
+		long double _vr, _vi;
 		ss >> _vr >> _vi;
 		complex_d v(_vr, _vi);
 		return Variant(v);
@@ -643,7 +643,7 @@ Variant Variant::fromString(const std::string& s, Type t) {
 		return Variant(v);
 	} else if (t == TYPE_VECTOR3D) {
 		Vector3d v;
-		double _val;
+		long double _val;
 		ss >> _val;
 		v.setX(_val);
 		ss >> _val;
@@ -653,7 +653,7 @@ Variant Variant::fromString(const std::string& s, Type t) {
 		return Variant(v);
 	} else if (t == TYPE_VECTOR3C) {
 		Vector3c v;
-		std::complex<double> _val;
+		std::complex<long double> _val;
 		ss >> _val;
 		v.setX(_val);
 		ss >> _val;
@@ -895,7 +895,7 @@ size_t Variant::copyToBuffer(void* buffer) {
 		memcpy(buffer, &data._t_float, sizeof(float));
 		return sizeof(data._t_float);
 	} else if (type == TYPE_DOUBLE) {
-		memcpy(buffer, &data._t_double, sizeof(double));
+		memcpy(buffer, &data._t_double, sizeof(long double));
 		return sizeof(data._t_double);
 	} else if (type == TYPE_LONGDOUBLE) {
 		memcpy(buffer, &data._t_ldouble, sizeof(long double));
@@ -1024,7 +1024,7 @@ Variant::operator const std::vector<Variant>&() const {
 				INT_CASE(int64, TYPE_INT64, to_type, to)                                                               \
 				INT_CASE(uint64, TYPE_UINT64, to_type, to)                                                             \
 				INT_CASE(float, TYPE_FLOAT, to_type, to)                                                               \
-				INT_CASE(double, TYPE_DOUBLE, to_type, to)                                                             \
+				INT_CASE(long double, TYPE_DOUBLE, to_type, to)                                                             \
 				INT_CASE(ldouble, TYPE_LONGDOUBLE, to_type, to)                                                        \
 			case Variant::TYPE_STRING: {                                                                               \
 				long l = atol(data._t_string->c_str());                                                                \

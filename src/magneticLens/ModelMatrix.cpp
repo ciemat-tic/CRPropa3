@@ -36,7 +36,7 @@ void serialize(const string &filename, const ModelMatrixType& matrix)
 	}
 
 	uint32_t C = 0;
-	double val;
+	long double val;
 
 	C = (uint32_t) (matrix.nonZeros());
 	outfile.write((char*) &C, sizeof(uint32_t));
@@ -58,7 +58,7 @@ void serialize(const string &filename, const ModelMatrixType& matrix)
 				outfile.write((char*) &C, sizeof(uint32_t));
 
 				val = it.value();
-				outfile.write((char*) &val, sizeof(double));
+				outfile.write((char*) &val, sizeof(long double));
 				if (outfile.fail())
 				{
 					throw runtime_error("Error writing file: " + filename);
@@ -86,23 +86,23 @@ void deserialize(const string &filename, ModelMatrixType& matrix)
 	matrix.reserve(nnz);
 
 	uint32_t row, column;
-	double val;
-	std::vector< Eigen::Triplet<double> > triplets;
+	long double val;
+	std::vector< Eigen::Triplet<long double> > triplets;
 	triplets.resize(nnz);
 	for (size_t i = 0; i < nnz; i++)
 	{
 		infile.read((char*) &row, sizeof(uint32_t));
 		infile.read((char*) &column, sizeof(uint32_t));
-		infile.read((char*) &val, sizeof(double));
+		infile.read((char*) &val, sizeof(long double));
 		//M(size1,size2) = val;
-		triplets[i] = Eigen::Triplet<double>(row, column, val);
+		triplets[i] = Eigen::Triplet<long double>(row, column, val);
 	}
 	matrix.setFromTriplets(triplets.begin(), triplets.end());
 	matrix.makeCompressed();
 }
 
 
-double norm_1(const ModelVectorType &v)
+long double norm_1(const ModelVectorType &v)
 {
 	return v.cwiseAbs().sum();
 }
@@ -112,43 +112,43 @@ void normalizeColumns(ModelMatrixType &matrix){
 	for (size_t i=0; i< matrix.cols(); i++)
 	{
 		ModelVectorType v = matrix.col(i);
-		double rn = norm_1(v);
+		long double rn = norm_1(v);
 		matrix.col(i) = v/rn;
 	}
 }
 
 
-double maximumOfSumsOfColumns(const ModelMatrixType &matrix) 
+long double maximumOfSumsOfColumns(const ModelMatrixType &matrix)
 {
-	double summax = 0;
+	long double summax = 0;
 	for (size_t i = 0; i < matrix.cols(); i++)
 	{
-		double sum = matrix.col(i).sum();
+		long double sum = matrix.col(i).sum();
 		if (sum > summax)
 			summax = sum;
 	}
 	return summax;
 }
 
-	void normalizeMatrix(ModelMatrixType& matrix, double norm)
+	void normalizeMatrix(ModelMatrixType& matrix, long double norm)
 {
 	matrix /= norm;
 }
 
-	void prod_up(const ModelMatrixType& matrix, double* model)
+	void prod_up(const ModelMatrixType& matrix, long double* model)
 {
 
 	// copy storage of model, as matrix vector product cannot be done
 	// in place
 	
 	const size_t mSize = matrix.cols();
-	double *origVectorStorage = new double[mSize];
-	memcpy(origVectorStorage, model, mSize * sizeof(double));
+	long double *origVectorStorage = new long double[mSize];
+	memcpy(origVectorStorage, model, mSize * sizeof(long double));
 
 
 
-	Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1> > origVectorAdaptor(origVectorStorage, mSize);
-	Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1> > modelVectorAdaptor(model, mSize);
+	Eigen::Map<Eigen::Matrix<long double, Eigen::Dynamic, 1> > origVectorAdaptor(origVectorStorage, mSize);
+	Eigen::Map<Eigen::Matrix<long double, Eigen::Dynamic, 1> > modelVectorAdaptor(model, mSize);
 
 	// perform the optimized product
 	modelVectorAdaptor = matrix * origVectorAdaptor;

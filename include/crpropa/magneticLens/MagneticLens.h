@@ -44,10 +44,10 @@ namespace crpropa
 class LensPart
 {
 	string _filename;
-	double _rigidityMin;
-	double _rigidityMax;
+	long double _rigidityMin;
+	long double _rigidityMax;
 	ModelMatrixType M;
-	double _maximumSumOfColumns;
+	long double _maximumSumOfColumns;
 	bool _maximumSumOfColumns_calculated;
 
 public:
@@ -56,7 +56,7 @@ public:
 	}
 	/// File containing the matrix to be used in the range rigidityMin,
 	/// rigidityMax in Joule
-	LensPart(const std::string &filename, double rigidityMin, double rigidityMax) :
+	LensPart(const std::string &filename, long double rigidityMin, long double rigidityMax) :
 			_filename(filename), _rigidityMin(rigidityMin), _rigidityMax(rigidityMax), _maximumSumOfColumns_calculated(
 					false), _maximumSumOfColumns(0)
 	{
@@ -79,7 +79,7 @@ public:
 	}
 
 	/// Calculates the maximum of the sums of columns for the matrix
-	double getMaximumOfSumsOfColumns()
+	long double getMaximumOfSumsOfColumns()
 	{
 		if (!_maximumSumOfColumns_calculated)
 		{ // lazy calculation of maximum
@@ -90,13 +90,13 @@ public:
 	}
 
 	/// Returns the minimum of the rigidity range for the lenspart in eV
-	double getMinimumRigidity()
+	long double getMinimumRigidity()
 	{
 		return _rigidityMin / eV;
 	}
 
 	/// Returns the maximum of the rigidity range for the lenspart in eV
-	double getMaximumRigidity()
+	long double getMaximumRigidity()
 	{
 		return _rigidityMax / eV;
 	}
@@ -117,11 +117,11 @@ public:
 };
 
 /// Function to calculate the mean deflection [rad] of the matrix M, given a pixelization
-//double calculateMeanDeflection(const ModelMatrix &M,
+//long double calculateMeanDeflection(const ModelMatrix &M,
 //		const Pixelization &pixelization)
 //{
-//	double totalDeflection = 0;
-//	double weightSum = 0;
+//	long double totalDeflection = 0;
+//	long double weightSum = 0;
 //	for (const_i2_t it1 = M.begin2(); it1 != (M.end2()); it1++)
 //	{
 //		for (const_i1_t it2 = it1.begin(); it2 != it1.end(); it2++)
@@ -147,11 +147,11 @@ typedef std::vector<LensPart*>::const_iterator const_LensPartIter;
 class MagneticLens
 {
 
-	void updateRigidityBounds(double rigidityMin, double rigidityMax);
+	void updateRigidityBounds(long double rigidityMin, long double rigidityMax);
 
 	/// Loads part of a lens (one matrix) from file to use it in given rigidity range.
-	void loadLensPart(const string &filename, double rigidityMin,
-			double rigidityMax);
+	void loadLensPart(const string &filename, long double rigidityMin,
+			long double rigidityMax);
 
 	// Stores the individual lenses
 	std::vector<LensPart*> _lensParts;
@@ -160,10 +160,10 @@ class MagneticLens
 	// _pixelization if called first time
 	void _checkMatrix(const ModelMatrixType &M);
 	// minimum / maximum rigidity that is covered by the lens [Joule]
-	double _minimumRigidity;
-	double _maximumRigidity;
+	long double _minimumRigidity;
+	long double _maximumRigidity;
 	static bool _randomSeeded;
-	double _norm;
+	long double _norm;
 
 public:
 	/// Default constructor
@@ -209,18 +209,18 @@ public:
 	/// Returns false and does not change phi and theta if the cosmic ray is
 	/// lost due to conservation of cosmic ray flux.
 	/// Rigidity is given in Joule, phi and theta in rad
-	bool transformCosmicRay(double rigidity, double& phi, double& theta);
+	bool transformCosmicRay(long double rigidity, long double& phi, long double& theta);
 
 	/// Tries transform a cosmic ray with momentum vector p
-	bool transformCosmicRay(double rigidity, Vector3d &p);
+	bool transformCosmicRay(long double rigidity, Vector3d &p);
 
 	/// transforms the model array assuming that model points to an array of the
 	/// correct size. Rigidity is given in Joule
-	void transformModelVector(double* model, double rigidity) const;
+	void transformModelVector(long double* model, long double rigidity) const;
 
 	/// Loads M as part of a lens and use it in given rigidity range with
 	/// rigidities given in Joule
-	void setLensPart(const ModelMatrixType &M, double rigidityMin, double rigidityMax);
+	void setLensPart(const ModelMatrixType &M, long double rigidityMin, long double rigidityMax);
 
 	/// Loads a lens from a given file, containing lines like
 	/// lensefile.MLDAT rigidityMin rigidityMax
@@ -237,31 +237,31 @@ public:
 	void normalizeLensparts();
 
 	/// Checks if rigidity [Joule] is covered by lens
-	bool rigidityCovered(double rigidity) const;
+	bool rigidityCovered(long double rigidity) const;
 
 	/// Normalizes all matrix columns - the lens will then create fake
 	/// anisotropies, but won't drop particles
 	void normalizeMatrixColumns();
 
 	/// Returns minimum rigidity covered by lens, in eV
-	double getMinimumRigidity() const
+	long double getMinimumRigidity() const
 	{
 		return _minimumRigidity / eV;
 	}
 	/// Returns maximum rigidity covered by lens, in eV
-	double getMaximumRigidity() const
+	long double getMaximumRigidity() const
 	{
 		return _maximumRigidity / eV;
 	}
 
 	//	returns the norm used for the lenses
-	double getNorm()
+	long double getNorm()
 	{
 		return _norm;
 	}
 
 	/// Returns iterator to the lens part with rigidity Joule
-	LensPart* getLensPart(double rigidity) const;
+	LensPart* getLensPart(long double rigidity) const;
 
 	/// Returns all lens parts
 	const std::vector<LensPart*>& getLensParts() const

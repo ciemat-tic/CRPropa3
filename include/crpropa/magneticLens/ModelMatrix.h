@@ -41,8 +41,8 @@ using namespace std;
 namespace crpropa 
 {
 
-	typedef Eigen::SparseMatrix<double> ModelMatrixType;
-	typedef Eigen::SparseVector<double> ModelVectorType;
+	typedef Eigen::SparseMatrix<long double> ModelMatrixType;
+	typedef Eigen::SparseVector<long double> ModelVectorType;
 
 	/// Writes the ModelMatrix to disk as binary files with the format:
 	/// Int (number of non zero elements), Int (size1), Int (size2)
@@ -56,14 +56,14 @@ namespace crpropa
 	void normalizeColumns(ModelMatrixType &matrix);
 
 	/// Calculate the maximum of the unity norm of the column vectors of the matrix \f$\max_j(\Vert m_j \Vert_1) \f$
-	double maximumOfSumsOfColumns(const ModelMatrixType &matrix);
+	long double maximumOfSumsOfColumns(const ModelMatrixType &matrix);
 	
-	double norm_1(const ModelVectorType &v);
+	long double norm_1(const ModelVectorType &v);
 
-	void normalizeMatrix(ModelMatrixType& matrix, double norm);
+	void normalizeMatrix(ModelMatrixType& matrix, long double norm);
 
 	// matrix vector product with update: model = matrix * model
-	void prod_up(const ModelMatrixType& matrix, double* model);
+	void prod_up(const ModelMatrixType& matrix, long double* model);
 } // namespace parsec
 
 #endif // MODELMATRIX_HH

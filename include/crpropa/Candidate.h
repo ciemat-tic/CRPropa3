@@ -41,13 +41,13 @@ public:
 
 private:
 	bool active; /**< Active status */
-	double weight; /**< Weight of the candidate */
-	double redshift; /**< Current simulation time-point in terms of redshift z */
-	double trajectoryLength; /**< Comoving distance [m] the candidate has traveled so far */
-	double currentStep; /**< Size of the currently performed step in [m] comoving units */
-	double nextStep; /**< Proposed size of the next propagation step in [m] comoving units */
+	long double weight; /**< Weight of the candidate */
+	long double redshift; /**< Current simulation time-point in terms of redshift z */
+	long double trajectoryLength; /**< Comoving distance [m] the candidate has traveled so far */
+	long double currentStep; /**< Size of the currently performed step in [m] comoving units */
+	long double nextStep; /**< Proposed size of the next propagation step in [m] comoving units */
 	std::string tagOrigin; /**< Name of interaction/source process which created this candidate*/
-	double time; /**< Time [s] that has passed in the laboratory frame of reference */
+	long double time; /**< Time [s] that has passed in the laboratory frame of reference */
 
 	static uint64_t nextSerialNumber;
 	uint64_t serialNumber;
@@ -55,11 +55,11 @@ private:
 public:
 	Candidate(
 		int id = 0,
-		double energy = 0,
+		long double energy = 0,
 		Vector3d position = Vector3d(0, 0, 0),
 		Vector3d direction = Vector3d(-1, 0, 0),
-		double z = 0,
-		double weight = 1., 
+		long double z = 0,
+		long double weight = 1.,
 		std::string tagOrigin = "PRIM"
 	);
 
@@ -72,35 +72,35 @@ public:
 	bool isActive() const;
 	void setActive(bool b);
 
-	void setTrajectoryLength(double length);
-	double getTrajectoryLength() const;
+	void setTrajectoryLength(long double length);
+	long double getTrajectoryLength() const;
 	
-	double getVelocity() const;
+	long double getVelocity() const;
 
-	void setRedshift(double z);
-	double getRedshift() const;
+	void setRedshift(long double z);
+	long double getRedshift() const;
 
 	/**
 	 Sets weight of each candidate.
 	 Weights are calculated for each tracked secondary.
 	 */
-	void setWeight(double weight);
-    void updateWeight(double weight);
-	double getWeight() const;
+	void setWeight(long double weight);
+    void updateWeight(long double weight);
+	long double getWeight() const;
 
 	/**
 	 Sets the current step and increases the trajectory length accordingly.
 	 Only the propagation module should use this.
 	 */
-	void setCurrentStep(double step);
-	double getCurrentStep() const;
+	void setCurrentStep(long double step);
+	long double getCurrentStep() const;
 
 	/**
 	 Sets the proposed next step.
 	 Only the propagation module should use this.
 	 */
-	void setNextStep(double step);
-	double getNextStep() const;
+	void setNextStep(long double step);
+	long double getNextStep() const;
 
 	/**
 	 Sets the tagOrigin of the candidate. Can be used to trace back the interactions
@@ -111,13 +111,13 @@ public:
 	/**
 	 Sets the time of the candidate.
 	 */
-	void setTime(double t);
-	double getTime() const;
+	void setTime(long double t);
+	long double getTime() const;
 
 	/**
 	 Make a bid for the next step size: the lowest wins.
 	 */
-	void limitNextStep(double step);
+	void limitNextStep(long double step);
 
 	void setProperty(const std::string &name, const Variant &value);
 	const Variant &getProperty(const std::string &name) const;
@@ -142,7 +142,7 @@ public:
 	 @param w			weight of the secondary
 	 @param tagOrigin 	tag of the secondary
 	 */
-	void addSecondary(int id, double energy, double w = 1., std::string tagOrigin = "SEC");
+	void addSecondary(int id, long double energy, long double w = 1., std::string tagOrigin = "SEC");
 	/**
 	 Add a new candidate to the list of secondaries.
 	 @param id			particle ID of the secondary
@@ -151,7 +151,7 @@ public:
 	 @param w			weight of the secondary
 	 @param tagOrigin 	tag of the secondary
 	 */
-	void addSecondary(int id, double energy, Vector3d position, double w = 1., std::string tagOrigin = "SEC");
+	void addSecondary(int id, long double energy, Vector3d position, long double w = 1., std::string tagOrigin = "SEC");
 	void clearSecondaries();
 
 	std::string getDescription() const;

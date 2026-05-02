@@ -13,11 +13,11 @@
 
 namespace crpropa {
 
-const double PhotoDisintegration::lgmin = 6;  // minimum log10(Lorentz-factor)
-const double PhotoDisintegration::lgmax = 14; // maximum log10(Lorentz-factor)
+const long double PhotoDisintegration::lgmin = 6;  // minimum log10(Lorentz-factor)
+const long double PhotoDisintegration::lgmax = 14; // maximum log10(Lorentz-factor)
 const size_t PhotoDisintegration::nlg = 201;  // number of Lorentz-factor steps
 
-PhotoDisintegration::PhotoDisintegration(ref_ptr<PhotonField> f, bool havePhotons, double limit) {
+PhotoDisintegration::PhotoDisintegration(ref_ptr<PhotonField> f, bool havePhotons, long double limit) {
 	setPhotonField(f);
 	this->havePhotons = havePhotons;
 	this->limit = limit;
@@ -36,7 +36,7 @@ void PhotoDisintegration::setHavePhotons(bool havePhotons) {
 	this->havePhotons = havePhotons;
 }
 
-void PhotoDisintegration::setLimit(double limit) {
+void PhotoDisintegration::setLimit(long double limit) {
 	this->limit = limit;
 }
 
@@ -59,7 +59,7 @@ void PhotoDisintegration::initRate(std::string filename) {
 		lineStream >> Z;
 		lineStream >> N;
 
-		double r;
+		long double r;
 		for (size_t i = 0; i < nlg; i++) {
 			lineStream >> r;
 			pdRate[Z * 31 + N].push_back(r / Mpc);
@@ -91,7 +91,7 @@ void PhotoDisintegration::initBranching(std::string filename) {
 		Branch branch;
 		lineStream >> branch.channel;
 
-		double r;
+		long double r;
 		for (size_t i = 0; i < nlg; i++) {
 			lineStream >> r;
 			branch.branchingRatio.push_back(r);
@@ -128,7 +128,7 @@ void PhotoDisintegration::initPhotonEmission(std::string filename) {
 		lineStream >> em.energy;
 		em.energy *= eV;
 
-		double r;
+		long double r;
 		for (size_t i = 0; i < nlg; i++) {
 			lineStream >> r;
 			em.emissionProbability.push_back(r);
@@ -147,7 +147,7 @@ void PhotoDisintegration::initPhotonEmission(std::string filename) {
 
 void PhotoDisintegration::process(Candidate *candidate) const {
 	// execute the loop at least once for limiting the next step
-	double step = candidate->getCurrentStep();
+	long double step = candidate->getCurrentStep();
 	do {
 		// check if nucleus
 		int id = candidate->current.getId();
@@ -166,18 +166,18 @@ void PhotoDisintegration::process(Candidate *candidate) const {
 			return;
 
 		// check if in tabulated energy range
-		double z = candidate->getRedshift();
-		double lg = log10(candidate->current.getLorentzFactor() * (1 + z));
+		long double z = candidate->getRedshift();
+		long double lg = log10(candidate->current.getLorentzFactor() * (1 + z));
 		if ((lg <= lgmin) or (lg >= lgmax))
 			return;
 
-		double rate = interpolateEquidistant(lg, lgmin, lgmax, pdRate[idx]);
+		long double rate = interpolateEquidistant(lg, lgmin, lgmax, pdRate[idx]);
 		rate *= pow_integer<2>(1 + z) * photonField->getRedshiftScaling(z); // cosmological scaling, rate per comoving distance
 
 		// check if interaction occurs in this step
 		// otherwise limit next step to a fraction of the mean free path
 		Random &random = Random::instance();
-		double randDist = -log(random.rand()) / rate;
+		long double randDist = -log(random.rand()) / rate;
 		if (step < randDist) {
 			candidate->limitNextStep(limit / rate);
 			return;
@@ -185,7 +185,7 @@ void PhotoDisintegration::process(Candidate *candidate) const {
 
 		// select channel and interact
 		const std::vector<Branch> &branches = pdBranch[idx];
-		double cmp = random.rand();
+		long double cmp = random.rand();
 		int l = round((lg - lgmin) / (lgmax - lgmin) * (nlg - 1)); // index of closest tabulation point
 		size_t i = 0;
 		while ((i < branches.size()) and (cmp > 0)) {
@@ -215,7 +215,7 @@ void PhotoDisintegration::performInteraction(Candidate *candidate, int channel) 
 	int id = candidate->current.getId();
 	int A = massNumber(id);
 	int Z = chargeNumber(id);
-	double EpA = candidate->current.getEnergy() / A;
+	long double EpA = candidate->current.getEnergy() / A;
 
 	// create secondaries
 	Random &random = Random::instance();
@@ -251,9 +251,9 @@ void PhotoDisintegration::performInteraction(Candidate *candidate, int channel) 
 		return;
 
 	// create photons
-	double z = candidate->getRedshift();
-	double lg = log10(candidate->current.getLorentzFactor() * (1 + z));
-	double lf = candidate->current.getLorentzFactor();
+	long double z = candidate->getRedshift();
+	long double lg = log10(candidate->current.getLorentzFactor() * (1 + z));
+	long double lf = candidate->current.getLorentzFactor();
 
 	int l = round((lg - lgmin) / (lgmax - lgmin) * (nlg - 1));  // index of closest tabulation point
 	int key = Z*1e6 + (A-Z)*1e4 + (Z+dZ)*1e2 + (A+dA) - (Z+dZ);
@@ -264,16 +264,16 @@ void PhotoDisintegration::performInteraction(Candidate *candidate, int channel) 
 			continue;
 
 		// boost to lab frame
-		double cosTheta = 2 * random.rand() - 1;
-		double E = pdPhoton[key][i].energy * lf * (1 - cosTheta);
+		long double cosTheta = 2 * random.rand() - 1;
+		long double E = pdPhoton[key][i].energy * lf * (1 - cosTheta);
 		candidate->addSecondary(22, E, pos, 1., interactionTag);
 	}
 }
 
-double PhotoDisintegration::lossLength(int id, double gamma, double z) {
+long double PhotoDisintegration::lossLength(int id, long double gamma, long double z) {
 	// check if nucleus
 	if (not (isNucleus(id)))
-		return std::numeric_limits<double>::max();
+		return std::numeric_limits<long double>::max();
 
 	int A = massNumber(id);
 	int Z = chargeNumber(id);
@@ -282,24 +282,24 @@ double PhotoDisintegration::lossLength(int id, double gamma, double z) {
 
 	// check if disintegration data available
 	if ((Z > 26) or (N > 30))
-		return std::numeric_limits<double>::max();
-	const std::vector<double> &rate = pdRate[idx];
+		return std::numeric_limits<long double>::max();
+	const std::vector<long double> &rate = pdRate[idx];
 	if (rate.size() == 0)
-		return std::numeric_limits<double>::max();
+		return std::numeric_limits<long double>::max();
 
 	// check if in tabulated energy range
-	double lg = log10(gamma * (1 + z));
+	long double lg = log10(gamma * (1 + z));
 	if ((lg <= lgmin) or (lg >= lgmax))
-		return std::numeric_limits<double>::max();
+		return std::numeric_limits<long double>::max();
 
 	// total interaction rate
-	double lossRate = interpolateEquidistant(lg, lgmin, lgmax, rate);
+	long double lossRate = interpolateEquidistant(lg, lgmin, lgmax, rate);
 
 	// comological scaling, rate per physical distance
 	lossRate *= pow_integer<3>(1 + z) * photonField->getRedshiftScaling(z);
 
 	// average number of nucleons lost for all disintegration channels
-	double avg_dA = 0;
+	long double avg_dA = 0;
 	const std::vector<Branch> &branches = pdBranch[idx];
 	for (size_t i = 0; i < branches.size(); i++) {
 		int channel = branches[i].channel;
@@ -311,7 +311,7 @@ double PhotoDisintegration::lossLength(int id, double gamma, double z) {
 		dA += 3 * digit(channel, 10);
 		dA += 4 * digit(channel, 1);
 
-		double br = interpolateEquidistant(lg, lgmin, lgmax, branches[i].branchingRatio);
+		long double br = interpolateEquidistant(lg, lgmin, lgmax, branches[i].branchingRatio);
 		avg_dA += br * dA;
 	}
 

@@ -73,9 +73,9 @@ std::string getInstallPrefix()
   return _path;
 };
 
-double interpolate(double x, const std::vector<double> &X,
-		const std::vector<double> &Y) {
-	std::vector<double>::const_iterator it = std::upper_bound(X.begin(),
+long double interpolate(long double x, const std::vector<long double> &X,
+		const std::vector<long double> &Y) {
+	std::vector<long double>::const_iterator it = std::upper_bound(X.begin(),
 			X.end(), x);
 	if (it == X.begin())
 		return Y.front();
@@ -86,11 +86,11 @@ double interpolate(double x, const std::vector<double> &X,
 	return Y[i] + (x - X[i]) * (Y[i + 1] - Y[i]) / (X[i + 1] - X[i]);
 }
 
-double interpolate2d(double x, double y, const std::vector<double> &X,
-		const std::vector<double> &Y, const std::vector<double> &Z) {
+long double interpolate2d(long double x, long double y, const std::vector<long double> &X,
+		const std::vector<long double> &Y, const std::vector<long double> &Z) {
 
-	std::vector<double>::const_iterator itx = std::upper_bound(X.begin(), X.end(), x);
-	std::vector<double>::const_iterator ity = std::upper_bound(Y.begin(), Y.end(), y);
+	std::vector<long double>::const_iterator itx = std::upper_bound(X.begin(), X.end(), x);
+	std::vector<long double>::const_iterator ity = std::upper_bound(Y.begin(), Y.end(), y);
 
 	if (x > X.back() || x < X.front())
 		return 0;
@@ -105,31 +105,31 @@ double interpolate2d(double x, double y, const std::vector<double> &X,
 	size_t i = itx - X.begin() - 1;
 	size_t j = ity - Y.begin() - 1;
 
-	double Q11 = Z[index(i,j)];
-	double Q12 = Z[index(i,j+1)];
-	double Q21 = Z[index(i+1,j)];
-	double Q22 = Z[index(i+1,j+1)];
+	long double Q11 = Z[index(i,j)];
+	long double Q12 = Z[index(i,j+1)];
+	long double Q21 = Z[index(i+1,j)];
+	long double Q22 = Z[index(i+1,j+1)];
 
-	double R1 = ((X[i+1]-x)/(X[i+1]-X[i]))*Q11+((x-X[i])/(X[i+1]-X[i]))*Q21;
-	double R2 = ((X[i+1]-x)/(X[i+1]-X[i]))*Q12+((x-X[i])/(X[i+1]-X[i]))*Q22;
+	long double R1 = ((X[i+1]-x)/(X[i+1]-X[i]))*Q11+((x-X[i])/(X[i+1]-X[i]))*Q21;
+	long double R2 = ((X[i+1]-x)/(X[i+1]-X[i]))*Q12+((x-X[i])/(X[i+1]-X[i]))*Q22;
 
 	return ((Y[j+1]-y)/(Y[j+1]-Y[j]))*R1+((y-Y[j])/(Y[j+1]-Y[j]))*R2;
 }
 
-double interpolateEquidistant(double x, double lo, double hi,
-		const std::vector<double> &Y) {
+long double interpolateEquidistant(long double x, long double lo, long double hi,
+		const std::vector<long double> &Y) {
 	if (x <= lo)
 		return Y.front();
 	if (x >= hi)
 		return Y.back();
 
-	double dx = (hi - lo) / (Y.size() - 1);
-	double p = (x - lo) / dx;
+	long double dx = (hi - lo) / (Y.size() - 1);
+	long double p = (x - lo) / dx;
 	size_t i = floor(p);
 	return Y[i] + (p - i) * (Y[i + 1] - Y[i]);
 }
 
-size_t closestIndex(double x, const std::vector<double> &X) {
+size_t closestIndex(long double x, const std::vector<long double> &X) {
 	size_t i1 = std::lower_bound(X.begin(), X.end(), x) - X.begin();
 	if (i1 == 0)
 		return i1;

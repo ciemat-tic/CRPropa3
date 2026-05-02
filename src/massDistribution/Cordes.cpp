@@ -5,11 +5,11 @@
 
 namespace crpropa {
 
-double Cordes::getHIIDensity(const Vector3d &position) const {
-	double n=0;  // in m^-3
+long double Cordes::getHIIDensity(const Vector3d &position) const {
+	long double n=0;  // in m^-3
 
-	double z=position.z;
-	double R = sqrt(position.x*position.x+position.y*position.y);  //radius in galactic disk
+	long double z=position.z;
+	long double R = sqrt(position.x*position.x+position.y*position.y);  //radius in galactic disk
 
 	n += 0.025/ccm*exp(-fabs(z)/(1*kpc))*exp(-pow_integer<2>(R/(20*kpc)));  // galactocentric component
 	n += 0.2/ccm*exp(-fabs(z)/(0.15*kpc))*exp(-pow_integer<2>((R-4*kpc)/(2*kpc)));  // anular component
@@ -17,11 +17,11 @@ double Cordes::getHIIDensity(const Vector3d &position) const {
 	return n;
 }
 
-double Cordes::getDensity(const Vector3d &position) const {
+long double Cordes::getDensity(const Vector3d &position) const {
 	return Cordes::getHIIDensity(position);
 }
 
-double Cordes::getNucleonDensity(const Vector3d &position) const {
+long double Cordes::getNucleonDensity(const Vector3d &position) const {
 	return getHIIDensity(position);
 }
 

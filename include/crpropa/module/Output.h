@@ -62,7 +62,7 @@ public:
 	};
 
 protected:
-	double lengthScale, timeScale, energyScale;
+	long double lengthScale, timeScale, energyScale;
 	std::bitset<64> fields;
 
 	std::vector<Property> properties;
@@ -120,18 +120,18 @@ public:
 	/** Set energy scale.
 	 @param scale	energy scale (scale = 1 corresponds to 1 Joule)
 	 */
-	void setEnergyScale(double scale);
-	double getEnergyScale() const;
+	void setEnergyScale(long double scale);
+	long double getEnergyScale() const;
 	/** Set length scale.
 	 @param scale	length scale (scale = 1 corresponds to 1 meter)
 	 */
-	void setLengthScale(double scale);
-	double getLengthScale() const;
+	void setLengthScale(long double scale);
+	long double getLengthScale() const;
 	/** Set time scale.
 	 @param scale	time scale (scale = 1 corresponds to 1 second)
 	 */
-	void setTimeScale(double scale);
-	double getTimeScale() const;
+	void setTimeScale(long double scale);
+	long double getTimeScale() const;
 	/** Set type of output.
 	 @param outputType	type of output: Trajectory1D, Trajectory3D, Event1D, Event3D, Everything
 	 */

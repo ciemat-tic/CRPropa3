@@ -6,7 +6,7 @@
 
 namespace crpropa{
 
-ConstantDensity::ConstantDensity(double HI, double HII, double H2) {
+ConstantDensity::ConstantDensity(long double HI, long double HII, long double H2) {
 	// set all types active which are not equal 0 and change number density
 	if(HI!=0)
 		setHI(true, HI);
@@ -16,8 +16,8 @@ ConstantDensity::ConstantDensity(double HI, double HII, double H2) {
 		setH2(true, H2);
 }
 
-double ConstantDensity::getDensity(const Vector3d &position) const {
-	double n = 0;
+long double ConstantDensity::getDensity(const Vector3d &position) const {
+	long double n = 0;
 
 	if(isHI)
 		n += HIdensitynumber;
@@ -36,8 +36,8 @@ double ConstantDensity::getDensity(const Vector3d &position) const {
 	return n;
 }
 
-double ConstantDensity::getNucleonDensity(const Vector3d &position) const {
-	double n = 0;
+long double ConstantDensity::getNucleonDensity(const Vector3d &position) const {
+	long double n = 0;
 
 	if(isHI)
 		n += HIdensitynumber;
@@ -55,15 +55,15 @@ double ConstantDensity::getNucleonDensity(const Vector3d &position) const {
 	return n;
 }
 
-double ConstantDensity::getHIDensity(const Vector3d &position) const {
+long double ConstantDensity::getHIDensity(const Vector3d &position) const {
 	return HIdensitynumber;
 }
 
-double ConstantDensity::getHIIDensity(const Vector3d &position) const{
+long double ConstantDensity::getHIIDensity(const Vector3d &position) const{
 	return HIIdensitynumber;
 }
 
-double ConstantDensity::getH2Density(const Vector3d &position) const{
+long double ConstantDensity::getH2Density(const Vector3d &position) const{
 	return H2densitynumber;
 }
 
@@ -79,7 +79,7 @@ bool ConstantDensity::getIsForH2() {
 	return isH2;
 }
 
-void ConstantDensity::setHI(bool activate, double densitynumber) {
+void ConstantDensity::setHI(bool activate, long double densitynumber) {
 	isHI = activate;
 	HIdensitynumber = densitynumber;
 }
@@ -88,11 +88,11 @@ void ConstantDensity::setHI(bool activate) {
 	setHI(activate, HIdensitynumber);
 }
 
-void ConstantDensity::setHI(double densitynumber) {
+void ConstantDensity::setHI(long double densitynumber) {
 	setHI(isHI, densitynumber);
 }
 
-void ConstantDensity::setHII(bool activate, double densitynumber) {
+void ConstantDensity::setHII(bool activate, long double densitynumber) {
 	isHII = activate;
 	HIIdensitynumber = densitynumber;
 }
@@ -101,11 +101,11 @@ void ConstantDensity::setHII(bool activate) {
 	setHII(activate, HIIdensitynumber);
 }
 
-void ConstantDensity::setHII(double densitynumber) {
+void ConstantDensity::setHII(long double densitynumber) {
 	setHII(isHII, densitynumber);
 }
 
-void ConstantDensity::setH2(bool activate, double densitynumber) {
+void ConstantDensity::setH2(bool activate, long double densitynumber) {
 	isH2 = activate;
 	H2densitynumber = densitynumber;
 }
@@ -114,7 +114,7 @@ void ConstantDensity::setH2(bool activate) {
 	setH2(activate, H2densitynumber);
 }
 
-void ConstantDensity::setH2(double densitynumber) {
+void ConstantDensity::setH2(long double densitynumber) {
 	setH2(isH2, densitynumber);
 }
 

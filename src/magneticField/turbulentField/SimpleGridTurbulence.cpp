@@ -15,9 +15,9 @@ SimpleGridTurbulence::SimpleGridTurbulence(const SimpleTurbulenceSpectrum &spect
 	               spectrum.getLmax(), -spectrum.getSindex() - 2, seed);
 }
 
-void SimpleGridTurbulence::initTurbulence(ref_ptr<Grid3f> grid, double Brms,
-                                          double lMin, double lMax,
-                                          double alpha, int seed) {
+void SimpleGridTurbulence::initTurbulence(ref_ptr<Grid3f> grid, long double Brms,
+                                          long double lMin, long double lMax,
+                                          long double alpha, int seed) {
 	
 	Vector3d spacing = grid->getSpacing();
 
@@ -38,12 +38,12 @@ void SimpleGridTurbulence::initTurbulence(ref_ptr<Grid3f> grid, double Brms,
 		random.seed(seed); // use given seed
 
 	// calculate the n possible discrete wave numbers
-	double K[n];
+	long double K[n];
 	for (size_t i = 0; i < n; i++)
-		K[i] = (double)i / n - i / (n / 2);
+		K[i] = (long double)i / n - i / (n / 2);
 
-	double kMin = spacing.x / lMax;
-	double kMax = spacing.x / lMin;
+	long double kMin = spacing.x / lMax;
+	long double kMax = spacing.x / lMin;
 	Vector3f n0(1, 1, 1); // arbitrary vector to construct orthogonal base
 
 	for (size_t ix = 0; ix < n; ix++) {
@@ -54,7 +54,7 @@ void SimpleGridTurbulence::initTurbulence(ref_ptr<Grid3f> grid, double Brms,
 
 				size_t i = ix * n * n2 + iy * n2 + iz;
 				ek.setXYZ(K[ix], K[iy], K[iz]);
-				double k = ek.getR();
+				long double k = ek.getR();
 
 				// wave outside of turbulent range -> B(k) = 0
 				if ((k < kMin) || (k > kMax)) {
@@ -81,7 +81,7 @@ void SimpleGridTurbulence::initTurbulence(ref_ptr<Grid3f> grid, double Brms,
 				e2 /= e2.getR();
 
 				// random orientation perpendicular to k
-				double theta = 2 * M_PI * random.rand();
+				long double theta = 2 * M_PI * random.rand();
 				Vector3f b = e1 * cos(theta) + e2 * sin(theta); // real b-field vector
 
 				// normal distributed amplitude with mean = 0 and sigma =
@@ -89,9 +89,9 @@ void SimpleGridTurbulence::initTurbulence(ref_ptr<Grid3f> grid, double Brms,
 				b *= random.randNorm() * pow(k, alpha / 2);
 
 				// uniform random phase
-				double phase = 2 * M_PI * random.rand();
-				double cosPhase = cos(phase); // real part
-				double sinPhase = sin(phase); // imaginary part
+				long double phase = 2 * M_PI * random.rand();
+				long double cosPhase = cos(phase); // real part
+				long double sinPhase = sin(phase); // imaginary part
 
 				Bkx[i][0] = b.x * cosPhase;
 				Bkx[i][1] = b.x * sinPhase;

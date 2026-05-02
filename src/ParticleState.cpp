@@ -11,7 +11,7 @@
 
 namespace crpropa {
 
-ParticleState::ParticleState(int id, double E, Vector3d pos, Vector3d dir): id(0), energy(0.), position(0.), direction(0.), pmass(0.), charge(0.)
+ParticleState::ParticleState(int id, long double E, Vector3d pos, Vector3d dir): id(0), energy(0.), position(0.), direction(0.), pmass(0.), charge(0.)
 {
 	setId(id);
 	setEnergy(E);
@@ -35,15 +35,15 @@ const Vector3d &ParticleState::getDirection() const {
 	return direction;
 }
 
-void ParticleState::setEnergy(double newEnergy) {
+void ParticleState::setEnergy(long double newEnergy) {
 	energy = std::max(0., newEnergy); // prevent negative energies
 }
 
-double ParticleState::getEnergy() const {
+long double ParticleState::getEnergy() const {
 	return energy;
 }
 
-double ParticleState::getRigidity() const {
+long double ParticleState::getRigidity() const {
 	return fabs(energy / charge);
 }
 
@@ -63,19 +63,19 @@ int ParticleState::getId() const {
 	return id;
 }
 
-double ParticleState::getMass() const {
+long double ParticleState::getMass() const {
 	return pmass;
 }
 
-double ParticleState::getCharge() const {
+long double ParticleState::getCharge() const {
 	return charge;
 }
 
-double ParticleState::getLorentzFactor() const {
+long double ParticleState::getLorentzFactor() const {
 	return energy / (pmass * c_squared);
 }
 
-void ParticleState::setLorentzFactor(double lf) {
+void ParticleState::setLorentzFactor(long double lf) {
 	lf = std::max(0., lf); // prevent negative Lorentz factors
 	energy = lf * pmass * c_squared;
 }

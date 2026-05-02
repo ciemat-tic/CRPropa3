@@ -14,7 +14,7 @@
  	void enableRandomSeeds() {storeRandomSeeds = true;};
 +	/** Set scientific output precision for floating-point values in text output.
 +	 Default is 5, preserving the historical format. Use 16 or 17 for near-full
-+	 double precision.
++	 long double precision.
 +	 */
 +	void setPrecision(int p) { precision = (p < 0) ? 0 : p; }
 +	int getPrecision() const { return precision; }
@@ -29,12 +29,12 @@
  
 -TextOutput::TextOutput() : Output(), out(&std::cout), storeRandomSeeds(false) {
 +namespace {
-+inline int appendScientific(char *buffer, size_t buffersize, size_t pos, int precision, double value) {
++inline int appendScientific(char *buffer, size_t buffersize, size_t pos, int precision, long double value) {
 +	return std::snprintf(buffer + pos, buffersize - pos, "%.*E\t", precision, value);
  }
  
 -TextOutput::TextOutput(OutputType outputtype) : Output(outputtype), out(&std::cout), storeRandomSeeds(false) {
-+inline int appendScientific3(char *buffer, size_t buffersize, size_t pos, int precision, double x, double y, double z) {
++inline int appendScientific3(char *buffer, size_t buffersize, size_t pos, int precision, long double x, long double y, long double z) {
 +	return std::snprintf(buffer + pos, buffersize - pos, "%.*E\t%.*E\t%.*E\t",
 +		precision, x, precision, y, precision, z);
  }

@@ -39,23 +39,23 @@ Vector3f meanFieldVector(ref_ptr<Grid3f> grid);
  @param grid		a scalar grid (Grid1f)
  @returns The mean of all grid points
  */
-double meanFieldStrength(ref_ptr<Grid1f> grid);
+long double meanFieldStrength(ref_ptr<Grid1f> grid);
 /** Evaluate the mean of all grid points.
  @param grid		a vector grid (Grid3f)
  @returns The mean of all grid points
  */
-double meanFieldStrength(ref_ptr<Grid3f> grid);
+long double meanFieldStrength(ref_ptr<Grid3f> grid);
 
 /** Evaluate the RMS of all grid points.
  @param grid		a scalar grid (Grid1f)
  @returns The total RMS of all grid points.
  */
-double rmsFieldStrength(ref_ptr<Grid1f> grid);
+long double rmsFieldStrength(ref_ptr<Grid1f> grid);
 /** Evaluate the RMS of all grid points.
  @param grid		a vector grid (Grid3f)
  @returns The total RMS of all grid points.
  */
-double rmsFieldStrength(ref_ptr<Grid3f> grid);
+long double rmsFieldStrength(ref_ptr<Grid3f> grid);
 /** Evaluate the RMS of all grid points per axis. 
  @param grid		a vector grid (Grid3f)
  @returns An array of length 3 with the RMS field along each axis.
@@ -66,12 +66,12 @@ std::array<float, 3> rmsFieldStrengthPerAxis(ref_ptr<Grid3f> grid);
  @param grid		a scalar grid (Grid1f)
  @param a			scaling factor that will be used to multiply all points in grid
  */
-void scaleGrid(ref_ptr<Grid1f> grid, double a);
+void scaleGrid(ref_ptr<Grid1f> grid, long double a);
 /** Multiply all grid values by a given factor.
  @param grid		a vector grid (Grid3f)
  @param a			scaling factor that will be used to multiply all points in grid
  */
-void scaleGrid(ref_ptr<Grid3f> grid, double a);
+void scaleGrid(ref_ptr<Grid3f> grid, long double a);
 
 /** Fill vector grid from provided magnetic field.
  @param grid		a vector grid (Grid3f)
@@ -91,7 +91,7 @@ void fromMagneticFieldStrength(ref_ptr<Grid1f> grid, ref_ptr<MagneticField> fiel
  @param conversion	multiply every point in grid by a conversion factor
  */
 void loadGrid(ref_ptr<Grid3f> grid, std::string filename,
-		double conversion = 1);
+		long double conversion = 1);
 
 /** Load a Grid1f from a binary file with single precision.
  @param grid		a scalar grid (Grid1f)
@@ -99,7 +99,7 @@ void loadGrid(ref_ptr<Grid3f> grid, std::string filename,
  @param conversion	multiply every point in grid by a conversion factor
  */
 void loadGrid(ref_ptr<Grid1f> grid, std::string filename,
-		double conversion = 1);
+		long double conversion = 1);
 
 /** Dump a Grid3f to a binary file.
  @param grid		a vector grid (Grid3f)
@@ -107,7 +107,7 @@ void loadGrid(ref_ptr<Grid1f> grid, std::string filename,
  @param conversion	multiply every point in grid by a conversion factor
  */
 void dumpGrid(ref_ptr<Grid3f> grid, std::string filename,
-		double conversion = 1);
+		long double conversion = 1);
 
 /** Dump a Grid1f to a binary file with single precision.
  @param grid		a scalar grid (Grid1f)
@@ -115,13 +115,13 @@ void dumpGrid(ref_ptr<Grid3f> grid, std::string filename,
  @param conversion	multiply every point in grid by a conversion factor
  */
 void dumpGrid(ref_ptr<Grid1f> grid, std::string filename,
-		double conversion = 1);
+		long double conversion = 1);
 
 /** Load a Grid3f from a plain text file based on the gridproperties stored in the header
  @param filename	name of the input file
  @param conversion	multiply every point in a grid by a conversion factor
 */
-ref_ptr<Grid3f> loadGrid3fFromTxt(std::string filename, double conversion = 1);
+ref_ptr<Grid3f> loadGrid3fFromTxt(std::string filename, long double conversion = 1);
 
 /** Load a Grid3f grid from a plain text file.
  @param grid		a vector grid (Grid3f) to which the points will be loaded
@@ -129,13 +129,13 @@ ref_ptr<Grid3f> loadGrid3fFromTxt(std::string filename, double conversion = 1);
  @param conversion	multiply every point in grid by a conversion factor
  */
 void loadGridFromTxt(ref_ptr<Grid3f> grid, std::string filename,
-		double conversion = 1);
+		long double conversion = 1);
 
 /** Load a Grid1f from a plain text file based on the gridproperties stored in the header
  @param filename	name of the input file
  @param conversion	multiply every point in a grid by a conversion factor
 */
-ref_ptr<Grid1f> loadGrid1fFromTxt(std::string filename, double conversion = 1);
+ref_ptr<Grid1f> loadGrid1fFromTxt(std::string filename, long double conversion = 1);
 
 /** Load a Grid1f from a plain text file
  @param grid		a scalar grid (Grid1f) to which the points will be loaded
@@ -143,7 +143,7 @@ ref_ptr<Grid1f> loadGrid1fFromTxt(std::string filename, double conversion = 1);
  @param conversion	multiply every point in grid by a conversion factor
  */
 void loadGridFromTxt(ref_ptr<Grid1f> grid, std::string filename,
-		double conversion = 1);
+		long double conversion = 1);
 
 /** Dump a Grid3f to a plain text file.
  @param grid		a vector grid (Grid3f)
@@ -152,7 +152,7 @@ void loadGridFromTxt(ref_ptr<Grid1f> grid, std::string filename,
  @param storeProperties	if true the grid properties are stored as a comment
  */
 void dumpGridToTxt(ref_ptr<Grid3f> grid, std::string filename,
-		double conversion = 1, bool storeProperties = false);
+		long double conversion = 1, bool storeProperties = false);
 
 /** Dump a Grid1f to a plain text file. 
  @param grid		a scalar grid (Grid1f)
@@ -161,7 +161,7 @@ void dumpGridToTxt(ref_ptr<Grid3f> grid, std::string filename,
  @param storeProperties	if true the grid properties are stored as a comment
  */
 void dumpGridToTxt(ref_ptr<Grid1f> grid, std::string filename,
-		double conversion = 1, bool storeProperties = false);
+		long double conversion = 1, bool storeProperties = false);
 
 #ifdef CRPROPA_HAVE_FFTW3F
 /**

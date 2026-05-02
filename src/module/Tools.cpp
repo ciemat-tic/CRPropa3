@@ -9,7 +9,7 @@ using namespace std;
 namespace crpropa {
 
 PerformanceModule::~PerformanceModule() {
-	double total = 0;
+	long double total = 0;
 	for (size_t i = 0; i < modules.size(); i++) {
 		_module_info &m = modules[i];
 		total += m.time;
@@ -31,12 +31,12 @@ void PerformanceModule::add(Module *module) {
 }
 
 void PerformanceModule::process(Candidate *candidate) const {
-	vector<double> times(modules.size());
+	vector<long double> times(modules.size());
 	for (size_t i = 0; i < modules.size(); i++) {
 		_module_info &m = modules[i];
-		double start = Clock::getInstance().getMillisecond();
+		long double start = Clock::getInstance().getMillisecond();
 		m.module->process(candidate);
-		double end = Clock::getInstance().getMillisecond();
+		long double end = Clock::getInstance().getMillisecond();
 		times[i] = end - start;
 	}
 

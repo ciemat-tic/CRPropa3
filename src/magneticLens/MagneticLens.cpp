@@ -48,7 +48,7 @@ void MagneticLens::loadLens(const string &filename)
 		prefix.append("/");
 	}
 	string mfdatfile;
-	double emin, emax;
+	long double emin, emax;
 
 	int lineCounter = 0;
 	while (!infile.eof())
@@ -73,8 +73,8 @@ void MagneticLens::loadLens(const string &filename)
 	}
 }
 
-bool MagneticLens::transformCosmicRay(double rigidity, double& phi,
-		double& theta) 
+bool MagneticLens::transformCosmicRay(long double rigidity, long double& phi,
+		long double& theta)
 {
 	uint32_t c = _pixelization->direction2Pix(phi, theta);
 	LensPart *lenspart = getLensPart(rigidity);
@@ -90,10 +90,10 @@ bool MagneticLens::transformCosmicRay(double rigidity, double& phi,
 	uint32_t r;
 
 	// the random number to compare with
-	double rn = Random::instance().rand();
+	long double rn = Random::instance().rand();
 
 	ModelVectorType::InnerIterator i(v);
-  double cpv = 0;
+  long double cpv = 0;
   while (i)
   {
 		cpv += i.value();
@@ -110,10 +110,10 @@ bool MagneticLens::transformCosmicRay(double rigidity, double& phi,
   return false;
 }
 
-bool MagneticLens::transformCosmicRay(double rigidity, Vector3d &p){
+bool MagneticLens::transformCosmicRay(long double rigidity, Vector3d &p){
 
-			double galacticLongitude = atan2(-p.y, -p.x);
-			double galacticLatitude =	M_PI / 2 - acos(-p.z/ sqrt(p.x*p.x + p.y*p.y + p.z*p.z));
+			long double galacticLongitude = atan2(-p.y, -p.x);
+			long double galacticLatitude =	M_PI / 2 - acos(-p.z/ sqrt(p.x*p.x + p.y*p.y + p.z*p.z));
 			bool result = transformCosmicRay(rigidity, galacticLongitude, galacticLatitude);
 			
 			p.x = -1 * cos(galacticLongitude) * sin(M_PI / 2 - galacticLatitude);
@@ -123,8 +123,8 @@ bool MagneticLens::transformCosmicRay(double rigidity, Vector3d &p){
 			return result;
 }
 
-void MagneticLens::loadLensPart(const string &filename, double rigidityMin,
-		double rigidityMax)
+void MagneticLens::loadLensPart(const string &filename, long double rigidityMin,
+		long double rigidityMax)
 {
 	updateRigidityBounds(rigidityMin, rigidityMax);
 
@@ -164,7 +164,7 @@ void MagneticLens::_checkMatrix(const ModelMatrixType &M)
 	}
 }
 
-void MagneticLens::updateRigidityBounds(double rigidityMin, double rigidityMax)
+void MagneticLens::updateRigidityBounds(long double rigidityMin, long double rigidityMax)
 {
 	if (rigidityMin >= rigidityMax)
 	{
@@ -181,8 +181,8 @@ void MagneticLens::updateRigidityBounds(double rigidityMin, double rigidityMax)
 	}
 }
 
-void MagneticLens::setLensPart(const ModelMatrixType &M, double rigidityMin,
-		double rigidityMax)
+void MagneticLens::setLensPart(const ModelMatrixType &M, long double rigidityMin,
+		long double rigidityMax)
 {
 	updateRigidityBounds(rigidityMin, rigidityMax);
 	LensPart *p = new LensPart("Direct Input", rigidityMin, rigidityMax);
@@ -193,7 +193,7 @@ void MagneticLens::setLensPart(const ModelMatrixType &M, double rigidityMin,
 	_lensParts.push_back(p);
 }
 
-LensPart* MagneticLens::getLensPart(double rigidity) const
+LensPart* MagneticLens::getLensPart(long double rigidity) const
 {
 	const_LensPartIter i = _lensParts.begin();
 	while (i != _lensParts.end())
@@ -208,7 +208,7 @@ LensPart* MagneticLens::getLensPart(double rigidity) const
 	return NULL;
 }
 
-bool MagneticLens::rigidityCovered(double rigidity) const
+bool MagneticLens::rigidityCovered(long double rigidity) const
 {
 	if (getLensPart(rigidity))
 		return true;
@@ -230,7 +230,7 @@ void MagneticLens::normalizeMatrixColumns()
 void MagneticLens::normalizeLens()
 {
 	// get maximum of sums of columns, and normalize each matrix to that
-	double norm = 0;
+	long double norm = 0;
 	for (LensPartIter iter = _lensParts.begin(); iter != _lensParts.end();
 			++iter)
 	{
@@ -252,12 +252,12 @@ void MagneticLens::normalizeLensparts()
 	for (LensPartIter iter = _lensParts.begin(); iter != _lensParts.end();
 			++iter)
 	{
-		double norm = (*iter)->getMaximumOfSumsOfColumns();
+		long double norm = (*iter)->getMaximumOfSumsOfColumns();
 		normalizeMatrix((*iter)->getMatrix(), norm);
 	}
 }
 
-void MagneticLens::transformModelVector(double* model, double rigidity) const
+void MagneticLens::transformModelVector(long double* model, long double rigidity) const
 {
 	LensPart* lenspart = getLensPart(rigidity);
 	

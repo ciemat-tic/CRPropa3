@@ -23,7 +23,7 @@ namespace crpropa {
 
 /**
  @class Vector3
- @brief Template class for 3-vectors of type float, double, ...
+ @brief Template class for 3-vectors of type float, long double, ...
 
  Allows accessing and changing the elements x, y, z directly or  through the
  corresponding get and set methods.
@@ -64,7 +64,7 @@ public:
 	{
 	}
 
-	explicit Vector3(const double *v) {
+	explicit Vector3(const long double *v) {
 		data[0] = v[0];
 		data[1] = v[1];
 		data[2] = v[2];
@@ -432,7 +432,7 @@ public:
 		npy_intp dims[1] = {3};
 		PyObject *array;
 		// type handling
-		if (typeid(T) == typeid(double))
+		if (typeid(T) == typeid(long double))
 			array = PyArray_SimpleNewFromData(1, dims, NPY_DOUBLE, (void *)data);
 		else if (typeid(T) == typeid(float))
 			array = PyArray_SimpleNewFromData(1, dims, NPY_FLOAT, (void *)data);
@@ -465,7 +465,7 @@ public:
 		// handle different numpy dtypes
 		if (PyArray_TYPE(array) == NPY_DOUBLE) {
 			// convert pyarray data 
-			double *dataPtr = (double *)PyArray_DATA(array);
+			long double *dataPtr = (long double *)PyArray_DATA(array);
 			data[0] = dataPtr[0];
 			data[1] = dataPtr[1];
 			data[2] = dataPtr[2];
@@ -517,7 +517,7 @@ inline Vector3<T> operator *(T f, const Vector3<T> &v) {
 	return Vector3<T>(v.x * f, v.y * f, v.z * f);
 }
 
-typedef Vector3<double> Vector3d;
+typedef Vector3<long double> Vector3d;
 typedef Vector3<float> Vector3f;
 
 /** @}*/

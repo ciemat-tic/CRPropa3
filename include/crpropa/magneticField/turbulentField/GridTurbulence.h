@@ -44,8 +44,8 @@ class GridTurbulence : public TurbulentField {
 
 	/* Helper functions for synthetic turbulent field models */
 	// Check the grid properties before the FFT procedure
-	static void checkGridRequirements(ref_ptr<Grid3f> grid, double lMin,
-	                                  double lMax);
+	static void checkGridRequirements(ref_ptr<Grid3f> grid, long double lMin,
+	                                  long double lMax);
 	// Execute inverse discrete FFT in-place for a 3D grid, from complex to real
 	// space
 	static void executeInverseFFTInplace(ref_ptr<Grid3f> grid,
@@ -56,9 +56,9 @@ class GridTurbulence : public TurbulentField {
 	/** Evaluate the mean vector of all grid points */
 	Vector3f getMeanFieldVector() const;
 	/** Evaluate the mean of all grid points */
-	double getMeanFieldStrength() const;
+	long double getMeanFieldStrength() const;
 	/** Evaluate the RMS of all grid points */
-	double getRmsFieldStrength() const;
+	long double getRmsFieldStrength() const;
 	/** Evaluate the RMS of all grid points per axis */
 	std::array<float, 3> getRmsFieldStrengthPerAxis() const;
 	/** Evaluate generated power-spectrum */

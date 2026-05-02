@@ -22,127 +22,127 @@ namespace crpropa {
  */
 
 // SI units
-static const double meter = 1;
-static const double second = 1;
-static const double kilogram = 1;
-static const double ampere = 1;
-static const double mol = 1;
-static const double kelvin = 1;
+static const long double meter = 1;
+static const long double second = 1;
+static const long double kilogram = 1;
+static const long double ampere = 1;
+static const long double mol = 1;
+static const long double kelvin = 1;
 
 // derived units
-static const double newton = 1 * kilogram * meter / second / second;
-static const double pascal = 1 * newton / meter / meter;
-static const double joule = 1 * newton * meter;
-static const double tesla = 1 * newton / ampere / meter;
-static const double volt = 1 * kilogram * meter * meter / ampere / second / second / second;
-static const double coulomb = 1 * ampere * second;
-static const double hertz = 1 / second;
-static const double rad = 1;
-static const double deg = M_PI / 180.;
+static const long double newton = 1 * kilogram * meter / second / second;
+static const long double pascal = 1 * newton / meter / meter;
+static const long double joule = 1 * newton * meter;
+static const long double tesla = 1 * newton / ampere / meter;
+static const long double volt = 1 * kilogram * meter * meter / ampere / second / second / second;
+static const long double coulomb = 1 * ampere * second;
+static const long double hertz = 1 / second;
+static const long double rad = 1;
+static const long double deg = M_PI / 180.;
 
 // SI Prefixes
-static const double yocto = 1E-24;
-static const double zepto = 1E-21;
-static const double atto = 1E-18;
-static const double femto = 1E-15;
-static const double pico = 1E-12;
-static const double nano = 1E-9;
-static const double micro = 1E-6;
-static const double milli = 1E-3;
+static const long double yocto = 1E-24;
+static const long double zepto = 1E-21;
+static const long double atto = 1E-18;
+static const long double femto = 1E-15;
+static const long double pico = 1E-12;
+static const long double nano = 1E-9;
+static const long double micro = 1E-6;
+static const long double milli = 1E-3;
 
-static const double kilo = 1E3;
-static const double mega = 1E6;
-static const double giga = 1E9;
-static const double tera = 1E12;
-static const double peta = 1E15;
-static const double exa = 1E18;
-static const double zetta = 1E21;
-static const double yotta = 1E24;
+static const long double kilo = 1E3;
+static const long double mega = 1E6;
+static const long double giga = 1E9;
+static const long double tera = 1E12;
+static const long double peta = 1E15;
+static const long double exa = 1E18;
+static const long double zetta = 1E21;
+static const long double yotta = 1E24;
 
 
 // physical constants
-static const double eplus = 1.602176487e-19 * ampere * second;
-static const double c_light = 2.99792458e8 * meter / second;
-static const double c_squared = c_light * c_light;
-static const double amu = 1.660538921e-27 * kilogram;
-static const double mass_proton = 1.67262158e-27 * kilogram;
-static const double mass_neutron = 1.67492735e-27 * kilogram;
-static const double mass_electron = 9.10938291e-31 * kilogram;
-static const double h_planck = 6.62606957e-34 * joule * second;
-static const double k_boltzmann = 1.3806488e-23 * joule / kelvin;
-static const double mu0 = 4 * M_PI * 1e-7 * newton / ampere / ampere;
-static const double epsilon0 = 1.0 / mu0 / c_squared * ampere * second / volt / meter;
-static const double alpha_finestructure = eplus * eplus / 2. / epsilon0 / h_planck / c_light;
-static const double radius_electron = eplus * eplus / 4. / M_PI / epsilon0 / mass_electron / c_squared;
-static const double sigma_thomson = 8. * M_PI / 3. * radius_electron * radius_electron;
+static const long double eplus = 1.602176487e-19 * ampere * second;
+static const long double c_light = 2.99792458e8 * meter / second;
+static const long double c_squared = c_light * c_light;
+static const long double amu = 1.660538921e-27 * kilogram;
+static const long double mass_proton = 1.67262158e-27 * kilogram;
+static const long double mass_neutron = 1.67492735e-27 * kilogram;
+static const long double mass_electron = 9.10938291e-31 * kilogram;
+static const long double h_planck = 6.62606957e-34 * joule * second;
+static const long double k_boltzmann = 1.3806488e-23 * joule / kelvin;
+static const long double mu0 = 4 * M_PI * 1e-7 * newton / ampere / ampere;
+static const long double epsilon0 = 1.0 / mu0 / c_squared * ampere * second / volt / meter;
+static const long double alpha_finestructure = eplus * eplus / 2. / epsilon0 / h_planck / c_light;
+static const long double radius_electron = eplus * eplus / 4. / M_PI / epsilon0 / mass_electron / c_squared;
+static const long double sigma_thomson = 8. * M_PI / 3. * radius_electron * radius_electron;
 
 // gauss
-static const double gauss = 1e-4 * tesla;
-static const double microgauss = 1e-6 * gauss;
-static const double nanogauss = 1e-9 * gauss;
-static const double muG = microgauss;
-static const double nG = nanogauss;
+static const long double gauss = 1e-4 * tesla;
+static const long double microgauss = 1e-6 * gauss;
+static const long double nanogauss = 1e-9 * gauss;
+static const long double muG = microgauss;
+static const long double nG = nanogauss;
 
-static const double erg = 1E-7 * joule;
+static const long double erg = 1E-7 * joule;
 
 // electron volt
-static const double electronvolt = eplus * volt;
-static const double kiloelectronvolt = 1e3 * electronvolt;
-static const double megaelectronvolt = 1e6 * electronvolt;
-static const double gigaelectronvolt = 1e9 * electronvolt;
-static const double teraelectronvolt = 1e12 * electronvolt;
-static const double petaelectronvolt = 1e15 * electronvolt;
-static const double exaelectronvolt = 1e18 * electronvolt;
-static const double eV = electronvolt;
-static const double keV = kiloelectronvolt;
-static const double MeV = megaelectronvolt;
-static const double GeV = gigaelectronvolt;
-static const double TeV = teraelectronvolt;
-static const double PeV = petaelectronvolt;
-static const double EeV = exaelectronvolt;
+static const long double electronvolt = eplus * volt;
+static const long double kiloelectronvolt = 1e3 * electronvolt;
+static const long double megaelectronvolt = 1e6 * electronvolt;
+static const long double gigaelectronvolt = 1e9 * electronvolt;
+static const long double teraelectronvolt = 1e12 * electronvolt;
+static const long double petaelectronvolt = 1e15 * electronvolt;
+static const long double exaelectronvolt = 1e18 * electronvolt;
+static const long double eV = electronvolt;
+static const long double keV = kiloelectronvolt;
+static const long double MeV = megaelectronvolt;
+static const long double GeV = gigaelectronvolt;
+static const long double TeV = teraelectronvolt;
+static const long double PeV = petaelectronvolt;
+static const long double EeV = exaelectronvolt;
 
-static const double barn = 1E-28 * meter * meter;
+static const long double barn = 1E-28 * meter * meter;
 
 // astronomical distances
-static const double au = 149597870700 * meter;
-static const double ly = 365.25 * 24 * 3600 * second * c_light;
-static const double parsec = 648000 / M_PI * au;
-static const double kiloparsec = 1e3 * parsec;
-static const double megaparsec = 1e6 * parsec;
-static const double gigaparsec = 1e9 * parsec;
-static const double pc = parsec;
-static const double kpc = kiloparsec;
-static const double Mpc = megaparsec;
-static const double Gpc = gigaparsec;
+static const long double au = 149597870700 * meter;
+static const long double ly = 365.25 * 24 * 3600 * second * c_light;
+static const long double parsec = 648000 / M_PI * au;
+static const long double kiloparsec = 1e3 * parsec;
+static const long double megaparsec = 1e6 * parsec;
+static const long double gigaparsec = 1e9 * parsec;
+static const long double pc = parsec;
+static const long double kpc = kiloparsec;
+static const long double Mpc = megaparsec;
+static const long double Gpc = gigaparsec;
 
 // meter
-static const double kilometer = 1000 * meter;
-static const double centimeter = 0.01 * meter;
-static const double km = kilometer;
-static const double cm = centimeter;
+static const long double kilometer = 1000 * meter;
+static const long double centimeter = 0.01 * meter;
+static const long double km = kilometer;
+static const long double cm = centimeter;
 
 // second
-static const double nanosecond = 1e-9 * second;
-static const double microsecond = 1e-6 * second;
-static const double millisecond = 1e-3 * second;
-static const double minute = 60 * second;
-static const double hour = 3600 * second;
-static const double day = 24 * hour;
-static const double year = 365.25 * 24 * hour;
-static const double kiloyear = 1e3 * year;
-static const double Megayear = 1e6 * year;
-static const double Gigayear = 1e9 * year;
-static const double ns = nanosecond;
-static const double mus = microsecond;
-static const double ms = millisecond;
-static const double sec = second;
-static const double yr = year;
-static const double kyr = kiloyear;
-static const double Myr = Megayear;
-static const double Gyr = Gigayear;
+static const long double nanosecond = 1e-9 * second;
+static const long double microsecond = 1e-6 * second;
+static const long double millisecond = 1e-3 * second;
+static const long double minute = 60 * second;
+static const long double hour = 3600 * second;
+static const long double day = 24 * hour;
+static const long double year = 365.25 * 24 * hour;
+static const long double kiloyear = 1e3 * year;
+static const long double Megayear = 1e6 * year;
+static const long double Gigayear = 1e9 * year;
+static const long double ns = nanosecond;
+static const long double mus = microsecond;
+static const long double ms = millisecond;
+static const long double sec = second;
+static const long double yr = year;
+static const long double kyr = kiloyear;
+static const long double Myr = Megayear;
+static const long double Gyr = Gigayear;
 
 // volume
-static const double ccm = cm*cm*cm;
+static const long double ccm = cm*cm*cm;
 
 /** @}*/
 

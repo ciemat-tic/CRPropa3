@@ -44,14 +44,14 @@ void GridTurbulence::initTurbulence() {
 		random.seed(seed); // use given seed
 
 	// calculate the n possible discrete wave numbers
-	double K[n];
+	long double K[n];
 	for (size_t i = 0; i < n; i++)
-		K[i] = ((double)i / n - i / (n / 2));
+		K[i] = ((long double)i / n - i / (n / 2));
 
-	// double kMin = 2*M_PI / lMax; // * 2 * spacing.x; // spacing.x / lMax;
-	// double kMax = 2*M_PI / lMin; // * 2 * spacing.x; // spacing.x / lMin;
-	double kMin = spacing.x / spectrum.getLmax();
-	double kMax = spacing.x / spectrum.getLmin();
+	// long double kMin = 2*M_PI / lMax; // * 2 * spacing.x; // spacing.x / lMax;
+	// long double kMax = 2*M_PI / lMin; // * 2 * spacing.x; // spacing.x / lMin;
+	long double kMin = spacing.x / spectrum.getLmax();
+	long double kMax = spacing.x / spectrum.getLmin();
 	auto lambda = 1 / spacing.x * 2 * M_PI;
 
 	Vector3f n0(1, 1, 1); // arbitrary vector to construct orthogonal base
@@ -64,7 +64,7 @@ void GridTurbulence::initTurbulence() {
 
 				size_t i = ix * n * n2 + iy * n2 + iz;
 				ek.setXYZ(K[ix], K[iy], K[iz]);
-				double k = ek.getR();
+				long double k = ek.getR();
 
 				// wave outside of turbulent range -> B(k) = 0
 				if ((k < kMin) || (k > kMax)) {
@@ -91,16 +91,16 @@ void GridTurbulence::initTurbulence() {
 				e2 /= e2.getR();
 
 				// random orientation perpendicular to k
-				double theta = 2 * M_PI * random.rand();
+				long double theta = 2 * M_PI * random.rand();
 				Vector3f b = e1 * std::cos(theta) + e2 * std::sin(theta); // real b-field vector
 
 				// normal distributed amplitude with mean = 0
 				b *= std::sqrt(spectrum.energySpectrum(k*lambda));
 				
 				// uniform random phase
-				double phase = 2 * M_PI * random.rand();
-				double cosPhase = std::cos(phase); // real part
-				double sinPhase = std::sin(phase); // imaginary part
+				long double phase = 2 * M_PI * random.rand();
+				long double cosPhase = std::cos(phase); // real part
+				long double sinPhase = std::sin(phase); // imaginary part
 
 				Bkx[i][0] = b.x * cosPhase;
 				Bkx[i][1] = b.x * sinPhase;
@@ -123,8 +123,8 @@ void GridTurbulence::initTurbulence() {
 }
 
 // Check the grid properties before the FFT procedure
-void GridTurbulence::checkGridRequirements(ref_ptr<Grid3f> grid, double lMin,
-                                           double lMax) {
+void GridTurbulence::checkGridRequirements(ref_ptr<Grid3f> grid, long double lMin,
+                                           long double lMax) {
 	size_t Nx = grid->getNx();
 	size_t Ny = grid->getNy();
 	size_t Nz = grid->getNz();
@@ -188,11 +188,11 @@ Vector3f GridTurbulence::getMeanFieldVector() const {
 	return meanFieldVector(gridPtr);
 }
 
-double GridTurbulence::getMeanFieldStrength() const {
+long double GridTurbulence::getMeanFieldStrength() const {
 	return meanFieldStrength(gridPtr);
 }
 
-double GridTurbulence::getRmsFieldStrength() const {
+long double GridTurbulence::getRmsFieldStrength() const {
 	return rmsFieldStrength(gridPtr);
 }
 

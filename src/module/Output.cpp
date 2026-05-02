@@ -78,30 +78,30 @@ void Output::setOutputType(OutputType outputtype) {
 	}
 }
 
-void Output::setEnergyScale(double scale) {
+void Output::setEnergyScale(long double scale) {
 	modify();
 	energyScale = scale;
 }
 
-double Output::getEnergyScale() const {
+long double Output::getEnergyScale() const {
 	return energyScale;
 }
 
-void Output::setLengthScale(double scale) {
+void Output::setLengthScale(long double scale) {
 	modify();
 	lengthScale = scale;
 }
 
-double Output::getLengthScale() const {
+long double Output::getLengthScale() const {
 	return lengthScale;
 }
 
-void Output::setTimeScale(double scale) {
+void Output::setTimeScale(long double scale) {
 	modify();
 	timeScale = scale;
 }
 
-double Output::getTimeScale() const {
+long double Output::getTimeScale() const {
 	return timeScale;
 }
 

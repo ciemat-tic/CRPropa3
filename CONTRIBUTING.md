@@ -9,7 +9,7 @@ is more often read than written.
 
 If you start working on a future contributions, please create a new issue to
 notify other users and developers on your planned work early on. Thus others
-can collaborate with you early on and double work is avoided.
+can collaborate with you early on and long double work is avoided.
 
 Ideally new contributors should:
   * fork the CRPropa repository
@@ -104,14 +104,14 @@ In addition to those general ideas, we use the following conventions:
     ```
     class MyClassWrong {
         private:
-            double x;
+            long double x;
         public:
             MyClassWrong();
     }
 
     class MyClassRight {
     private:
-        double x;
+        long double x;
     public:
         MyClassRight();
     }

@@ -324,7 +324,7 @@ TEST(ObserverFeature, TimeEvolutionLog) {
 
 TEST(ObserverFeature, TimeEvolutionArray) {
   // here it should be tested if the observer can be constructed with an array
-  std::vector<double> times = {1, 2, 3}; 
+  std::vector<long double> times = {1, 2, 3};
   ObserverTimeEvolution obs(times);
   EXPECT_FALSE(obs.empty());
   EXPECT_TRUE(times == obs.getTimes());  // element wise comparison
@@ -416,7 +416,7 @@ TEST(PeriodicBox, low) {
 TEST(ReflectiveShell, inside) {
 	// Tests if the reflective boundaries place the particle back inside the shell
 	Vector3d center(0, 0, 0);
-	double radius = 100;
+	long double radius = 100;
 	ReflectiveShell shell(center, radius);
 
 	Candidate c;

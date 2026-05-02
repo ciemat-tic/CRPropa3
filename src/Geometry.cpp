@@ -16,7 +16,7 @@ Plane::Plane(const Vector3d& _x0, const Vector3d& v1,const Vector3d& v2) : x0(_x
 	n /= n.getR();
 };
 
-double Plane::distance(const Vector3d &x) const {
+long double Plane::distance(const Vector3d &x) const {
 	Vector3d dX = x - x0;
 	return n.dot(dX);
 };
@@ -35,10 +35,10 @@ Vector3d Plane::normal(const Vector3d& point) const {
 
 
 // Sphere ------------------------------------------------------------------
-Sphere::Sphere(const Vector3d& _center, double _radius) : center(_center), radius(_radius) {
+Sphere::Sphere(const Vector3d& _center, long double _radius) : center(_center), radius(_radius) {
 };
 
-double Sphere::distance(const Vector3d &point) const {
+long double Sphere::distance(const Vector3d &point) const {
 	Vector3d dR = point - center;
 	return dR.getR() - radius;
 }
@@ -61,20 +61,20 @@ std::string Sphere::getDescription() const {
 ParaxialBox::ParaxialBox(const Vector3d& _corner, const Vector3d& _size) : corner(_corner), size(_size) {
 };
 
-double ParaxialBox::distance(const Vector3d &point) const {
+long double ParaxialBox::distance(const Vector3d &point) const {
 	Vector3d X = point - corner - size/2.;
 
 	// inside the cube
 	if ((fabs(X.x) <= size.x/2.) and (fabs(X.y) <= size.y/2.) and (fabs(X.z) <= size.z/2.)) { 
 		Vector3d Xp = size/2. - X.abs();
-		double d = std::min(Xp.x, std::min(Xp.y, Xp.z));
+		long double d = std::min(Xp.x, std::min(Xp.y, Xp.z));
 
 		return -1. * d;
 	}
 
-	double a = std::max(0., fabs(X.x) - size.x/2.);
-	double b = std::max(0., fabs(X.y) - size.y/2.);
-	double c = std::max(0., fabs(X.z) - size.z/2.);
+	long double a = std::max(0., fabs(X.x) - size.x/2.);
+	long double b = std::max(0., fabs(X.y) - size.y/2.);
+	long double c = std::max(0., fabs(X.z) - size.z/2.);
 
 	return sqrt(a*a + b*b +c*c);
 }
@@ -83,7 +83,7 @@ Vector3d ParaxialBox::normal(const Vector3d& point) const {
 	Vector3d d = (point - corner).abs();
 	Vector3d d2 = d + size;
 	Vector3d n;
-	double dmin = std::numeric_limits<double>::infinity();
+	long double dmin = std::numeric_limits<long double>::infinity();
 	if (d.x < dmin) {
 		dmin = d.x;
 		n = Vector3d(-1, 0, 0);

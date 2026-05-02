@@ -8,7 +8,7 @@
 namespace crpropa {
 
 // Cash-Karp coefficients
-const double cash_karp_a[] = {
+const long double cash_karp_a[] = {
 	0., 0., 0., 0., 0., 0.,
 	1. / 5., 0., 0., 0., 0., 0.,
 	3. / 40., 9. / 40., 0., 0., 0., 0.,
@@ -17,16 +17,16 @@ const double cash_karp_a[] = {
 	1631. / 55296., 175. / 512., 575. / 13824., 44275. / 110592., 253. / 4096., 0.
 };
 
-const double cash_karp_b[] = {
+const long double cash_karp_b[] = {
 	37. / 378., 0, 250. / 621., 125. / 594., 0., 512. / 1771.
 };
 
-const double cash_karp_bs[] = {
+const long double cash_karp_bs[] = {
 	2825. / 27648., 0., 18575. / 48384., 13525. / 55296., 277. / 14336., 1. / 4.
 };
 
-void PropagationCK::tryStep(const Y &y, Y &out, Y &error, double h,
-		ParticleState &particle, double z) const {
+void PropagationCK::tryStep(const Y &y, Y &out, Y &error, long double h,
+		ParticleState &particle, long double z) const {
 	std::vector<Y> k;
 	k.reserve(6);
 
@@ -48,7 +48,7 @@ void PropagationCK::tryStep(const Y &y, Y &out, Y &error, double h,
 	}
 }
 
-PropagationCK::Y PropagationCK::dYdt(const Y &y, ParticleState &p, double z) const {
+PropagationCK::Y PropagationCK::dYdt(const Y &y, ParticleState &p, long double z) const {
 	// normalize direction vector to prevent numerical losses
 	Vector3d velocity = y.u.getUnitVector() * c_light;
 	
@@ -60,8 +60,8 @@ PropagationCK::Y PropagationCK::dYdt(const Y &y, ParticleState &p, double z) con
 	return Y(velocity, dudt);
 }
 
-PropagationCK::PropagationCK(ref_ptr<MagneticField> field, double tolerance,
-		double minStep, double maxStep) :
+PropagationCK::PropagationCK(ref_ptr<MagneticField> field, long double tolerance,
+		long double minStep, long double maxStep) :
 		minStep(0) {
 	setField(field);
 	setTolerance(tolerance);
@@ -80,7 +80,7 @@ void PropagationCK::process(Candidate *candidate) const {
 	candidate->previous = current;
 
 	Y yIn(current.getPosition(), current.getDirection());
-	double step = maxStep;
+	long double step = maxStep;
 
 	// rectilinear propagation for neutral particles
 	if (current.getCharge() == 0) {
@@ -92,8 +92,8 @@ void PropagationCK::process(Candidate *candidate) const {
 	}
 
 	Y yOut, yErr;
-	double newStep = step;
-	double z = candidate->getRedshift();
+	long double newStep = step;
+	long double z = candidate->getRedshift();
 
 
 	// if minStep is the same as maxStep the adaptive algorithm with its error
@@ -103,7 +103,7 @@ void PropagationCK::process(Candidate *candidate) const {
 	} else {
 		step = clip(candidate->getNextStep(), minStep, maxStep);
 		newStep = step;
-		double r = 42;  // arbitrary value
+		long double r = 42;  // arbitrary value
 
 		// try performing step until the target error (tolerance) or the minimum/maximum step size has been reached
 		while (true) {
@@ -143,7 +143,7 @@ ref_ptr<MagneticField> PropagationCK::getField() const {
 	return field;
 }
 
-Vector3d PropagationCK::getFieldAtPosition(Vector3d pos, double z) const {
+Vector3d PropagationCK::getFieldAtPosition(Vector3d pos, long double z) const {
 	Vector3d B(0, 0, 0);
 	try {
 		// check if field is valid and use the field vector at the
@@ -157,14 +157,14 @@ Vector3d PropagationCK::getFieldAtPosition(Vector3d pos, double z) const {
 	return B;
 }
 
-void PropagationCK::setTolerance(double tol) {
+void PropagationCK::setTolerance(long double tol) {
 	if ((tol > 1) or (tol < 0))
 		throw std::runtime_error(
 				"PropagationCK: target error not in range 0-1");
 	tolerance = tol;
 }
 
-void PropagationCK::setMinimumStep(double min) {
+void PropagationCK::setMinimumStep(long double min) {
 	if (min < 0)
 		throw std::runtime_error("PropagationCK: minStep < 0 ");
 	if (min > maxStep)
@@ -172,21 +172,21 @@ void PropagationCK::setMinimumStep(double min) {
 	minStep = min;
 }
 
-void PropagationCK::setMaximumStep(double max) {
+void PropagationCK::setMaximumStep(long double max) {
 	if (max < minStep)
 		throw std::runtime_error("PropagationCK: maxStep < minStep");
 	maxStep = max;
 }
 
-double PropagationCK::getTolerance() const {
+long double PropagationCK::getTolerance() const {
 	return tolerance;
 }
 
-double PropagationCK::getMinimumStep() const {
+long double PropagationCK::getMinimumStep() const {
 	return minStep;
 }
 
-double PropagationCK::getMaximumStep() const {
+long double PropagationCK::getMaximumStep() const {
 	return maxStep;
 }
 

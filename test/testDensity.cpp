@@ -123,7 +123,7 @@ TEST(testNakanishi, checkValueAtCertainPoints) {
 	EXPECT_NEAR(n.getH2Density(p),0,1);
 
 	//testing total Density
-	EXPECT_NEAR(n.getDensity(p),914,2); //double uncertaincy for both type á 1cm^-3
+	EXPECT_NEAR(n.getDensity(p),914,2); //long double uncertaincy for both type á 1cm^-3
 	EXPECT_NEAR(n.getNucleonDensity(p),914,2);	// 914 + 0*2	factor 2 for molecular hydrogen
 
 	//second position for testing density
@@ -192,7 +192,7 @@ TEST(testFerriere, checkValueAtCertainPoints) {
 	EXPECT_NEAR(n.getH2Density(p),35484825,1);
 	EXPECT_NEAR(n.getHIIDensity(p),6243793,1);
 	EXPECT_NEAR(n.getDensity(p),47966341,1);
-	EXPECT_NEAR(n.getNucleonDensity(p),83451166,2);		//factor 2 in molecular hydrogen; double uncertaincy
+	EXPECT_NEAR(n.getNucleonDensity(p),83451166,2);		//factor 2 in molecular hydrogen; long double uncertaincy
 
 	Vector3d p2(-500*pc,-900*pc,35*pc);	//testing position in region of the DISK
 	EXPECT_NEAR(n.getHIIDensity(p2),48190,1);
@@ -263,7 +263,7 @@ TEST(testGridDensity, testRetrunValue) {
 	size_t Nx = 5;
 	size_t Ny = 8;
 	size_t Nz = 10;
-	double spacing = 2.0;
+	long double spacing = 2.0;
 	Vector3d origin(1., 2., 3.);
 
 	ref_ptr<Grid1f> grid = new Grid1f(origin, Nx, Ny, Nz, spacing);
@@ -277,12 +277,12 @@ TEST(testGridDensity, testRetrunValue) {
 
 	// a point in the region where values are defined for the grid.
 	Vector3d position = origin + Vector3d(2.2, 2.8, 4.1) * spacing; 
-	double valueFromGrid =  grid->interpolate(position);
-	double nHI = dens.getHIDensity(position);
-	double nHII = dens.getHIIDensity(position);
-	double nH2 = dens.getH2Density(position);
-	double nNucleon = dens.getNucleonDensity(position);
-	double nTotal = dens.getDensity(position);
+	long double valueFromGrid =  grid->interpolate(position);
+	long double nHI = dens.getHIDensity(position);
+	long double nHII = dens.getHIIDensity(position);
+	long double nH2 = dens.getH2Density(position);
+	long double nNucleon = dens.getNucleonDensity(position);
+	long double nTotal = dens.getDensity(position);
 
 	// Check for values
 	EXPECT_DOUBLE_EQ(valueFromGrid, nHI);

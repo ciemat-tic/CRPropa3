@@ -10,23 +10,23 @@ CMZField::CMZField() {
     useRadioArc = false;
 }
 
-double CMZField::getA(double a1) const {
+long double CMZField::getA(long double a1) const {
     return 4*log(2)/a1/a1;  
 }
 
-double CMZField::getL(double a2) const {
+long double CMZField::getL(long double a2) const {
     return a2/2*log(2);
 }
 
-Vector3d CMZField::BPol(const Vector3d& position,const Vector3d& mid, double B1, double a, double L) const{
+Vector3d CMZField::BPol(const Vector3d& position,const Vector3d& mid, long double B1, long double a, long double L) const{
     // cylindircal coordinates
     Vector3d pos = position - mid;
-    double r = sqrt(pos.x*pos.x + pos.y*pos.y);
-    double phi = std::atan2(pos.y, pos.x);
+    long double r = sqrt(pos.x*pos.x + pos.y*pos.y);
+    long double phi = std::atan2(pos.y, pos.x);
 
-    double r1 = 1/(1+a*pos.z*pos.z);
-    double Bs = B1*exp(-r1*r/L);
-    double Br = 2*a*pow_integer<3>(r1)*r*pos.z*Bs;
+    long double r1 = 1/(1+a*pos.z*pos.z);
+    long double Bs = B1*exp(-r1*r/L);
+    long double Br = 2*a*pow_integer<3>(r1)*r*pos.z*Bs;
     
     Vector3d b = Vector3d(0.);
     b.z = r1*r1*Bs;
@@ -36,30 +36,30 @@ Vector3d CMZField::BPol(const Vector3d& position,const Vector3d& mid, double B1,
     return b;
 }
 
-Vector3d CMZField::BAz(const Vector3d& position, const Vector3d& mid, double B1, double eta, double R) const {
+Vector3d CMZField::BAz(const Vector3d& position, const Vector3d& mid, long double B1, long double eta, long double R) const {
     // cylindrical coordinates
     Vector3d pos = position - mid;
-    double r = sqrt(pos.x*pos.x + pos.y*pos.y);
-    double phi = std::atan2(pos.y,pos.x);
+    long double r = sqrt(pos.x*pos.x + pos.y*pos.y);
+    long double phi = std::atan2(pos.y,pos.x);
 
     Vector3d bVec(0.);
-    double Hc = R/sqrt(log(2));
-    double b = 1.;
-    double m = 1;
-    double r1 = R/10;
-    double v = m/eta*log((r+b)/(R+b));
-    double cosV = cos(v + m*phi);
+    long double Hc = R/sqrt(log(2));
+    long double b = 1.;
+    long double m = 1;
+    long double r1 = R/10;
+    long double v = m/eta*log((r+b)/(R+b));
+    long double cosV = cos(v + m*phi);
 
-    double Br=0;
-    double Bphi=0;
+    long double Br=0;
+    long double Bphi=0;
     
     if(r>r1){
-        double Pre = B1*cosV*exp(-pos.z*pos.z/Hc/Hc);
+        long double Pre = B1*cosV*exp(-pos.z*pos.z/Hc/Hc);
         Br = Pre*R/r;
         Bphi=-Pre/eta*R/(r+b);
     }
     else{
-        double Pre = B1*exp(-pos.z*pos.z/Hc/Hc)*R/r1*(3*r/r1 - 2*r*r/r1/r1)*cosV;
+        long double Pre = B1*exp(-pos.z*pos.z/Hc/Hc)*R/r1*(3*r/r1 - 2*r*r/r1/r1)*cosV;
         Br = Pre;
         Bphi = 1 + 6*(r-r1)/(2*r-3*r1)*(sin(v+m*phi)-sin(v))/cosV;
         Bphi *= -Pre*r/eta/(r+b);
@@ -99,14 +99,14 @@ void CMZField::setUseRadioArc(bool use) {
 
 Vector3d CMZField::getMCField(const Vector3d& pos) const {//Field in molecular clouds
     Vector3d b(0.);
-    double eta=0.01;
-    double N=59; // normalization factor, depends on eta
+    long double eta=0.01;
+    long double N=59; // normalization factor, depends on eta
 
 	// azimuthal component in dense clouds
     //A=SgrC 
     Vector3d mid(0,-81.59*pc, -16.32*pc);
-    double R = 1.7*pc; 
-    double B1=2.1e-3/N;
+    long double R = 1.7*pc;
+    long double B1=2.1e-3/N;
     b += BAz(pos, mid, B1, eta, R);
 
     // A=G0.253+0.016 Dust Ridge A
@@ -177,16 +177,16 @@ Vector3d CMZField::getMCField(const Vector3d& pos) const {//Field in molecular c
     
     //SgrA* is different orrientated! 
     //only phi component
-    double x = pos.x;
-    double y = pos.y + 8.3*pc;
-    double z = pos.z + 6.9*pc;
+    long double x = pos.x;
+    long double y = pos.y + 8.3*pc;
+    long double z = pos.z + 6.9*pc;
     R=1.2e12; 
     B1=65./3.07;
-    double Hc = R/sqrt(log(2));
-    double r = sqrt(x*x + y*y);
-    double r1 = R/10;
-    double phi= std::atan2(y,x);
-    double Bphi;
+    long double Hc = R/sqrt(log(2));
+    long double r = sqrt(x*x + y*y);
+    long double r1 = R/10;
+    long double phi= std::atan2(y,x);
+    long double Bphi;
 
     if(r>r1){
         Bphi = - B1*exp(-z*z/Hc/Hc)*R/r;
@@ -204,11 +204,11 @@ Vector3d CMZField::getMCField(const Vector3d& pos) const {//Field in molecular c
 Vector3d CMZField::getICField(const Vector3d& pos) const {//Field in intercloud medium--> poloidal field
     Vector3d mid(0.,-8.3*pc,-6.9*pc);
 
-    double eta = 0.85;
-    double B1 = 1e-5*gauss;
-    double B2 = B1/eta;
-    double a = 4*log(2)/pow(70*pc, 2); 
-    double L = 158*pc/log(2);
+    long double eta = 0.85;
+    long double B1 = 1e-5*gauss;
+    long double B2 = B1/eta;
+    long double a = 4*log(2)/pow(70*pc, 2);
+    long double L = 158*pc/log(2);
 
     return BPol(pos, mid, B2, a, L);
 }                                                         
@@ -219,10 +219,10 @@ Vector3d CMZField::getNTFField(const Vector3d& pos) const {//Field in the non-th
 
     //A=SgrC
     mid = Vector3d(0., -81.59,-1.48)*pc;
-    double a1=27.44*pc;
-    double a2=1.73*pc;
-    double eta=0.48;
-    double B1=1.e-4;
+    long double a1=27.44*pc;
+    long double a2=1.73*pc;
+    long double eta=0.48;
+    long double B1=1.e-4;
     b += BPol(pos, mid, B1/eta, getA(a1), getL(a2));
 
     //A=G359.15-0.2 The Snake
@@ -276,11 +276,11 @@ Vector3d CMZField::getNTFField(const Vector3d& pos) const {//Field in the non-th
   
 Vector3d CMZField::getRadioArcField(const Vector3d& pos) const {//Field in the non-thermal filaments--> predominantly poloidal field
     //poloidal field in the non-thermal filament region A=RadioArc
-    double eta=0.48;
+    long double eta=0.48;
     Vector3d mid(0,26.7*pc,10.38*pc);
-    double a1=70.47*pc;// arcmin-> deg->cm
-    double a2=9.89*pc;// arcmin-> deg-> cm
-    double B1=1.e-3;
+    long double a1=70.47*pc;// arcmin-> deg->cm
+    long double a2=9.89*pc;// arcmin-> deg-> cm
+    long double B1=1.e-3;
     return BPol(pos, mid, B1/eta, getA(a1), getL(a2))*gauss;
 }
 

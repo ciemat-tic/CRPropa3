@@ -31,10 +31,10 @@ See e.g. Jokipii, Levy & Hubbard 1977
 
 class ArchimedeanSpiralField: public MagneticField {
 private:
-	double B_0; // Magnetic field strength in radial direction at R_0
-	double R_0; // Reference level
-	double Omega; // Angular velocity of the rotation
-	double V_w; // Asymptotic wind speed
+	long double B_0; // Magnetic field strength in radial direction at R_0
+	long double R_0; // Reference level
+	long double Omega; // Angular velocity of the rotation
+	long double V_w; // Asymptotic wind speed
 
 public:
 /** Constructor
@@ -43,19 +43,19 @@ public:
 	@param Omega	Angular velocity of the rotation
 	@param V_w	Asymptotic wind speed
 */
-	ArchimedeanSpiralField(double B_0, double R_0, double Omega, double V_w);
+	ArchimedeanSpiralField(long double B_0, long double R_0, long double Omega, long double V_w);
 
 	Vector3d getField(const Vector3d &pos) const;	
 		
-	void setB0(double B);
-	void setR0(double R);
-	void setOmega(double Om);
-	void setVw(double v);
+	void setB0(long double B);
+	void setR0(long double R);
+	void setOmega(long double Om);
+	void setVw(long double v);
 
-	double getB0() const;
-	double getR0() const;
-	double getOmega() const;
-	double getVw() const;
+	long double getB0() const;
+	long double getR0() const;
+	long double getOmega() const;
+	long double getVw() const;
 };
 /** @} */
 	 

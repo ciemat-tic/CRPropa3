@@ -20,26 +20,26 @@ namespace crpropa {
 class PhotoDisintegration: public Module {
 private:
 	ref_ptr<PhotonField> photonField;
-	double limit; // fraction of mean free path for limiting the next step
+	long double limit; // fraction of mean free path for limiting the next step
 	bool havePhotons;
 	std::string interactionTag = "PD";
 
 	struct Branch {
 		int channel; // number of emitted (n, p, H2, H3, He3, He4)
-		std::vector<double> branchingRatio; // branching ratio as function of nucleus Lorentz factor
+		std::vector<long double> branchingRatio; // branching ratio as function of nucleus Lorentz factor
 	};
 
 	struct PhotonEmission {
-		double energy; // energy of emitted photon [J]
-		std::vector<double> emissionProbability; // emission probability as function of nucleus Lorentz factor
+		long double energy; // energy of emitted photon [J]
+		std::vector<long double> emissionProbability; // emission probability as function of nucleus Lorentz factor
 	};
 
-	std::vector<std::vector<double> > pdRate; // pdRate[Z * 31 + N] = total interaction rate
+	std::vector<std::vector<long double> > pdRate; // pdRate[Z * 31 + N] = total interaction rate
 	std::vector<std::vector<Branch> > pdBranch; // pdTable[Z * 31 + N] = branching ratios
 	mutable std::map<int, std::vector<PhotonEmission> > pdPhoton; // map of emitted photon energies and photon emission probabilities
 
-	static const double lgmin; // minimum log10(Lorentz-factor)
-	static const double lgmax; // maximum log10(Lorentz-factor)
+	static const long double lgmin; // minimum log10(Lorentz-factor)
+	static const long double lgmax; // maximum log10(Lorentz-factor)
 	static const size_t nlg; // number of Lorentz-factor steps
 
 public:
@@ -48,7 +48,7 @@ public:
 	 @param havePhotons		if true, add secondary photons as candidates
 	 @param limit			step size limit as fraction of mean free path
 	 */
-	PhotoDisintegration(ref_ptr<PhotonField> photonField, bool havePhotons = false, double limit = 0.1);
+	PhotoDisintegration(ref_ptr<PhotonField> photonField, bool havePhotons = false, long double limit = 0.1);
 
 	// set the target photon field
 	void setPhotonField(ref_ptr<PhotonField> photonField);
@@ -59,7 +59,7 @@ public:
 	/** Limit the propagation step to a fraction of the mean free path
 	 * @param limit fraction of the mean free path
 	 */
-	void setLimit(double limit);
+	void setLimit(long double limit);
 
 	/** set a custom interaction tag to trace back this interaction
 	 * @param tag string that will be added to the candidate and output
@@ -82,7 +82,7 @@ public:
 	 @param z		redshift
 	 @returns E dx/dE [in meters]
 	 */
-	double lossLength(int id, double gamma, double z = 0);
+	long double lossLength(int id, long double gamma, long double z = 0);
 };
 
 /** @}*/

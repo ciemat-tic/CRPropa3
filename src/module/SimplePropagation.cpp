@@ -5,7 +5,7 @@
 
 namespace crpropa {
 
-SimplePropagation::SimplePropagation(double minStep, double maxStep) :
+SimplePropagation::SimplePropagation(long double minStep, long double maxStep) :
 		minStep(minStep), maxStep(maxStep) {
 	if (minStep > maxStep)
 		throw std::runtime_error("SimplePropagation: minStep > maxStep");
@@ -14,7 +14,7 @@ SimplePropagation::SimplePropagation(double minStep, double maxStep) :
 void SimplePropagation::process(Candidate *c) const {
 	c->previous = c->current;
 
-	double step = clip(c->getNextStep(), minStep, maxStep);
+	long double step = clip(c->getNextStep(), minStep, maxStep);
 	c->setCurrentStep(step);
 	Vector3d pos = c->current.getPosition();
 	Vector3d dir = c->current.getDirection();
@@ -22,23 +22,23 @@ void SimplePropagation::process(Candidate *c) const {
 	c->setNextStep(maxStep);
 }
 
-void SimplePropagation::setMinimumStep(double step) {
+void SimplePropagation::setMinimumStep(long double step) {
 	if (step > maxStep)
 		throw std::runtime_error("SimplePropagation: minStep > maxStep");
 	minStep = step;
 }
 
-void SimplePropagation::setMaximumStep(double step) {
+void SimplePropagation::setMaximumStep(long double step) {
 	if (minStep > step)
 		throw std::runtime_error("SimplePropagation: minStep > maxStep");
 	maxStep = step;
 }
 
-double SimplePropagation::getMinimumStep() const {
+long double SimplePropagation::getMinimumStep() const {
 	return minStep;
 }
 
-double SimplePropagation::getMaximumStep() const {
+long double SimplePropagation::getMaximumStep() const {
 	return maxStep;
 }
 

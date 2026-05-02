@@ -12,12 +12,12 @@ namespace crpropa {
 TEST(testCandidateSplitting, SimpleTest) {
 	int nSplit = 2;
 	int nBins = 4;
-	double minWeight = pow(1. / nSplit, 2);
-	double Emin = 1; // dimensionless for testing
-	double Emax = 10; 	
+	long double minWeight = pow(1. / nSplit, 2);
+	long double Emin = 1; // dimensionless for testing
+	long double Emax = 10;
 
 	CandidateSplitting split_lin(nSplit, Emin, Emax, nBins, minWeight);
-	double dE = (Emax - Emin) / nBins;
+	long double dE = (Emax - Emin) / nBins;
 	EXPECT_DOUBLE_EQ(split_lin.getEnergyBins()[0], Emin);
 	EXPECT_DOUBLE_EQ(split_lin.getEnergyBins()[1], Emin + dE);
 
@@ -25,13 +25,13 @@ TEST(testCandidateSplitting, SimpleTest) {
 	EXPECT_DOUBLE_EQ(split_lin.getMinimalWeight(), minWeight);
 
 	CandidateSplitting split_log(nSplit, Emin, Emax, nBins, minWeight, true);
-	double dE_log = pow(Emax / Emin, 1. / (nBins - 1.0));
+	long double dE_log = pow(Emax / Emin, 1. / (nBins - 1.0));
 	EXPECT_DOUBLE_EQ(split_log.getEnergyBins()[0], Emin);
 	EXPECT_DOUBLE_EQ(split_log.getEnergyBins()[1], Emin * dE_log);
 
-	double spectralIndex = -2.;
+	long double spectralIndex = -2.;
 	CandidateSplitting split_dsa(spectralIndex, Emin, nBins);
-	double dE_dsa = pow(1. / 2, 1. / (spectralIndex + 1));
+	long double dE_dsa = pow(1. / 2, 1. / (spectralIndex + 1));
 	EXPECT_DOUBLE_EQ(split_dsa.getEnergyBins()[0], Emin * dE_dsa);
 	EXPECT_DOUBLE_EQ(split_dsa.getEnergyBins()[nBins - 1], Emin * pow(dE_dsa, nBins));
 }
@@ -40,14 +40,14 @@ TEST(testCandidateSplitting, SimpleTest) {
 TEST(testCandidateSplitting, CheckSplits) {
 	int nSplit = 2;
 	int nBins = 3;
-	double Emin = 1; // dimensionless for testing
-	double Emax = 10;
-	double minWeight = pow(1. / nSplit, 4);
+	long double Emin = 1; // dimensionless for testing
+	long double Emax = 10;
+	long double minWeight = pow(1. / nSplit, 4);
 
 	CandidateSplitting splitting(nSplit, Emin, Emax, nBins, minWeight);
 	Candidate c(nucleusId(1,1),0.5);
-	double weight = 1.0;
-	double serial = c.getSerialNumber();
+	long double weight = 1.0;
+	long double serial = c.getSerialNumber();
 	
 	splitting.process(&c); // no split
 	EXPECT_DOUBLE_EQ(c.getWeight(), weight);

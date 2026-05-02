@@ -78,7 +78,7 @@ public:
 
 	/// Returns the number of the pixel which includes the direction (phi,theta)
 	/// phi in [-pi, pi], theta in [-pi/2, pi/2]
-	uint32_t direction2Pix(double longitude, double latitude) const;
+	uint32_t direction2Pix(long double longitude, long double latitude) const;
 
 	/// Returns the number of pixels of the pixelization
 	uint32_t nPix() const
@@ -100,10 +100,10 @@ public:
 	static uint8_t pix2Order(uint32_t pix);
 
 	/// Gives the center of pixel i in longitude [rad] and latitude [rad]
-	void pix2Direction(uint32_t i, double &longitude, double &latitude) const;
+	void pix2Direction(uint32_t i, long double &longitude, long double &latitude) const;
 
 	/// Calculate the angle [rad] between the vectors pointing to pixels i and j
-	double angularDistance(uint32_t i, uint32_t j) const;
+	long double angularDistance(uint32_t i, uint32_t j) const;
 
 	/// Returns the maximum possible pixelization order
 	uint8_t getMaxOrder() const
@@ -117,9 +117,9 @@ public:
     return _healpix->Order();
   }
 
-	void getRandomDirectionInPixel(uint32_t pixel, double &longitude, double &latitude);
+	void getRandomDirectionInPixel(uint32_t pixel, long double &longitude, long double &latitude);
 
-	void getPixelsInCone(double longitude, double latitude,double radius, std::vector<int>& listpix)
+	void getPixelsInCone(long double longitude, long double latitude,long double radius, std::vector<int>& listpix)
 	{
 		healpix::vec3 v;
 		spherCo2Vec(longitude, latitude, v);
@@ -129,8 +129,8 @@ public:
 	}
 
 private:
-	void spherCo2Vec(double phi, double theta, healpix::vec3 &V) const;
-	void vec2SphereCo(double &phi , double &theta, const healpix::vec3 &V) const;
+	void spherCo2Vec(long double phi, long double theta, healpix::vec3 &V) const;
+	void vec2SphereCo(long double &phi , long double &theta, const healpix::vec3 &V) const;
 	healpix::T_Healpix_Base<int> *_healpix;
 	static healpix::T_Healpix_Base<healpix::int64> _healpix_nest;
 };

@@ -1,0 +1,94 @@
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -9,7 +9,7 @@
+ 
+ If you start working on a future contributions, please create a new issue to
+ notify other users and developers on your planned work early on. Thus others
+-can collaborate with you early on and double work is avoided.
++can collaborate with you early on and long double work is avoided.
+ 
+ Ideally new contributors should:
+   * fork the CRPropa repository
+@@ -104,14 +104,14 @@
+     ```
+     class MyClassWrong {
+         private:
+-            double x;
++            long double x;
+         public:
+             MyClassWrong();
+     }
+ 
+     class MyClassRight {
+     private:
+-        double x;
++        long double x;
+     public:
+         MyClassRight();
+     }
+--- a/doc/Doxyfile.in
++++ b/doc/Doxyfile.in
+@@ -3,7 +3,7 @@
+ # This file describes the settings to be used by the documentation system
+ # doxygen (www.doxygen.org) for a project.
+ #
+-# All text after a double hash (##) is considered a comment and is placed in
++# All text after a long double hash (##) is considered a comment and is placed in
+ # front of the TAG it is preceding.
+ #
+ # All text after a single hash (#) is considered a comment and will be ignored.
+@@ -27,7 +27,7 @@
+ DOXYFILE_ENCODING      = UTF-8
+ 
+ # The PROJECT_NAME tag is a single word (or a sequence of words surrounded by
+-# double-quotes, unless you are using Doxywizard) that should identify the
++# long double-quotes, unless you are using Doxywizard) that should identify the
+ # project for which the documentation is generated. This name is used in the
+ # title of most generated pages and in a few other places.
+ # The default value is: My Project.
+@@ -544,7 +544,7 @@
+ SHOW_GROUPED_MEMB_INC  = NO
+ 
+ # If the FORCE_LOCAL_INCLUDES tag is set to YES then doxygen will list include
+-# files with double quotes in the documentation rather than with sharp brackets.
++# files with long double quotes in the documentation rather than with sharp brackets.
+ # The default value is: NO.
+ 
+ FORCE_LOCAL_INCLUDES   = NO
+--- a/doc/pages/Simulation-Modules.md
++++ b/doc/pages/Simulation-Modules.md
+@@ -26,7 +26,7 @@
+ Interactions of photons, electrons and positrons
+ 
+ * **EMPairProduction** - electron pair production (Breit-Wheeler process), optional secondaries: electrons/positrons
+-* **EMDoublePairProduction** - double electron pair production, optional secondaries: electrons/positrons
++* **EMDoublePairProduction** - long double electron pair production, optional secondaries: electrons/positrons
+ * **EMTripletPairProduction** - triplet pair production, optional secondaries: electrons/positrons
+ * **EMInverseComptonScattering** - inverse compton scattering, optional secondaries: photons
+ 
+--- a/patches/applied/patches/0001-textoutput-precision.patch
++++ b/patches/applied/patches/0001-textoutput-precision.patch
+@@ -14,7 +14,7 @@
+  	void enableRandomSeeds() {storeRandomSeeds = true;};
+ +	/** Set scientific output precision for floating-point values in text output.
+ +	 Default is 5, preserving the historical format. Use 16 or 17 for near-full
+-+	 double precision.
+++	 long double precision.
+ +	 */
+ +	void setPrecision(int p) { precision = (p < 0) ? 0 : p; }
+ +	int getPrecision() const { return precision; }
+@@ -29,12 +29,12 @@
+  
+ -TextOutput::TextOutput() : Output(), out(&std::cout), storeRandomSeeds(false) {
+ +namespace {
+-+inline int appendScientific(char *buffer, size_t buffersize, size_t pos, int precision, double value) {
+++inline int appendScientific(char *buffer, size_t buffersize, size_t pos, int precision, long double value) {
+ +	return std::snprintf(buffer + pos, buffersize - pos, "%.*E\t", precision, value);
+  }
+  
+ -TextOutput::TextOutput(OutputType outputtype) : Output(outputtype), out(&std::cout), storeRandomSeeds(false) {
+-+inline int appendScientific3(char *buffer, size_t buffersize, size_t pos, int precision, double x, double y, double z) {
+++inline int appendScientific3(char *buffer, size_t buffersize, size_t pos, int precision, long double x, long double y, long double z) {
+ +	return std::snprintf(buffer + pos, buffersize - pos, "%.*E\t%.*E\t%.*E\t",
+ +		precision, x, precision, y, precision, z);
+  }

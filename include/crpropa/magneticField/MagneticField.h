@@ -26,7 +26,7 @@ public:
 	virtual Vector3d getField(const Vector3d &position) const {
 		return Vector3d(0,0,0);
 	};
-	virtual Vector3d getField(const Vector3d &position, double z) const {
+	virtual Vector3d getField(const Vector3d &position, long double z) const {
 		return getField(position);
 	};
 };
@@ -91,15 +91,15 @@ public:
  */
 class MagneticFieldEvolution: public MagneticField {
 	ref_ptr<MagneticField> field;
-	double m;
+	long double m;
 public:
 	/**
 	 * Constructor
 	 * @param field magnetic field reference pointer
 	 * @param m cosmic evolution parameter 
 	*/
-	MagneticFieldEvolution(ref_ptr<MagneticField> field, double m);
-	Vector3d getField(const Vector3d &position, double z = 0) const;
+	MagneticFieldEvolution(ref_ptr<MagneticField> field, long double m);
+	Vector3d getField(const Vector3d &position, long double z = 0) const;
 };
 
 /**
@@ -128,7 +128,7 @@ public:
 class MagneticDipoleField: public MagneticField {
 	Vector3d origin;
 	Vector3d moment;
-	double radius;
+	long double radius;
 public:
 	/**
 	 * Constructor
@@ -137,7 +137,7 @@ public:
 	 * @param radius 	inside a radius around the origin the 
 	 * 					magnetic field is constant: moment * 2 * mu0 / 3  
 	*/
-	MagneticDipoleField(const Vector3d &origin, const Vector3d &moment, const double radius) :
+	MagneticDipoleField(const Vector3d &origin, const Vector3d &moment, const long double radius) :
 			origin(origin), moment(moment), radius(radius) {
 	}
 	Vector3d getField(const Vector3d &position) const;
@@ -152,7 +152,7 @@ class RenormalizeMagneticField: public MagneticField {
 	ref_ptr<MagneticField> field;
 	std::string expression;
 	mu::Parser *p;
-	double Bmag;
+	long double Bmag;
 public:
 	/**
 	 * Constructor

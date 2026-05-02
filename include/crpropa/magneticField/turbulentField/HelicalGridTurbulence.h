@@ -21,7 +21,7 @@ namespace crpropa {
  */
 class HelicalGridTurbulence : public SimpleGridTurbulence {
   private:
-	double H;
+	long double H;
 
   public:
 	/**
@@ -33,11 +33,11 @@ class HelicalGridTurbulence : public SimpleGridTurbulence {
 	 @param seed	 Random seed
 	 */
 	HelicalGridTurbulence(const SimpleTurbulenceSpectrum &spectrum,
-	                      const GridProperties &gridProp, double H,
+	                      const GridProperties &gridProp, long double H,
 	                      unsigned int seed = 0);
 
-	static void initTurbulence(ref_ptr<Grid3f> grid, double Brms, double lMin,
-	                           double lMax, double alpha, int seed, double H);
+	static void initTurbulence(ref_ptr<Grid3f> grid, long double Brms, long double lMin,
+	                           long double lMax, long double alpha, int seed, long double H);
 };
 
 // Compatibility with old functions from GridTurbulence:
@@ -53,9 +53,9 @@ class HelicalGridTurbulence : public SimpleGridTurbulence {
  @param seed	Random seed
  @param H		Helicity
 */
-void initHelicalTurbulence(ref_ptr<Grid3f> grid, double Brms, double lMin,
-                           double lMax, double alpha = -11 / 3., int seed = 0,
-                           double H = 0) {
+void initHelicalTurbulence(ref_ptr<Grid3f> grid, long double Brms, long double lMin,
+                           long double lMax, long double alpha = -11 / 3., int seed = 0,
+                           long double H = 0) {
 	KISS_LOG_WARNING
 	    << "initTurbulence is deprecated and will be removed in the future. "
 	       "Replace it with a more appropriate turbulent field model instance.";

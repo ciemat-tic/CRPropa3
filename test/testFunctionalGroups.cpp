@@ -8,8 +8,8 @@ namespace crpropa {
  * r_g = R / (B*c) = 1 EV / (1 nG * c) \approx 1.08*Mpc
  */
 TEST(testFunctionalGroups, gyroradius) {
-	double energy = 1*EeV;
-	double field = 1*nG;
+	long double energy = 1*EeV;
+	long double field = 1*nG;
 
 	ParticleState p;
 	p.setId(nucleusId(1, 1));
@@ -24,7 +24,7 @@ TEST(testFunctionalGroups, gyroradius) {
 	ref_ptr<ModuleList> sim = new ModuleList();
 
 	Vector3d pos;
-	double max_y = 0;
+	long double max_y = 0;
 
 	sim->add(propa);
 	sim->add(new MaximumTrajectoryLength(10*Mpc));

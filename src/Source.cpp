@@ -35,7 +35,7 @@ std::string Source::getDescription() const {
 }
 
 // SourceList------------------------------------------------------------------
-void SourceList::add(Source* source, double weight) {
+void SourceList::add(Source* source, long double weight) {
 	sources.push_back(source);
 	if (cdf.size() > 0)
 		weight += cdf.back();
@@ -91,7 +91,7 @@ SourceMultipleParticleTypes::SourceMultipleParticleTypes() {
 	setDescription();
 }
 
-void SourceMultipleParticleTypes::add(int id, double a) {
+void SourceMultipleParticleTypes::add(int id, long double a) {
 	particleTypes.push_back(id);
 	if (cdf.size() > 0)
 		a += cdf.back();
@@ -115,7 +115,7 @@ void SourceMultipleParticleTypes::setDescription() {
 }
 
 // ----------------------------------------------------------------------------
-SourceEnergy::SourceEnergy(double energy) :
+SourceEnergy::SourceEnergy(long double energy) :
 		E(energy) {
 	setDescription();
 }
@@ -131,15 +131,15 @@ void SourceEnergy::setDescription() {
 }
 
 // ----------------------------------------------------------------------------
-SourcePowerLawSpectrum::SourcePowerLawSpectrum(double Emin, double Emax,
-		double index) :
+SourcePowerLawSpectrum::SourcePowerLawSpectrum(long double Emin, long double Emax,
+		long double index) :
 		Emin(Emin), Emax(Emax), index(index) {
 	setDescription();
 }
 
 void SourcePowerLawSpectrum::prepareParticle(ParticleState& particle) const {
 	Random &random = Random::instance();
-	double E = random.randPowerLaw(index, Emin, Emax);
+	long double E = random.randPowerLaw(index, Emin, Emax);
 	particle.setEnergy(E);
 }
 
@@ -152,18 +152,18 @@ void SourcePowerLawSpectrum::setDescription() {
 }
 
 // ----------------------------------------------------------------------------
-SourceComposition::SourceComposition(double Emin, double Rmax, double index) :
+SourceComposition::SourceComposition(long double Emin, long double Rmax, long double index) :
 		Emin(Emin), Rmax(Rmax), index(index) {
 	setDescription();
 }
 
-void SourceComposition::add(int id, double weight) {
+void SourceComposition::add(int id, long double weight) {
 	nuclei.push_back(id);
 	int A = massNumber(id);
 	int Z = chargeNumber(id);
 
-	double a = 1 + index;
-	if (std::abs(a) < std::numeric_limits<double>::min())
+	long double a = 1 + index;
+	if (std::abs(a) < std::numeric_limits<long double>::min())
 		weight *= log(Z * Rmax / Emin);
 	else
 		weight *= (pow(Z * Rmax, a) - pow(Emin, a)) / a;
@@ -176,7 +176,7 @@ void SourceComposition::add(int id, double weight) {
 	setDescription();
 }
 
-void SourceComposition::add(int A, int Z, double a) {
+void SourceComposition::add(int A, int Z, long double a) {
 	add(nucleusId(A, Z), a);
 }
 
@@ -212,7 +212,7 @@ SourcePosition::SourcePosition(Vector3d position) :
 	setDescription();
 }
 
-SourcePosition::SourcePosition(double d) :
+SourcePosition::SourcePosition(long double d) :
 		position(Vector3d(d, 0, 0)) {
 	setDescription();
 }
@@ -232,7 +232,7 @@ SourceMultiplePositions::SourceMultiplePositions() {
 	setDescription();
 }
 
-void SourceMultiplePositions::add(Vector3d pos, double weight) {
+void SourceMultiplePositions::add(Vector3d pos, long double weight) {
 	positions.push_back(pos);
 	if (cdf.size() > 0)
 		weight += cdf.back();
@@ -255,14 +255,14 @@ void SourceMultiplePositions::setDescription() {
 }
 
 // ----------------------------------------------------------------------------
-SourceUniformSphere::SourceUniformSphere(Vector3d center, double radius) :
+SourceUniformSphere::SourceUniformSphere(Vector3d center, long double radius) :
 		center(center), radius(radius) {
 	setDescription();
 }
 
 void SourceUniformSphere::prepareParticle(ParticleState& particle) const {
 	Random &random = Random::instance();
-	double r = pow(random.rand(), 1. / 3.) * radius;
+	long double r = pow(random.rand(), 1. / 3.) * radius;
 	particle.setPosition(center + random.randVector() * r);
 }
 
@@ -277,8 +277,8 @@ void SourceUniformSphere::setDescription() {
 // ----------------------------------------------------------------------------
 SourceUniformHollowSphere::SourceUniformHollowSphere(
 		Vector3d center,
-		double radius_inner,
-		double radius_outer) :
+		long double radius_inner,
+		long double radius_outer) :
 		center(center), radius_inner(radius_inner),
 		radius_outer(radius_outer) {
 	setDescription();
@@ -286,7 +286,7 @@ SourceUniformHollowSphere::SourceUniformHollowSphere(
 
 void SourceUniformHollowSphere::prepareParticle(ParticleState& particle) const {
 	Random &random = Random::instance();
-	double r = radius_inner + pow(random.rand(), 1. / 3.) * (radius_outer - radius_inner);
+	long double r = radius_inner + pow(random.rand(), 1. / 3.) * (radius_outer - radius_inner);
 	particle.setPosition(center + random.randVector() * r);
 }
 
@@ -300,7 +300,7 @@ void SourceUniformHollowSphere::setDescription() {
 }
 
 // ----------------------------------------------------------------------------
-SourceUniformShell::SourceUniformShell(Vector3d center, double radius) :
+SourceUniformShell::SourceUniformShell(Vector3d center, long double radius) :
 		center(center), radius(radius) {
 	setDescription();
 }
@@ -339,14 +339,14 @@ void SourceUniformBox::setDescription() {
 }
 
 // ---------------------------------------------------------------------------
-SourceUniformCylinder::SourceUniformCylinder(Vector3d origin, double height, double radius) :
+SourceUniformCylinder::SourceUniformCylinder(Vector3d origin, long double height, long double radius) :
     origin(origin), height(height), radius(radius) {
 }
 
 void SourceUniformCylinder::prepareParticle(ParticleState& particle) const {
   Random &random = Random::instance();
-  double phi = 2*M_PI*random.rand();
-  double RandRadius = radius*pow(random.rand(), 1. / 2.);
+  long double phi = 2*M_PI*random.rand();
+  long double RandRadius = radius*pow(random.rand(), 1. / 2.);
   Vector3d pos(cos(phi)*RandRadius, sin(phi)*RandRadius, (-0.5+random.rand())*height);
   particle.setPosition(pos + origin);
   }
@@ -370,7 +370,7 @@ SourceSNRDistribution::SourceSNRDistribution() :
 	setZMax(5 * kpc);
 }
 
-SourceSNRDistribution::SourceSNRDistribution(double rEarth, double alpha, double beta, double zg) :
+SourceSNRDistribution::SourceSNRDistribution(long double rEarth, long double alpha, long double beta, long double zg) :
     rEarth(rEarth), beta(beta), zg(zg) {
 	setAlpha(alpha);
 	setFrMax();
@@ -381,45 +381,45 @@ SourceSNRDistribution::SourceSNRDistribution(double rEarth, double alpha, double
 
 void SourceSNRDistribution::prepareParticle(ParticleState& particle) const {
   	Random &random = Random::instance();
-	double RPos;
+	long double RPos;
 	while (true) {
 		RPos = random.rand() * rMax;
-		double fTest = random.rand() * frMax;
-		double fR = fr(RPos);
+		long double fTest = random.rand() * frMax;
+		long double fR = fr(RPos);
 		if (fTest <= fR) {
 			break;
 		}
 	}
-	double ZPos;
+	long double ZPos;
 	while (true) {
 		ZPos = (random.rand() - 0.5) * 2 * zMax;
-		double fTest = random.rand() * fzMax;
-		double fZ=fz(ZPos);
+		long double fTest = random.rand() * fzMax;
+		long double fZ=fz(ZPos);
 		if (fTest<=fZ) {
 			break;
 		}
 	}
-	double phi = random.rand() * 2 * M_PI;
+	long double phi = random.rand() * 2 * M_PI;
 	Vector3d pos(cos(phi) * RPos, sin(phi) * RPos, ZPos);
 	particle.setPosition(pos);
 }
 
-double SourceSNRDistribution::fr(double r) const {
+long double SourceSNRDistribution::fr(long double r) const {
 	return pow(r / rEarth, alpha) * exp(- beta * (r - rEarth) / rEarth);
 }
 
-double SourceSNRDistribution::fz(double z) const{
-	double Az = 1.;
-	double f = 1. / zg * exp(- fabs(z) / zg);
-	double fz = Az * f;
+long double SourceSNRDistribution::fz(long double z) const{
+	long double Az = 1.;
+	long double f = 1. / zg * exp(- fabs(z) / zg);
+	long double fz = Az * f;
 	return fz;
 }
 
-double SourceSNRDistribution::getAlpha() const {
+long double SourceSNRDistribution::getAlpha() const {
 	return alpha - 1;  // -1 to account for the R-term in the volume element dV = R * dR * dphi * dz
 }
 
-double SourceSNRDistribution::getBeta() const {
+long double SourceSNRDistribution::getBeta() const {
 	return beta;
 }
 
@@ -428,44 +428,44 @@ void SourceSNRDistribution::setFrMax() {
 	return;
 }
 
-void SourceSNRDistribution::setFzMax(double zg) {
+void SourceSNRDistribution::setFzMax(long double zg) {
 	fzMax = 1. / zg;
 	return;
 }
 
-void SourceSNRDistribution::setRMax(double r) {
+void SourceSNRDistribution::setRMax(long double r) {
 	rMax = r;
 	return;
 }
 
-void SourceSNRDistribution::setZMax(double z) {
+void SourceSNRDistribution::setZMax(long double z) {
 	zMax = z;
 	return;
 }
 
-double SourceSNRDistribution::getFrMax() const {
+long double SourceSNRDistribution::getFrMax() const {
 	return frMax;
 }
 
-double SourceSNRDistribution::getFzMax() const {
+long double SourceSNRDistribution::getFzMax() const {
 	return fzMax;
 }
 
-double SourceSNRDistribution::getRMax() const {
+long double SourceSNRDistribution::getRMax() const {
 	return rMax;
 }
 
-double SourceSNRDistribution::getZMax() const {
+long double SourceSNRDistribution::getZMax() const {
 	return zMax;
 }
 
-void SourceSNRDistribution::setAlpha(double a) {
+void SourceSNRDistribution::setAlpha(long double a) {
 	alpha = a + 1.; // add 1 for dV = r * dR * dphi * dz
 	setRMax(rMax);
 	setFrMax();
 }
 
-void SourceSNRDistribution::setBeta(double b) {
+void SourceSNRDistribution::setBeta(long double b) {
 	beta = b;
 	setRMax(rMax);
 	setFrMax();
@@ -491,7 +491,7 @@ SourcePulsarDistribution::SourcePulsarDistribution() :
 	setThetaBlur(0.35/kpc);
 }
 
-SourcePulsarDistribution::SourcePulsarDistribution(double rEarth, double beta, double zg, double rB, double tB) :
+SourcePulsarDistribution::SourcePulsarDistribution(long double rEarth, long double beta, long double zg, long double rB, long double tB) :
     rEarth(rEarth), beta(beta), zg(zg) {
 	setFrMax(rEarth, beta);
 	setFzMax(zg);
@@ -503,122 +503,122 @@ SourcePulsarDistribution::SourcePulsarDistribution(double rEarth, double beta, d
 
 void SourcePulsarDistribution::prepareParticle(ParticleState& particle) const {
   	Random &random = Random::instance();
-	double Rtilde;
+	long double Rtilde;
 	while (true) {
 		Rtilde = random.rand() * rMax;
-		double fTest = random.rand() * frMax * 1.1;
-		double fR = fr(Rtilde);
+		long double fTest = random.rand() * frMax * 1.1;
+		long double fR = fr(Rtilde);
 		if (fTest <= fR) {
 			break;
 		}
 	}
-	double ZPos;
+	long double ZPos;
 	while (true) {
 		ZPos = (random.rand() - 0.5) * 2 * zMax;
-		double fTest = random.rand() * fzMax;
-		double fZ = fz(ZPos);
+		long double fTest = random.rand() * fzMax;
+		long double fZ = fz(ZPos);
 		if (fTest <= fZ) {
 			break;
 		}
 	}
 
 	int i = random.randInt(3);
-	double thetaTilde = ftheta(i, Rtilde);
-	double RPos = blurR(Rtilde);
-	double phi = blurTheta(thetaTilde, Rtilde);
+	long double thetaTilde = ftheta(i, Rtilde);
+	long double RPos = blurR(Rtilde);
+	long double phi = blurTheta(thetaTilde, Rtilde);
 	Vector3d pos(cos(phi) * RPos, sin(phi) * RPos, ZPos);
 
 	particle.setPosition(pos);
   }
 
-double SourcePulsarDistribution::fr(double r) const {
- 	double f = r * pow(r / rEarth, 2.) * exp(-beta * (r - rEarth) / rEarth);
+long double SourcePulsarDistribution::fr(long double r) const {
+	long double f = r * pow(r / rEarth, 2.) * exp(-beta * (r - rEarth) / rEarth);
 	return f;
 }
 
-double SourcePulsarDistribution::fz(double z) const{
-	double Az = 1.;
-	double f = 1. / zg * exp(- fabs(z) / zg);
-	double fz = Az * f;
+long double SourcePulsarDistribution::fz(long double z) const{
+	long double Az = 1.;
+	long double f = 1. / zg * exp(- fabs(z) / zg);
+	long double fz = Az * f;
 	return fz;
 }
 
-double SourcePulsarDistribution::ftheta(int i, double r) const {
-	const double k_0[] = {4.25, 4.25, 4.89, 4.89};
-	const double r_0[] = {3.48 * kpc, 3.48 * kpc, 4.9 * kpc, 4.9 * kpc};
-	const double theta_0[] = {0., 3.14, 2.52, -0.62};
-	double K = k_0[i];
-	double R = r_0[i];
-	double Theta = theta_0[i];
+long double SourcePulsarDistribution::ftheta(int i, long double r) const {
+	const long double k_0[] = {4.25, 4.25, 4.89, 4.89};
+	const long double r_0[] = {3.48 * kpc, 3.48 * kpc, 4.9 * kpc, 4.9 * kpc};
+	const long double theta_0[] = {0., 3.14, 2.52, -0.62};
+	long double K = k_0[i];
+	long double R = r_0[i];
+	long double Theta = theta_0[i];
 
-	double theta = K * log(r / R) + Theta;
+	long double theta = K * log(r / R) + Theta;
 
 	return theta;
 }
 
-double SourcePulsarDistribution::blurR(double rTilde) const {
+long double SourcePulsarDistribution::blurR(long double rTilde) const {
 	Random &random = Random::instance();
 	return random.randNorm(rTilde, rBlur * rTilde);
 }
 
-double SourcePulsarDistribution::blurTheta(double thetaTilde, double rTilde) const {
+long double SourcePulsarDistribution::blurTheta(long double thetaTilde, long double rTilde) const {
 	Random &random = Random::instance();
-	double thetaCorr = (random.rand() - 0.5) * 2 * M_PI;
-	double tau = thetaCorr * exp(- thetaBlur * rTilde);
+	long double thetaCorr = (random.rand() - 0.5) * 2 * M_PI;
+	long double tau = thetaCorr * exp(- thetaBlur * rTilde);
 	return thetaTilde + tau;
 }
 
-void SourcePulsarDistribution::setFrMax(double R, double b) {
-	double r = 3 * R / b;
+void SourcePulsarDistribution::setFrMax(long double R, long double b) {
+	long double r = 3 * R / b;
 	frMax = fr(r);
 }
 
-void SourcePulsarDistribution::setFzMax(double zg) {
+void SourcePulsarDistribution::setFzMax(long double zg) {
 	fzMax = 1. / zg;
 	return;
 }
 
-void SourcePulsarDistribution::setRMax(double r) {
+void SourcePulsarDistribution::setRMax(long double r) {
 	rMax = r;
 	return;
 }
 
-void SourcePulsarDistribution::setZMax(double z) {
+void SourcePulsarDistribution::setZMax(long double z) {
 	zMax = z;
 	return;
 }
 
-void SourcePulsarDistribution::setRBlur(double r) {
+void SourcePulsarDistribution::setRBlur(long double r) {
 	rBlur = r;
 	return;
 }
 
-void SourcePulsarDistribution::setThetaBlur(double theta) {
+void SourcePulsarDistribution::setThetaBlur(long double theta) {
 	thetaBlur = theta;
 	return;
 }
 
-double SourcePulsarDistribution::getFrMax() {
+long double SourcePulsarDistribution::getFrMax() {
 	return frMax;
 }
 
-double SourcePulsarDistribution::getFzMax() {
+long double SourcePulsarDistribution::getFzMax() {
 	return fzMax;
 }
 
-double SourcePulsarDistribution::getRMax() {
+long double SourcePulsarDistribution::getRMax() {
 	return rMax;
 }
 
-double SourcePulsarDistribution::getZMax() {
+long double SourcePulsarDistribution::getZMax() {
 	return zMax;
 }
 
-double SourcePulsarDistribution::getRBlur() {
+long double SourcePulsarDistribution::getRBlur() {
 	return rBlur;
 }
 
-double SourcePulsarDistribution::getThetaBlur() {
+long double SourcePulsarDistribution::getThetaBlur() {
 	return thetaBlur;
 }
 
@@ -635,7 +635,7 @@ void SourcePulsarDistribution::setDescription() {
 }
 
 // ----------------------------------------------------------------------------
-SourceUniform1D::SourceUniform1D(double minD, double maxD, bool withCosmology) {
+SourceUniform1D::SourceUniform1D(long double minD, long double maxD, bool withCosmology) {
 	this->withCosmology = withCosmology;
 	if (withCosmology) {
 		this->minD = comoving2LightTravelDistance(minD);
@@ -649,7 +649,7 @@ SourceUniform1D::SourceUniform1D(double minD, double maxD, bool withCosmology) {
 
 void SourceUniform1D::prepareParticle(ParticleState& particle) const {
 	Random& random = Random::instance();
-	double d = random.rand() * (maxD - minD) + minD;
+	long double d = random.rand() * (maxD - minD) + minD;
 	if (withCosmology)
 		d = lightTravel2ComovingDistance(d);
 	particle.setPosition(Vector3d(d, 0, 0));
@@ -688,9 +688,9 @@ void SourceDensityGrid::prepareParticle(ParticleState& particle) const {
 	Vector3d pos = grid->positionFromIndex(i);
 
 	// draw uniform position within bin
-	double dx = random.rand() - 0.5;
-	double dy = random.rand() - 0.5;
-	double dz = random.rand() - 0.5;
+	long double dx = random.rand() - 0.5;
+	long double dy = random.rand() - 0.5;
+	long double dz = random.rand() - 0.5;
 	pos += Vector3d(dx, dy, dz) * grid->getSpacing();
 
 	particle.setPosition(pos);
@@ -724,7 +724,7 @@ void SourceDensityGrid1D::prepareParticle(ParticleState& particle) const {
 	Vector3d pos = grid->positionFromIndex(i);
 
 	// draw uniform position within bin
-	double dx = random.rand() - 0.5;
+	long double dx = random.rand() - 0.5;
 	pos.x += dx * grid->getSpacing().x;
 
 	particle.setPosition(pos);
@@ -749,7 +749,7 @@ void SourceIsotropicEmission::setDescription() {
 }
 
 // ----------------------------------------------------------------------------
-SourceDirectedEmission::SourceDirectedEmission(Vector3d mu, double kappa): mu(mu), kappa(kappa) {
+SourceDirectedEmission::SourceDirectedEmission(Vector3d mu, long double kappa): mu(mu), kappa(kappa) {
 	if (kappa <= 0)
 		throw std::runtime_error("The concentration parameter kappa should be larger than 0.");
 	setDescription();
@@ -768,8 +768,8 @@ void SourceDirectedEmission::prepareCandidate(Candidate &candidate) const {
 	candidate.current.setDirection(v);
 
 	//set the weight of the particle, see eq. 3.1 of PoS(ICRC2019)447
-	double pdfVonMises = kappa / (2. * M_PI * (1. - exp(-2. * kappa))) * exp(-kappa * (1. - v.dot(mu)));
-	double weight = 1. / (4. * M_PI * pdfVonMises);
+	long double pdfVonMises = kappa / (2. * M_PI * (1. - exp(-2. * kappa))) * exp(-kappa * (1. - v.dot(mu)));
+	long double weight = 1. / (4. * M_PI * pdfVonMises);
 	candidate.setWeight(weight);
 }
 
@@ -782,7 +782,7 @@ void SourceDirectedEmission::setDescription() {
 }
 
 // ----------------------------------------------------------------------------
-SourceLambertDistributionOnSphere::SourceLambertDistributionOnSphere(const Vector3d &center, double radius, bool inward) :
+SourceLambertDistributionOnSphere::SourceLambertDistributionOnSphere(const Vector3d &center, long double radius, bool inward) :
 		center(center), radius(radius) {
 	this->inward = inward;
 	setDescription();
@@ -792,7 +792,7 @@ void SourceLambertDistributionOnSphere::prepareParticle(ParticleState& particle)
 	Random &random = Random::instance();
 	Vector3d normalVector = random.randVector();
 	particle.setPosition(center + normalVector * radius);
-	double sign = inward ? -1 : 1; // negative (positive) Lamberts vector for inward (outward) directed emission
+	long double sign = inward ? -1 : 1; // negative (positive) Lamberts vector for inward (outward) directed emission
 	particle.setDirection(Vector3d(0, 0, 0) + sign * random.randVectorLamberts(normalVector));
 }
 
@@ -841,7 +841,7 @@ void SourceEmissionMap::setEmissionMap(EmissionMap *emissionMap) {
 }
 
 // ----------------------------------------------------------------------------
-SourceEmissionCone::SourceEmissionCone(Vector3d direction, double aperture) :
+SourceEmissionCone::SourceEmissionCone(Vector3d direction, long double aperture) :
 	aperture(aperture) {
 	setDirection(direction);
 	setDescription();
@@ -870,7 +870,7 @@ void SourceEmissionCone::setDescription() {
 }
 
 // ----------------------------------------------------------------------------
-SourceRedshift::SourceRedshift(double z) :
+SourceRedshift::SourceRedshift(long double z) :
 		z(z) {
 	setDescription();
 }
@@ -886,13 +886,13 @@ void SourceRedshift::setDescription() {
 }
 
 // ----------------------------------------------------------------------------
-SourceUniformRedshift::SourceUniformRedshift(double zmin, double zmax) :
+SourceUniformRedshift::SourceUniformRedshift(long double zmin, long double zmax) :
 		zmin(zmin), zmax(zmax) {
 	setDescription();
 }
 
 void SourceUniformRedshift::prepareCandidate(Candidate& candidate) const {
-	double z = Random::instance().randUniform(zmin, zmax);
+	long double z = Random::instance().randUniform(zmin, zmax);
 	candidate.setRedshift(z);
 }
 
@@ -904,7 +904,7 @@ void SourceUniformRedshift::setDescription() {
 }
 
 // ----------------------------------------------------------------------------
-SourceRedshiftEvolution::SourceRedshiftEvolution(double m, double zmin, double zmax) : m(m), zmin(zmin), zmax(zmax) {
+SourceRedshiftEvolution::SourceRedshiftEvolution(long double m, long double zmin, long double zmax) : m(m), zmin(zmin), zmax(zmax) {
 	std::stringstream ss;
 	ss << "SourceRedshiftEvolution: (1+z)^m, m = " << m;
 	ss << ", z = " << zmin << " - " << zmax << "\n";
@@ -912,11 +912,11 @@ SourceRedshiftEvolution::SourceRedshiftEvolution(double m, double zmin, double z
 }
 
 void SourceRedshiftEvolution::prepareCandidate(Candidate& candidate) const {
-	double x = Random::instance().randUniform(0, 1);
-	double norm, z;
+	long double x = Random::instance().randUniform(0, 1);
+	long double norm, z;
 
 	// special case: m=-1
-	if ((std::abs(m+1)) < std::numeric_limits<double>::epsilon()) {
+	if ((std::abs(m+1)) < std::numeric_limits<long double>::epsilon()) {
 		norm = log1p(zmax) - log1p(zmin);
 		z = exp(norm*x) * (1+zmin) - 1;
 	} else {
@@ -932,8 +932,8 @@ SourceRedshift1D::SourceRedshift1D() {
 }
 
 void SourceRedshift1D::prepareCandidate(Candidate& candidate) const {
-	double d = candidate.source.getPosition().getR();
-	double z = comovingDistance2Redshift(d);
+	long double d = candidate.source.getPosition().getR();
+	long double z = comovingDistance2Redshift(d);
 	candidate.setRedshift(z);
 }
 
@@ -943,13 +943,13 @@ void SourceRedshift1D::setDescription() {
 
 // ----------------------------------------------------------------------------
 #ifdef CRPROPA_HAVE_MUPARSER
-SourceGenericComposition::SourceGenericComposition(double Emin, double Emax, std::string expression, size_t bins) :
+SourceGenericComposition::SourceGenericComposition(long double Emin, long double Emax, std::string expression, size_t bins) :
 	Emin(Emin), Emax(Emax), expression(expression), bins(bins) {
 
 	// precalculate energy bins
-	double logEmin = ::log10(Emin);
-	double logEmax = ::log10(Emax);
-	double logStep = (logEmax - logEmin) / bins;
+	long double logEmin = ::log10(Emin);
+	long double logEmax = ::log10(Emax);
+	long double logStep = (logEmax - logEmin) / bins;
 	energy.resize(bins + 1);
 	for (size_t i = 0; i <= bins; i++) {
 		energy[i] = ::pow(10, logEmin + i * logStep);
@@ -957,7 +957,7 @@ SourceGenericComposition::SourceGenericComposition(double Emin, double Emax, std
 	setDescription();
 }
 
-void SourceGenericComposition::add(int id, double weight) {
+void SourceGenericComposition::add(int id, long double weight) {
 	int A = massNumber(id);
 	int Z = chargeNumber(id);
 
@@ -966,13 +966,13 @@ void SourceGenericComposition::add(int id, double weight) {
 
 	// calculate nuclei cdf
 	mu::Parser p;
-	double E;
+	long double E;
 	p.DefineVar("E", &E);
 	p.DefineConst("Emin", Emin);
 	p.DefineConst("Emax", Emax);
 	p.DefineConst("bins", bins);
-	p.DefineConst("A", (double)A);
-	p.DefineConst("Z", (double)Z);
+	p.DefineConst("A", (long double)A);
+	p.DefineConst("Z", (long double)Z);
 
 	p.DefineConst("MeV", MeV);
 	p.DefineConst("GeV", GeV);
@@ -1010,7 +1010,7 @@ void SourceGenericComposition::add(int id, double weight) {
 		cdf.push_back(cdf.back() + weight * n.cdf.back());
 }
 
-void SourceGenericComposition::add(int A, int Z, double a) {
+void SourceGenericComposition::add(int A, int Z, long double a) {
 	add(nucleusId(A, Z), a);
 }
 
@@ -1027,7 +1027,7 @@ void SourceGenericComposition::prepareParticle(ParticleState& particle) const {
 	particle.setId(n.id);
 
 	// random energy
-	double E = interpolate(random.rand() * n.cdf.back(), n.cdf, energy);
+	long double E = interpolate(random.rand() * n.cdf.back(), n.cdf, energy);
 	particle.setEnergy(E);
 }
 
@@ -1058,10 +1058,10 @@ void SourceTag::setTag(std::string tag) {
 
 // ----------------------------------------------------------------------------
 
-SourceMassDistribution::SourceMassDistribution(ref_ptr<Density> density, double max, double x, double y, double z) : 
+SourceMassDistribution::SourceMassDistribution(ref_ptr<Density> density, long double max, long double x, long double y, long double z) :
 	density(density), maxDensity(max), xMin(-x), xMax(x), yMin(-y), yMax(y), zMin(-z), zMax(z) {}
 
-void SourceMassDistribution::setMaximalDensity(double maxDensity) {
+void SourceMassDistribution::setMaximalDensity(long double maxDensity) {
 	if (maxDensity <= 0) {
 		KISS_LOG_WARNING << "SourceMassDistribution: maximal density must be larger than 0. Nothing changed.\n";
 		return;
@@ -1069,7 +1069,7 @@ void SourceMassDistribution::setMaximalDensity(double maxDensity) {
 	this->maxDensity = maxDensity;
 }
 
-void SourceMassDistribution::setXrange(double xMin, double xMax) {
+void SourceMassDistribution::setXrange(long double xMin, long double xMax) {
 	if (xMin > xMax) {
 		KISS_LOG_WARNING << "SourceMassDistribution: minimal x-value must not exceed the maximal one\n";
 		return;
@@ -1078,7 +1078,7 @@ void SourceMassDistribution::setXrange(double xMin, double xMax) {
 	this -> xMax = xMax;
 }
 
-void SourceMassDistribution::setYrange(double yMin, double yMax) {
+void SourceMassDistribution::setYrange(long double yMin, long double yMax) {
 	if (yMin > yMax) {
 		KISS_LOG_WARNING << "SourceMassDistribution: minimal y-value must not exceed the maximal one\n";
 		return;
@@ -1087,7 +1087,7 @@ void SourceMassDistribution::setYrange(double yMin, double yMax) {
 	this -> yMax = yMax;
 }
 
-void SourceMassDistribution::setZrange(double zMin, double zMax) {
+void SourceMassDistribution::setZrange(long double zMin, long double zMax) {
 	if (zMin > zMax) {
 		KISS_LOG_WARNING << "SourceMassDistribution: minimal z-value must not exceed the maximal one\n";
 		return;
@@ -1105,8 +1105,8 @@ Vector3d SourceMassDistribution::samplePosition() const {
 		pos.y = rand.randUniform(yMin, yMax);
 		pos.z = rand.randUniform(zMin, zMax);
 
-		double n_density = density->getDensity(pos) / maxDensity;
-		double n_test = rand.rand();
+		long double n_density = density->getDensity(pos) / maxDensity;
+		long double n_test = rand.rand();
 		if (n_test < n_density) {
 			return pos;
 		}

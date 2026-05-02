@@ -6,7 +6,7 @@
 
 namespace crpropa {
 
-Candidate::Candidate(int id, double E, Vector3d pos, Vector3d dir, double z, double weight, std::string tagOrigin) :
+Candidate::Candidate(int id, long double E, Vector3d pos, Vector3d dir, long double z, long double weight, std::string tagOrigin) :
   redshift(z), trajectoryLength(0), weight(weight), currentStep(0), nextStep(0), active(true), parent(0), tagOrigin(tagOrigin), time(0) {
 	ParticleState state(id, E, pos, dir);
 	source = state;
@@ -49,57 +49,57 @@ void Candidate::setActive(bool b) {
 	active = b;
 }
 
-double Candidate::getRedshift() const {
+long double Candidate::getRedshift() const {
 	return redshift;
 }
 
-double Candidate::getTrajectoryLength() const {
+long double Candidate::getTrajectoryLength() const {
 	return trajectoryLength;
 }
 
-double Candidate::getVelocity() const {
+long double Candidate::getVelocity() const {
 	return c_light;
 }
 
-double Candidate::getWeight() const {
+long double Candidate::getWeight() const {
 	return weight;
 }
 
-double Candidate::getCurrentStep() const {
+long double Candidate::getCurrentStep() const {
 	return currentStep;
 }
 
-double Candidate::getNextStep() const {
+long double Candidate::getNextStep() const {
 	return nextStep;
 }
 
-void Candidate::setRedshift(double z) {
+void Candidate::setRedshift(long double z) {
 	redshift = z;
 }
 
-void Candidate::setTrajectoryLength(double a) {
+void Candidate::setTrajectoryLength(long double a) {
 	trajectoryLength = a;
 }
 
-void Candidate::setWeight(double w) {
+void Candidate::setWeight(long double w) {
 	weight = w;
 }
 
-void Candidate::updateWeight(double w) {
+void Candidate::updateWeight(long double w) {
   weight *= w;
 }
 
-void Candidate::setCurrentStep(double lstep) {
+void Candidate::setCurrentStep(long double lstep) {
 	currentStep = lstep;
 	trajectoryLength += lstep;
 	time += lstep / getVelocity();
 }
 
-void Candidate::setNextStep(double step) {
+void Candidate::setNextStep(long double step) {
 	nextStep = step;
 }
 
-void Candidate::limitNextStep(double step) {
+void Candidate::limitNextStep(long double step) {
 	nextStep = std::min(nextStep, step);
 }
 
@@ -115,11 +115,11 @@ std::string Candidate::getTagOrigin () const {
 	return tagOrigin;
 }
 
-void Candidate::setTime(double t) {
+void Candidate::setTime(long double t) {
 	time = t;
 }
 
-double Candidate::getTime() const {
+long double Candidate::getTime() const {
 	return time;
 }
 
@@ -149,7 +149,7 @@ void Candidate::addSecondary(Candidate *c) {
 	secondaries.push_back(c);
 }
 
-void Candidate::addSecondary(int id, double energy, double w, std::string tagOrigin) {
+void Candidate::addSecondary(int id, long double energy, long double w, std::string tagOrigin) {
 	ref_ptr<Candidate> secondary = new Candidate;
 	secondary->setRedshift(redshift);
 	secondary->setTrajectoryLength(trajectoryLength);
@@ -169,7 +169,7 @@ void Candidate::addSecondary(int id, double energy, double w, std::string tagOri
 	secondaries.push_back(secondary);
 }
 
-void Candidate::addSecondary(int id, double energy, Vector3d position, double w, std::string tagOrigin) {
+void Candidate::addSecondary(int id, long double energy, Vector3d position, long double w, std::string tagOrigin) {
 	ref_ptr<Candidate> secondary = new Candidate;
 	secondary->setRedshift(redshift);
 	secondary->setTrajectoryLength(trajectoryLength - (current.getPosition() - position).getR());

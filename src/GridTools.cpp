@@ -6,14 +6,14 @@
 
 namespace crpropa {
 
-void scaleGrid(ref_ptr<Grid1f> grid, double a) {
+void scaleGrid(ref_ptr<Grid1f> grid, long double a) {
 	for (int ix = 0; ix < grid->getNx(); ix++)
 		for (int iy = 0; iy < grid->getNy(); iy++)
 			for (int iz = 0; iz < grid->getNz(); iz++)
 				grid->get(ix, iy, iz) *= a;
 }
 
-void scaleGrid(ref_ptr<Grid3f> grid, double a) {
+void scaleGrid(ref_ptr<Grid3f> grid, long double a) {
 	for (int ix = 0; ix < grid->getNx(); ix++)
 		for (int iy = 0; iy < grid->getNy(); iy++)
 			for (int iz = 0; iz < grid->getNz(); iz++)
@@ -32,11 +32,11 @@ Vector3f meanFieldVector(ref_ptr<Grid3f> grid) {
 	return mean / Nx / Ny / Nz;
 }
 
-double meanFieldStrength(ref_ptr<Grid3f> grid) {
+long double meanFieldStrength(ref_ptr<Grid3f> grid) {
 	size_t Nx = grid->getNx();
 	size_t Ny = grid->getNy();
 	size_t Nz = grid->getNz();
-	double mean = 0;
+	long double mean = 0;
 	for (int ix = 0; ix < Nx; ix++)
 		for (int iy = 0; iy < Ny; iy++)
 			for (int iz = 0; iz < Nz; iz++)
@@ -44,11 +44,11 @@ double meanFieldStrength(ref_ptr<Grid3f> grid) {
 	return mean / Nx / Ny / Nz;
 }
 
-double meanFieldStrength(ref_ptr<Grid1f> grid) {
+long double meanFieldStrength(ref_ptr<Grid1f> grid) {
 	size_t Nx = grid->getNx();
 	size_t Ny = grid->getNy();
 	size_t Nz = grid->getNz();
-	double mean = 0;
+	long double mean = 0;
 	for (int ix = 0; ix < Nx; ix++)
 		for (int iy = 0; iy < Ny; iy++)
 			for (int iz = 0; iz < Nz; iz++)
@@ -56,11 +56,11 @@ double meanFieldStrength(ref_ptr<Grid1f> grid) {
 	return mean / Nx / Ny / Nz;
 }
 
-double rmsFieldStrength(ref_ptr<Grid3f> grid) {
+long double rmsFieldStrength(ref_ptr<Grid3f> grid) {
 	size_t Nx = grid->getNx();
 	size_t Ny = grid->getNy();
 	size_t Nz = grid->getNz();
-	double sumV2 = 0;
+	long double sumV2 = 0;
 	for (int ix = 0; ix < Nx; ix++)
 		for (int iy = 0; iy < Ny; iy++)
 			for (int iz = 0; iz < Nz; iz++)
@@ -68,11 +68,11 @@ double rmsFieldStrength(ref_ptr<Grid3f> grid) {
 	return std::sqrt(sumV2 / Nx / Ny / Nz);
 }
 
-double rmsFieldStrength(ref_ptr<Grid1f> grid) {
+long double rmsFieldStrength(ref_ptr<Grid1f> grid) {
 	size_t Nx = grid->getNx();
 	size_t Ny = grid->getNy();
 	size_t Nz = grid->getNz();
-	double sumV2 = 0;
+	long double sumV2 = 0;
 	for (int ix = 0; ix < Nx; ix++)
 		for (int iy = 0; iy < Ny; iy++)
 			for (int iz = 0; iz < Nz; iz++)
@@ -110,7 +110,7 @@ void fromMagneticField(ref_ptr<Grid3f> grid, ref_ptr<MagneticField> field) {
 	for (size_t ix = 0; ix < Nx; ix++)
 		for (size_t iy = 0; iy < Ny; iy++)
 			for (size_t iz = 0; iz < Nz; iz++) {
-				Vector3d pos = Vector3d(double(ix) + 0.5, double(iy) + 0.5, double(iz) + 0.5) * spacing + origin;
+				Vector3d pos = Vector3d(long double(ix) + 0.5, long double(iy) + 0.5, long double(iz) + 0.5) * spacing + origin;
 				Vector3d B = field->getField(pos);
 				grid->get(ix, iy, iz) = B;
 	}
@@ -125,13 +125,13 @@ void fromMagneticFieldStrength(ref_ptr<Grid1f> grid, ref_ptr<MagneticField> fiel
 	for (size_t ix = 0; ix < Nx; ix++)
 		for (size_t iy = 0; iy < Ny; iy++)
 			for (size_t iz = 0; iz < Nz; iz++) {
-				Vector3d pos = Vector3d(double(ix) + 0.5, double(iy) + 0.5, double(iz) + 0.5) * spacing + origin;
-				double s = field->getField(pos).getR();
+				Vector3d pos = Vector3d(long double(ix) + 0.5, long double(iy) + 0.5, long double(iz) + 0.5) * spacing + origin;
+				long double s = field->getField(pos).getR();
 				grid->get(ix, iy, iz) = s;
 	}
 }
 
-void loadGrid(ref_ptr<Grid3f> grid, std::string filename, double c) {
+void loadGrid(ref_ptr<Grid3f> grid, std::string filename, long double c) {
 	std::ifstream fin(filename.c_str(), std::ios::binary);
 	if (!fin) {
 		std::stringstream ss;
@@ -165,7 +165,7 @@ void loadGrid(ref_ptr<Grid3f> grid, std::string filename, double c) {
 	fin.close();
 }
 
-void loadGrid(ref_ptr<Grid1f> grid, std::string filename, double c) {
+void loadGrid(ref_ptr<Grid1f> grid, std::string filename, long double c) {
 	std::ifstream fin(filename.c_str(), std::ios::binary);
 	if (!fin) {
 		std::stringstream ss;
@@ -197,7 +197,7 @@ void loadGrid(ref_ptr<Grid1f> grid, std::string filename, double c) {
 	fin.close();
 }
 
-void dumpGrid(ref_ptr<Grid3f> grid, std::string filename, double c) {
+void dumpGrid(ref_ptr<Grid3f> grid, std::string filename, long double c) {
 	std::ofstream fout(filename.c_str(), std::ios::binary);
 	if (!fout) {
 		std::stringstream ss;
@@ -217,7 +217,7 @@ void dumpGrid(ref_ptr<Grid3f> grid, std::string filename, double c) {
 	fout.close();
 }
 
-void dumpGrid(ref_ptr<Grid1f> grid, std::string filename, double c) {
+void dumpGrid(ref_ptr<Grid1f> grid, std::string filename, long double c) {
 	std::ofstream fout(filename.c_str(), std::ios::binary);
 	if (!fout) {
 		std::stringstream ss;
@@ -235,7 +235,7 @@ void dumpGrid(ref_ptr<Grid1f> grid, std::string filename, double c) {
 	fout.close();
 }
 
-void loadGridFromTxt(ref_ptr<Grid3f> grid, std::string filename, double c) {
+void loadGridFromTxt(ref_ptr<Grid3f> grid, std::string filename, long double c) {
 	std::ifstream fin(filename.c_str());
 	if (!fin) {
 		std::stringstream ss;
@@ -260,7 +260,7 @@ void loadGridFromTxt(ref_ptr<Grid3f> grid, std::string filename, double c) {
 	fin.close();
 }
 
-ref_ptr<Grid3f> loadGrid3fFromTxt(std::string filename, double c) {
+ref_ptr<Grid3f> loadGrid3fFromTxt(std::string filename, long double c) {
 	std::ifstream fin(filename.c_str());
 	if (!fin) {
 		std::stringstream ss;
@@ -285,7 +285,7 @@ ref_ptr<Grid3f> loadGrid3fFromTxt(std::string filename, double c) {
 				throw std::runtime_error("Tried to load Grid3f, but Gridproperties assume grid type " + type);
 
 			// grid origin
-			double x, y, z;
+			long double x, y, z;
 			ss >> name >> x >> y >> z ; 
 			gp.origin = Vector3d(x, y, z);
 
@@ -293,7 +293,7 @@ ref_ptr<Grid3f> loadGrid3fFromTxt(std::string filename, double c) {
 			ss >> name >> gp.Nx >> gp.Ny >> gp.Nz;
 
 			// spacing
-			double dX, dY, dZ;
+			long double dX, dY, dZ;
 			ss >> name >> dX >> dY >> dZ;
 			gp.spacing = Vector3d(dX, dY, dZ);
 
@@ -328,7 +328,7 @@ ref_ptr<Grid3f> loadGrid3fFromTxt(std::string filename, double c) {
 }
 
 
-void loadGridFromTxt(ref_ptr<Grid1f> grid, std::string filename, double c) {
+void loadGridFromTxt(ref_ptr<Grid1f> grid, std::string filename, long double c) {
 	std::ifstream fin(filename.c_str());
 	if (!fin) {
 		std::stringstream ss;
@@ -354,7 +354,7 @@ void loadGridFromTxt(ref_ptr<Grid1f> grid, std::string filename, double c) {
 	fin.close();
 }
 
-ref_ptr<Grid1f> loadGrid1fFromTxt(std::string filename, double c) {
+ref_ptr<Grid1f> loadGrid1fFromTxt(std::string filename, long double c) {
 	std::ifstream fin(filename.c_str());
 	if (!fin) {
 		std::stringstream ss;
@@ -379,7 +379,7 @@ ref_ptr<Grid1f> loadGrid1fFromTxt(std::string filename, double c) {
 				throw std::runtime_error("Tried to load Grid1f, but Gridproperties assume grid type " + type);
 
 			// grid origin
-			double x, y, z;
+			long double x, y, z;
 			ss >> name >> x >> y >> z ; 
 			gp.origin = Vector3d(x, y, z);
 
@@ -387,7 +387,7 @@ ref_ptr<Grid1f> loadGrid1fFromTxt(std::string filename, double c) {
 			ss >> name >> gp.Nx >> gp.Ny >> gp.Nz;
 
 			// spacing
-			double dX, dY, dZ;
+			long double dX, dY, dZ;
 			ss >> name >> dX >> dY >> dZ;
 			gp.spacing = Vector3d(dX, dY, dZ);
 
@@ -421,7 +421,7 @@ ref_ptr<Grid1f> loadGrid1fFromTxt(std::string filename, double c) {
 	throw std::runtime_error("could not find GridProperties in file " + filename);
 }
 
-void dumpGridToTxt(ref_ptr<Grid3f> grid, std::string filename, double c, bool saveProp) {
+void dumpGridToTxt(ref_ptr<Grid3f> grid, std::string filename, long double c, bool saveProp) {
 	std::ofstream fout(filename.c_str());
 	if (!fout) {
 		std::stringstream ss;
@@ -451,7 +451,7 @@ void dumpGridToTxt(ref_ptr<Grid3f> grid, std::string filename, double c, bool sa
 	fout.close();
 }
 
-void dumpGridToTxt(ref_ptr<Grid1f> grid, std::string filename, double c, bool saveProp) {
+void dumpGridToTxt(ref_ptr<Grid1f> grid, std::string filename, long double c, bool saveProp) {
 	std::ofstream fout(filename.c_str());
 	if (!fout) {
 		std::stringstream ss;
@@ -485,7 +485,7 @@ void dumpGridToTxt(ref_ptr<Grid1f> grid, std::string filename, double c, bool sa
 
 std::vector<std::pair<int, float>> gridPowerSpectrum(ref_ptr<Grid3f> grid) {
 
-  double rms = rmsFieldStrength(grid);
+  long double rms = rmsFieldStrength(grid);
   size_t n = grid->getNx(); // size of array
 
   // arrays to hold the complex vector components of the B(k)-field

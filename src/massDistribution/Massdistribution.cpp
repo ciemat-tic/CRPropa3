@@ -6,36 +6,36 @@ void DensityList::addDensity(ref_ptr<Density> dens) {
 	DensityList.push_back(dens);
 }
 
-double DensityList::getDensity(const Vector3d &position) const {
-	double n = 0.;
+long double DensityList::getDensity(const Vector3d &position) const {
+	long double n = 0.;
 	for (int i = 0; i < DensityList.size(); i++)
 		n += DensityList[i]->getDensity(position);
 	return n;
 }
 
-double DensityList::getHIDensity(const Vector3d &position) const {
-	double n = 0.;
+long double DensityList::getHIDensity(const Vector3d &position) const {
+	long double n = 0.;
 	for (int i = 0; i < DensityList.size(); i++)
 		n += DensityList[i]->getHIDensity(position);
 	return n;
 }
 
-double DensityList::getHIIDensity(const Vector3d &position) const {
-	double n = 0.;
+long double DensityList::getHIIDensity(const Vector3d &position) const {
+	long double n = 0.;
 	for (int i = 0; i < DensityList.size(); i++)
 		n += DensityList[i]->getHIIDensity(position);
 	return n;
 }
 
-double DensityList::getH2Density(const Vector3d &position) const {
-	double n = 0.;
+long double DensityList::getH2Density(const Vector3d &position) const {
+	long double n = 0.;
 	for (int i = 0; i < DensityList.size(); i++)
 		n += DensityList[i]->getH2Density(position);
 	return n;
 }
 
-double DensityList::getNucleonDensity(const Vector3d &position) const {
-	double n = 0.;
+long double DensityList::getNucleonDensity(const Vector3d &position) const {
+	long double n = 0.;
 	for (int i = 0; i < DensityList.size(); i++)
 		n += DensityList[i]->getNucleonDensity(position);
 	return n;
@@ -67,29 +67,29 @@ void DensityGrid::checkAndWarn() {
 	}
 }
 
-double DensityGrid::getHIDensity(const Vector3d &position) const {
+long double DensityGrid::getHIDensity(const Vector3d &position) const {
 	if (isForHI)
 		return grid -> interpolate(position);
 	else 
 		return 0.;
 }
 
-double DensityGrid::getHIIDensity(const Vector3d &position) const {
+long double DensityGrid::getHIIDensity(const Vector3d &position) const {
 	if (isForHII) 
 		return grid -> interpolate(position);
 	else
 		return 0.;
 }
 
-double DensityGrid::getH2Density(const Vector3d &position) const {
+long double DensityGrid::getH2Density(const Vector3d &position) const {
 	if (isForH2)
 		return grid -> interpolate(position);
 	else
 		return 0.;
 }
 
-double DensityGrid::getDensity(const Vector3d &position) const {
-	double n = 0;
+long double DensityGrid::getDensity(const Vector3d &position) const {
+	long double n = 0;
 	n += getHIDensity(position);
 	n += getHIIDensity(position);
 	n += getH2Density(position);
@@ -97,8 +97,8 @@ double DensityGrid::getDensity(const Vector3d &position) const {
 	return n;
 }
 
-double DensityGrid::getNucleonDensity(const Vector3d &position) const {
-	double n = 0;
+long double DensityGrid::getNucleonDensity(const Vector3d &position) const {
+	long double n = 0;
 	n += getHIDensity(position);
 	n += getHIIDensity(position);
 	n += 2 * getH2Density(position);

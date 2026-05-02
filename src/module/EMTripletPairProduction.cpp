@@ -8,9 +8,9 @@
 
 namespace crpropa {
 
-static const double mec2 = mass_electron * c_squared;
+static const long double mec2 = mass_electron * c_squared;
 
-EMTripletPairProduction::EMTripletPairProduction(ref_ptr<PhotonField> photonField, bool haveElectrons, double thinning, double limit) {
+EMTripletPairProduction::EMTripletPairProduction(ref_ptr<PhotonField> photonField, bool haveElectrons, long double thinning, long double limit) {
 	setPhotonField(photonField);
 	setHaveElectrons(haveElectrons);
 	setLimit(limit);
@@ -29,11 +29,11 @@ void EMTripletPairProduction::setHaveElectrons(bool haveElectrons) {
 	this->haveElectrons = haveElectrons;
 }
 
-void EMTripletPairProduction::setLimit(double limit) {
+void EMTripletPairProduction::setLimit(long double limit) {
 	this->limit = limit;
 }
 
-void EMTripletPairProduction::setThinning(double thinning) {
+void EMTripletPairProduction::setThinning(long double thinning) {
 	this->thinning = thinning;
 }
 
@@ -49,7 +49,7 @@ void EMTripletPairProduction::initRate(std::string filename) {
 
 	while (infile.good()) {
 		if (infile.peek() != '#') {
-			double a, b;
+			long double a, b;
 			infile >> a >> b;
 			if (infile) {
 				tabEnergy.push_back(pow(10, a) * eV);
@@ -78,7 +78,7 @@ void EMTripletPairProduction::initCumulativeRate(std::string filename) {
 		infile.ignore(std::numeric_limits < std::streamsize > ::max(), '\n');
 
 	// read s values in first line
-	double a;
+	long double a;
 	infile >> a; // skip first value
 	while (infile.good() and (infile.peek() != '\n')) {
 		infile >> a;
@@ -91,7 +91,7 @@ void EMTripletPairProduction::initCumulativeRate(std::string filename) {
 		if (!infile)
 			break;  // end of file
 		tabE.push_back(pow(10, a) * eV);
-		std::vector<double> cdf;
+		std::vector<long double> cdf;
 		for (int i = 0; i < tabs.size(); i++) {
 			infile >> a;
 			cdf.push_back(a / Mpc);
@@ -107,8 +107,8 @@ void EMTripletPairProduction::performInteraction(Candidate *candidate) const {
 		return;
 
 	// scale the particle energy instead of background photons
-	double z = candidate->getRedshift();
-	double E = candidate->current.getEnergy() * (1 + z);
+	long double z = candidate->getRedshift();
+	long double E = candidate->current.getEnergy() * (1 + z);
 
 	if (E < tabE.front() or E > tabE.back())
 		return;
@@ -117,24 +117,24 @@ void EMTripletPairProduction::performInteraction(Candidate *candidate) const {
 	Random &random = Random::instance();
 	size_t i = closestIndex(E, tabE);
 	size_t j = random.randBin(tabCDF[i]);
-	double s_kin = pow(10, log10(tabs[j]) + (random.rand() - 0.5) * 0.1);
-	double eps = s_kin / 4. / E; // random background photon energy
+	long double s_kin = pow(10, log10(tabs[j]) + (random.rand() - 0.5) * 0.1);
+	long double eps = s_kin / 4. / E; // random background photon energy
 
 	// Use approximation from A. Mastichiadis et al., Astroph. Journ. 300:178-189 (1986), eq. 30.
 	// This approx is valid only for alpha >=100 where alpha = p0*eps*costheta - E0*eps
 	// For our purposes, me << E0 --> p0~E0 --> alpha = E0*eps*(costheta - 1) >= 100
-	double Epp = 5.7e-1 * pow(eps / mec2, -0.56) * pow(E / mec2, 0.44) * mec2;
+	long double Epp = 5.7e-1 * pow(eps / mec2, -0.56) * pow(E / mec2, 0.44) * mec2;
 
-	double f = Epp / E;
+	long double f = Epp / E;
 
 	if (haveElectrons) {
 		Vector3d pos = random.randomInterpolatedPosition(candidate->previous.getPosition(), candidate->current.getPosition());
 		if (random.rand() < pow(1 - f, thinning)) {
-			double w = 1. / pow(1 - f, thinning);
+			long double w = 1. / pow(1 - f, thinning);
 			candidate->addSecondary(11, Epp / (1 + z), pos, w, interactionTag);
 		}
 		if (random.rand() < pow(f, thinning)) {
-			double w = 1. / pow(f, thinning);
+			long double w = 1. / pow(f, thinning);
 			candidate->addSecondary(-11, Epp / (1 + z), pos, w, interactionTag);
 		}
 	}
@@ -150,22 +150,22 @@ void EMTripletPairProduction::process(Candidate *candidate) const {
 		return;
 
 	// scale the particle energy instead of background photons
-	double z = candidate->getRedshift();
-	double E = (1 + z) * candidate->current.getEnergy();
+	long double z = candidate->getRedshift();
+	long double E = (1 + z) * candidate->current.getEnergy();
 
 	// check if in tabulated energy range
 	if ((E < tabEnergy.front()) or (E > tabEnergy.back()))
 		return;
 
 	// cosmological scaling of interaction distance (comoving)
-	double scaling = pow_integer<2>(1 + z) * photonField->getRedshiftScaling(z);
-	double rate = scaling * interpolate(E, tabEnergy, tabRate);
+	long double scaling = pow_integer<2>(1 + z) * photonField->getRedshiftScaling(z);
+	long double rate = scaling * interpolate(E, tabEnergy, tabRate);
 
 	// run this loop at least once to limit the step size
-	double step = candidate->getCurrentStep();
+	long double step = candidate->getCurrentStep();
 	Random &random = Random::instance();
 	do {
-		double randDistance = -log(random.rand()) / rate;
+		long double randDistance = -log(random.rand()) / rate;
 		// check for interaction; if it doesn't occur, limit next step
 		if (step < randDistance) { 
 			candidate->limitNextStep(limit / rate);

@@ -53,37 +53,37 @@ DATASET "OUTPUTTYPE" {
 class HDF5Output: public Output {
 
 	typedef struct OutputRow {
-		double D;
-		double time;
-		double z;
+		long double D;
+		long double time;
+		long double z;
 		uint64_t SN;
 		int32_t ID;
-		double E;
-		double X;
-		double Y;
-		double Z;
-		double Px;
-		double Py;
-		double Pz;
+		long double E;
+		long double X;
+		long double Y;
+		long double Z;
+		long double Px;
+		long double Py;
+		long double Pz;
 		uint64_t SN0;
 		int32_t ID0;
-		double E0;
-		double X0;
-		double Y0;
-		double Z0;
-		double P0x;
-		double P0y;
-		double P0z;
+		long double E0;
+		long double X0;
+		long double Y0;
+		long double Z0;
+		long double P0x;
+		long double P0y;
+		long double P0z;
 		uint64_t SN1;
 		int32_t ID1;
-		double E1;
-		double X1;
-		double Y1;
-		double Z1;
-		double P1x;
-		double P1y;
-		double P1z;
-		double weight;
+		long double E1;
+		long double X1;
+		long double Y1;
+		long double Z1;
+		long double P1x;
+		long double P1y;
+		long double P1z;
+		long double weight;
 		std::string tag;
 		unsigned char propertyBuffer[propertyBufferSize];
 	} OutputRow;
@@ -118,7 +118,7 @@ public:
 
 	void process(Candidate *candidate) const;
 	herr_t insertStringAttribute(const std::string &key, const std::string &value);
-	herr_t insertDoubleAttribute(const std::string &key, const double &value);
+	herr_t insertDoubleAttribute(const std::string &key, const long double &value);
 	std::string getDescription() const;
 
 	/// Force flush after N events. In long running applications with scarse

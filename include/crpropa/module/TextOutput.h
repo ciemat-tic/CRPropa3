@@ -64,7 +64,7 @@ public:
 	void enableRandomSeeds() {storeRandomSeeds = true;};
 	/** Set scientific output precision for floating-point values in text output.
 	 Default is 5, preserving the historical format. Use 16 or 17 for near-full
-	 double precision.
+	 long double precision.
 	 */
 	void setPrecision(int p) { precision = (p < 0) ? 0 : p; }
 	int getPrecision() const { return precision; }

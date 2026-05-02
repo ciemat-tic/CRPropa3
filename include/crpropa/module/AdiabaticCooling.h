@@ -28,7 +28,7 @@ namespace crpropa {
 class AdiabaticCooling: public Module {
 private:
 	ref_ptr<AdvectionField> advectionField;
-	double limit;
+	long double limit;
 
 public:
 	/** Default constructor.
@@ -39,12 +39,12 @@ public:
 	 @param advectionField 	The advection field used for the adiabatic energy change
 	 @param limit 			Maximum relative energy change allowed
 	 */
-	AdiabaticCooling(ref_ptr<AdvectionField> advectionField, double limit);
+	AdiabaticCooling(ref_ptr<AdvectionField> advectionField, long double limit);
 	void process(Candidate *c) const;
 
-	void setLimit(double l);
+	void setLimit(long double l);
 
-	double getLimit() const;
+	long double getLimit() const;
 
 };
 /** @}*/

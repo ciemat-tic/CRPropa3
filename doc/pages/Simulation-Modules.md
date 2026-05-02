@@ -26,7 +26,7 @@ Interactions of protons, neutrons, and nuclei (Z = 1 - 26, N = 1 - 30)
 Interactions of photons, electrons and positrons
 
 * **EMPairProduction** - electron pair production (Breit-Wheeler process), optional secondaries: electrons/positrons
-* **EMDoublePairProduction** - double electron pair production, optional secondaries: electrons/positrons
+* **EMDoublePairProduction** - long double electron pair production, optional secondaries: electrons/positrons
 * **EMTripletPairProduction** - triplet pair production, optional secondaries: electrons/positrons
 * **EMInverseComptonScattering** - inverse compton scattering, optional secondaries: photons
 

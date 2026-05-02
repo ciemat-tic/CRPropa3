@@ -27,12 +27,12 @@ TabularPhotonField::TabularPhotonField(std::string fieldName, bool isRedshiftDep
 }
 
 
-double TabularPhotonField::getPhotonDensity(double Ephoton, double z) const {	
+long double TabularPhotonField::getPhotonDensity(long double Ephoton, long double z) const {
 	if ((this->isRedshiftDependent)) {
 		// fix behaviour for future redshift. See issue #414
 		// with redshift < 0 the photon density is set to 0 in interpolate2d. 
 		// Therefore it is assumed that the photon density does not change from values at z = 0. This is only valid for small changes in redshift.
-		double zMin = this->redshifts[0];
+		long double zMin = this->redshifts[0];
 		if(z < zMin){
 			if(z < -1) {
 				KISS_LOG_WARNING << "Photon Field " << fieldName << " uses FutureRedshift with z < -1. The photon density is set to n(Ephoton, z=0). \n";
@@ -47,7 +47,7 @@ double TabularPhotonField::getPhotonDensity(double Ephoton, double z) const {
 }
 
 
-double TabularPhotonField::getRedshiftScaling(double z) const {
+long double TabularPhotonField::getRedshiftScaling(long double z) const {
 	if (!this->isRedshiftDependent)
 		return 1.;
  
@@ -60,11 +60,11 @@ double TabularPhotonField::getRedshiftScaling(double z) const {
 	return interpolate(z, this->redshifts, this->redshiftScalings);
 }
 
-double TabularPhotonField::getMinimumPhotonEnergy(double z) const{
+long double TabularPhotonField::getMinimumPhotonEnergy(long double z) const{
 	return photonEnergies[0];
 }
 
-double TabularPhotonField::getMaximumPhotonEnergy(double z) const{
+long double TabularPhotonField::getMaximumPhotonEnergy(long double z) const{
 	return photonEnergies[photonEnergies.size() -1];
 }
 
@@ -108,14 +108,14 @@ void TabularPhotonField::readRedshift(std::string filePath) {
 }
 
 void TabularPhotonField::initRedshiftScaling() {
-	double n0 = 0.;
+	long double n0 = 0.;
 	for (int i = 0; i < this->redshifts.size(); ++i) {
-		double z = this->redshifts[i];
-		double n = 0.;
+		long double z = this->redshifts[i];
+		long double n = 0.;
 		for (int j = 0; j < this->photonEnergies.size()-1; ++j) {
-			double e_j = this->photonEnergies[j];
-			double e_j1 = this->photonEnergies[j+1];
-			double deltaLogE = std::log10(e_j1) - std::log10(e_j);
+			long double e_j = this->photonEnergies[j];
+			long double e_j1 = this->photonEnergies[j+1];
+			long double deltaLogE = std::log10(e_j1) - std::log10(e_j);
 			if (z == 0.)
 				n0 += (getPhotonDensity(e_j, 0) + getPhotonDensity(e_j1, 0)) / 2. * deltaLogE;
 			n += (getPhotonDensity(e_j, z) + getPhotonDensity(e_j1, z)) / 2. * deltaLogE;
@@ -134,8 +134,8 @@ void TabularPhotonField::checkInputData() const {
 	}
 
 	for (int i = 0; i < this->photonEnergies.size(); ++i) {
-		double ePrevious = 0.;
-		double e = this->photonEnergies[i];
+		long double ePrevious = 0.;
+		long double e = this->photonEnergies[i];
 		if (e <= 0.)
 			throw std::runtime_error("TabularPhotonField::checkInputData: a value in the photon energy input is not positive");
 		if (e <= ePrevious)
@@ -153,8 +153,8 @@ void TabularPhotonField::checkInputData() const {
 			throw std::runtime_error("TabularPhotonField::checkInputData: redshift input must start with zero");
 
 		for (int i = 0; i < this->redshifts.size(); ++i) {
-			double zPrevious = -1.;
-			double z = this->redshifts[i];
+			long double zPrevious = -1.;
+			long double z = this->redshifts[i];
 			if (z < 0.)
 				throw std::runtime_error("TabularPhotonField::checkInputData: a value in the redshift input is negative");
 			if (z <= zPrevious)
@@ -163,25 +163,25 @@ void TabularPhotonField::checkInputData() const {
 		}
 
 		for (int i = 0; i < this->redshiftScalings.size(); ++i) {
-			double scalingFactor = this->redshiftScalings[i];
+			long double scalingFactor = this->redshiftScalings[i];
 			if (scalingFactor <= 0.)
 				throw std::runtime_error("TabularPhotonField::checkInputData: initRedshiftScaling has created a non-positive scaling factor");
 		}
 	}
 }
 
-BlackbodyPhotonField::BlackbodyPhotonField(std::string fieldName, double blackbodyTemperature) {
+BlackbodyPhotonField::BlackbodyPhotonField(std::string fieldName, long double blackbodyTemperature) {
 	this->fieldName = fieldName;
 	this->blackbodyTemperature = blackbodyTemperature;
 	this->quantile = 0.0001; // tested to be sufficient, only used for extreme values of primary energy or temperature
 }
 
-double BlackbodyPhotonField::getPhotonDensity(double Ephoton, double z) const {
+long double BlackbodyPhotonField::getPhotonDensity(long double Ephoton, long double z) const {
 	return 8 * M_PI * pow_integer<3>(Ephoton / (h_planck * c_light)) / std::expm1(Ephoton / (k_boltzmann * this->blackbodyTemperature));
 }
 
-double BlackbodyPhotonField::getMinimumPhotonEnergy(double z) const {
-	double A;
+long double BlackbodyPhotonField::getMinimumPhotonEnergy(long double z) const {
+	long double A;
 	int quantile_int = 10000 * quantile;
 	switch (quantile_int)
 	{
@@ -201,12 +201,12 @@ double BlackbodyPhotonField::getMinimumPhotonEnergy(double z) const {
 	return A * this -> blackbodyTemperature;
 }
 
-double BlackbodyPhotonField::getMaximumPhotonEnergy(double z) const {
-	double factor = std::max(1., blackbodyTemperature / 2.73);
+long double BlackbodyPhotonField::getMaximumPhotonEnergy(long double z) const {
+	long double factor = std::max(1., blackbodyTemperature / 2.73);
 	return 0.1 * factor * eV; // T dependent scaling, starting at 0.1 eV as suitable for CMB
 }
 
-void BlackbodyPhotonField::setQuantile(double q) {
+void BlackbodyPhotonField::setQuantile(long double q) {
 	if(not ((q == 0.0001) or (q == 0.001) or (q == 0.01)))
 		throw std::runtime_error("Quantile not understood. Please use 0.01 (1%), 0.001 (0.1%) or 0.0001 (0.01%) \n");
 	this -> quantile = q;

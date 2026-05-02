@@ -27,9 +27,9 @@ namespace crpropa {
 class PolarizedSingleModeMagneticField: public MagneticField {
 private:
 	//quantities provided by the user:
-	double B_0; // Magnetic field strength in the direction of e_1 at r_0 (for flagAmplitudeRms = "amplitude"), or the RMS value of the magnetic field (for flagAmplitudeRms = "rms")
-	double wavelength; // Wavelength of the single mode (corresponds to its coherence length)
-	double sigma; // Polarization parameter
+	long double B_0; // Magnetic field strength in the direction of e_1 at r_0 (for flagAmplitudeRms = "amplitude"), or the RMS value of the magnetic field (for flagAmplitudeRms = "rms")
+	long double wavelength; // Wavelength of the single mode (corresponds to its coherence length)
+	long double sigma; // Polarization parameter
 	Vector3d r_0; // Reference position
 	Vector3d e_1; // First vector spanning the polarization plane
 	Vector3d e_2; // Second vector spanning the polarization plane
@@ -41,7 +41,7 @@ private:
 	Vector3d unitVector_1; // Normalized vector e_1
 	Vector3d unitVector_2; // Normalized vector e_2
 	Vector3d wavevector; // Wavevector of the mode (proportional to e_2 cross e_1)
-	double B_max; // Maximal value of the magnetic field (i.e. the amplitude/semi-major value of the mode)
+	long double B_max; // Maximal value of the magnetic field (i.e. the amplitude/semi-major value of the mode)
 
 public:
 	/**
@@ -56,7 +56,7 @@ public:
 	 * @param flagPolarizationHelicity	Flag to specify whether sigma denotes the standard polarization parameter ("polarization") or f_H, the fraction of maximal helicity ("helicity")
 	 * @param flagMode 					Flag to specify the polarization mode; possible choices are "elliptical", "circular" or "linear"
 	*/
-	PolarizedSingleModeMagneticField(const double &B_0, const double &wavelength, const double &sigma, const Vector3d &r_0, const Vector3d &e_1, const Vector3d &e_2, std::string flagAmplitudeRms, std::string flagPolarizationHelicity, std::string flagMode);
+	PolarizedSingleModeMagneticField(const long double &B_0, const long double &wavelength, const long double &sigma, const Vector3d &r_0, const Vector3d &e_1, const Vector3d &e_2, std::string flagAmplitudeRms, std::string flagPolarizationHelicity, std::string flagMode);
 
 	Vector3d getField(const Vector3d &position) const;
 };

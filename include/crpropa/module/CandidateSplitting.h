@@ -26,9 +26,9 @@ namespace crpropa {
 */
 class CandidateSplitting: public Module {
 private:
-	double nSplit;
-	double minWeight;
-	std::vector<double> Ebins;
+	long double nSplit;
+	long double minWeight;
+	std::vector<long double> Ebins;
 
 public:
 
@@ -42,30 +42,30 @@ public:
 	 @param minWeight   Mimimal Weight
 	 @param log 		Energy bins in log
 	 */
-	CandidateSplitting(int nSplit, double Emin, double Emax, double nBins, double minWeight, bool log = false);
+	CandidateSplitting(int nSplit, long double Emin, long double Emax, long double nBins, long double minWeight, bool log = false);
 	
 	/** Constructor
 	 @param spectralIndex    Expected spectral index determines splitting numbe
 	 @param Emin 			 Minimal energy for splitting
 	 @param nBins            Number of bins in energy, with dE(spectralIndex) it determines Emax 
 	 */
-	CandidateSplitting(double spectralIndex, double Emin, int nBins);
+	CandidateSplitting(long double spectralIndex, long double Emin, int nBins);
 
 	void process(Candidate *c) const;
 
-	void setEnergyBins(double Emin, double Emax, double nBins, bool log);
+	void setEnergyBins(long double Emin, long double Emax, long double nBins, bool log);
 
-	void setEnergyBinsDSA(double Emin, double dE, int n);
+	void setEnergyBinsDSA(long double Emin, long double dE, int n);
 
 	void setNsplit(int n);
 
-	void setMinimalWeight(double w);
+	void setMinimalWeight(long double w);
 
 	int getNsplit() const;
 
-	double getMinimalWeight() const;
+	long double getMinimalWeight() const;
 
-	const std::vector<double>& getEnergyBins() const;
+	const std::vector<long double>& getEnergyBins() const;
 
 };
 /** @}*/

@@ -18,12 +18,12 @@ namespace crpropa {
  It also limits the candidates next step size to ensure the maximum trajectory length is not exceeded.
  */
 class MaximumTrajectoryLength: public AbstractCondition {
-	double maxLength;
+	long double maxLength;
 	std::vector<Vector3d> observerPositions;
 public:
-	MaximumTrajectoryLength(double length = 0);
-	void setMaximumTrajectoryLength(double length);
-	double getMaximumTrajectoryLength() const;
+	MaximumTrajectoryLength(long double length = 0);
+	void setMaximumTrajectoryLength(long double length);
+	long double getMaximumTrajectoryLength() const;
 	void addObserverPosition(const Vector3d &position);
 	const std::vector<Vector3d>& getObserverPositions() const;
 	std::string getDescription() const;
@@ -38,11 +38,11 @@ public:
  In that case the property ("Deactivated", module::description) is set.
  */
 class MinimumEnergy: public AbstractCondition {
-	double minEnergy;
+	long double minEnergy;
 public:
-	MinimumEnergy(double minEnergy = 0);
-	void setMinimumEnergy(double energy);
-	double getMinimumEnergy() const;
+	MinimumEnergy(long double minEnergy = 0);
+	void setMinimumEnergy(long double energy);
+	long double getMinimumEnergy() const;
 	std::string getDescription() const;
 	void process(Candidate *candidate) const;
 };
@@ -56,11 +56,11 @@ public:
  In that case the property ("Deactivated", module::description) is set.
  */
 class MinimumRigidity: public AbstractCondition {
-	double minRigidity;
+	long double minRigidity;
 public:
-	MinimumRigidity(double minRigidity = 0);
-	void setMinimumRigidity(double minRigidity);
-	double getMinimumRigidity() const;
+	MinimumRigidity(long double minRigidity = 0);
+	void setMinimumRigidity(long double minRigidity);
+	long double getMinimumRigidity() const;
 	std::string getDescription() const;
 	void process(Candidate *candidate) const;
 };
@@ -73,11 +73,11 @@ public:
  In that case the property ("Deactivated", module::description) is set.
  */
 class MinimumRedshift: public AbstractCondition {
-	double zmin;
+	long double zmin;
 public:
-	MinimumRedshift(double zmin = 0);
-	void setMinimumRedshift(double z);
-	double getMinimumRedshift();
+	MinimumRedshift(long double zmin = 0);
+	void setMinimumRedshift(long double z);
+	long double getMinimumRedshift();
 	std::string getDescription() const;
 	void process(Candidate *candidate) const;
 };
@@ -110,14 +110,14 @@ public:
  All particles whose minimum energy is not specified follow the more general minEnergyOthers condition.
  */
 class MinimumEnergyPerParticleId: public AbstractCondition {
-	std::vector<double> minEnergies;
+	std::vector<long double> minEnergies;
 	std::vector<int> particleIds;
-	double minEnergyOthers;
+	long double minEnergyOthers;
 public:
-	MinimumEnergyPerParticleId(double minEnergyOthers = 0);
-	void setMinimumEnergyOthers(double energy);
-	double getMinimumEnergyOthers() const;
-	void add(int id, double energy);
+	MinimumEnergyPerParticleId(long double minEnergyOthers = 0);
+	void setMinimumEnergyOthers(long double energy);
+	long double getMinimumEnergyOthers() const;
+	void add(int id, long double energy);
 	std::string getDescription() const;
 	void process(Candidate *candidate) const;
 };
@@ -130,11 +130,11 @@ public:
  This break condition can be used for non-regular time observation of the particle density. See also ObserverTimeEvolution.
  */
 class DetectionLength: public AbstractCondition {
-	double detLength;
+	long double detLength;
 public:
-	DetectionLength(double length = 0);
-	void setDetectionLength(double length);
-	double getDetectionLength() const;
+	DetectionLength(long double length = 0);
+	void setDetectionLength(long double length);
+	long double getDetectionLength() const;
 	std::string getDescription() const;
 	void process(Candidate *candidate) const;
 };

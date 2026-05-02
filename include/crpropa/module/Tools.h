@@ -22,7 +22,7 @@ namespace crpropa {
 class PerformanceModule: public Module {
 private:
 	struct _module_info {
-		double time;
+		long double time;
 		ref_ptr<Module> module;
 	};
 

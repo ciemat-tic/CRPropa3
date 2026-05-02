@@ -107,15 +107,15 @@ public:
 class ObserverTracking: public ObserverFeature {
 private:
 	Vector3d center;
-	double radius;
-    double stepSize;
+	long double radius;
+    long double stepSize;
 public:
 	/** Constructor
 	 @param center		vector containing the coordinates of the center of the sphere
 	 @param radius		radius of the sphere
 	 @param stepSize	observer will keep track of particles at every step with this size
 	*/
-	ObserverTracking(Vector3d center, double radius, double stepSize = 0);
+	ObserverTracking(Vector3d center, long double radius, long double stepSize = 0);
 	DetectionState checkDetection(Candidate *candidate) const;
 	std::string getDescription() const;
 };
@@ -148,13 +148,13 @@ public:
  */
 class ObserverRedshiftWindow: public ObserverFeature {
 private:
-	double zmin, zmax;
+	long double zmin, zmax;
 public:
 	/** Constructor
 	 @param zmin	lower bound of redshift interval
 	 @param zmax	upper bound of redshift interval
 	 */
-	ObserverRedshiftWindow(double zmin = 0, double zmax = 0.1);
+	ObserverRedshiftWindow(long double zmin = 0, long double zmax = 0.1);
 	DetectionState checkDetection(Candidate *candidate) const;
 	std::string getDescription() const;
 };
@@ -244,19 +244,19 @@ protected:
 	int nIntervals;  // number of time invervals
 	bool isLogarithmicScaling = false;  // enables or disables logarithmic scaling for the intervals
 	bool doDetListConstruction = true;  // enables the construction of detList in the relevant functions (addTime, addTimeRange)
-	double minimum;  // the minimum time
-	double maximum;  // the maximum time
+	long double minimum;  // the minimum time
+	long double maximum;  // the maximum time
 	/** Vector containing all used times. 
 	 It is only constructed by the user manually.
 	 If it is not empty, the vector will be used instead of the getTime function.
 	 (leave empty if you want to rather use functions)
 	*/
-	std::vector<double> detList;
+	std::vector<long double> detList;
 	/**
 	 A temporary storage for detList, this enables the return of a List in getTimes
 	 without risking to modify detList
 	 */
-	mutable std::vector<double> tempDetList;
+	mutable std::vector<long double> tempDetList;
 	
 public:
 	/** Default constructor
@@ -269,7 +269,7 @@ public:
 
 	 This constructor calculates the maximum from max = min + (numb - 1) * dist
 	 */
-	ObserverTimeEvolution(double min, double dist, double numb);
+	ObserverTimeEvolution(long double min, long double dist, long double numb);
 	/** Constructor
 	 @param min		minimum time
 	 @param max	    maximum time
@@ -279,21 +279,21 @@ public:
 	 This constructor sets the maximum directly and gets numb automatically.
 	 You need to set the log parameter, since an overload for the first three doubles exist.
 	 */
-	ObserverTimeEvolution(double min, double max, double numb, bool log);
+	ObserverTimeEvolution(long double min, long double max, long double numb, bool log);
 	/** Constructor
-	 @param detList	user defined vector<double> with times to check
+	 @param detList	user defined vector<long double> with times to check
 
 	 This constructor uses a predefined vector containing the times that should be observed.
 	 The so created detList can then be modified via addTime, addTimeRange and setTimes.
 	 */
-	ObserverTimeEvolution(const std::vector<double> &detList);
+	ObserverTimeEvolution(const std::vector<long double> &detList);
 	/** Destructor
 	 */
 	~ObserverTimeEvolution(){}
 
 	/** Function
 	 Generates the detList if it is empty when for example the 
-	 ObserverTimeEvolution(const std::vector<double> &detList) constructor
+	 ObserverTimeEvolution(const std::vector<long double> &detList) constructor
 	 was not used.
 	 Use this function to create a detList with can then be modified.
 	 When detList is not empty its entries are used instead of a runtime calculation of the times.	 
@@ -323,7 +323,7 @@ public:
 
 	 Makes a push_back on detList with the given time.	 
 	 */
-	void addTime(const double &time);
+	void addTime(const long double &time);
 	/** Function
 	 @param min		minimum time
 	 @param max	    maximum time
@@ -332,15 +332,15 @@ public:
 
 	 Appends a linear or logarithmic time range to detList via repeatedly calling addTime
 	 */
-	void addTimeRange(double min, double max, double numb, bool log = false);
+	void addTimeRange(long double min, long double max, long double numb, bool log = false);
 	/** Function
-	 @param detList	vector<double> containing times when to observe
+	 @param detList	vector<long double> containing times when to observe
 
 	 Sets this->detList to detList, with this it is possible to fully modify detList
 	 */
-	void setTimes(const std::vector<double> &detList);
-	void setMinimum(double min);
-	void setMaximum(double max){this->maximum = max;}
+	void setTimes(const std::vector<long double> &detList);
+	void setMinimum(long double min);
+	void setMaximum(long double max){this->maximum = max;}
 	void setNIntervals(int numb){this->nIntervals = numb;}
 	void setIsLogarithmicScaling(bool log){this->isLogarithmicScaling = log;}
 
@@ -350,17 +350,17 @@ public:
 
 	 Replaces the previous preconstructed detList and return the time for a specific index
 	 */
-	virtual double getTime(std::size_t index) const;
-	double getMinimum() const {return minimum;}
-	double getMaximum() const {return maximum;}
+	virtual long double getTime(std::size_t index) const;
+	long double getMinimum() const {return minimum;}
+	long double getMaximum() const {return maximum;}
 	int getNIntervals() const {return nIntervals;}
 	bool getIsLogarithmicScaling() const {return isLogarithmicScaling;}
 	/** Function 
-	 Returns a vector<double> containing all times between min and max generated by getTime.
+	 Returns a vector<long double> containing all times between min and max generated by getTime.
 	 This function does not return detList directly, it rather appends a new vector with
 	 getTime numb times.
 	 */
-	const std::vector<double>& getTimes() const;
+	const std::vector<long double>& getTimes() const;
 	/** Function
 	 Returns a string containing a representation of all times.
 	 This function does not create a detList.

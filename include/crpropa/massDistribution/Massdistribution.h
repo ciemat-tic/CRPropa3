@@ -31,28 +31,28 @@ public:
 	 @param position position in Galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns Density in particles/m^3, sum up densities from added densities 
 	*/
-	double getDensity(const Vector3d &position) const;
+	long double getDensity(const Vector3d &position) const;
 	/** Get HI density at a given position.
 	 @param position position in Galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns Density of HI at given position in particles/m^3, sum up all HI densities from added densities
 	 */
-	double getHIDensity(const Vector3d &position) const;
+	long double getHIDensity(const Vector3d &position) const;
 	/** Get HII density at a given position.
 	 @param position position in Galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns Density of HII at given position in particles/m^3, sum up all HII densities from added densities 
 	 */
-	double getHIIDensity(const Vector3d &position) const;
+	long double getHIIDensity(const Vector3d &position) const;
 	/** Get H2 density at a given position.
 	 @param position position in Galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns Density of H2 at given position in particles/m^3, sum up all H2 densities from added densities 
 	 */
-	double getH2Density(const Vector3d &position) const;
+	long double getH2Density(const Vector3d &position) const;
 	/** Get the density of nucleons.
 	 This is the number of nucleons per volume, summed up all activated density and weight molecular hydrogyen twice
 	 @param position position in Galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns Density of nucleons at given position in particles/m^3, sum up all nucleon densities from added densities 
 	 */
-	double getNucleonDensity(const Vector3d &position) const;
+	long double getNucleonDensity(const Vector3d &position) const;
 
 	std::string getDescription();
 };
@@ -77,32 +77,32 @@ public:
 	 @param position position in Galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns Density of HI at given position in particles/m^3, sum up all HI densities from added densities
 	 */
-	double getHIDensity(const Vector3d &position) const;
+	long double getHIDensity(const Vector3d &position) const;
 	
 	/** Get HII density at a given position.
 	 @param position position in Galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns Density of HII at given position in particles/m^3, sum up all HII densities from added densities 
 	 */
-	double getHIIDensity(const Vector3d &position) const;
+	long double getHIIDensity(const Vector3d &position) const;
 	
 	/** Get H2 density at a given position.
 	 @param position position in Galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns Density of H2 at given position in particles/m^3, sum up all H2 densities from added densities 
 	 */
-	double getH2Density(const Vector3d &position) const;
+	long double getH2Density(const Vector3d &position) const;
 
 	/** Get density at a given position.
 	 @param position position in Galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns Density in particles/m^3, sum up densities from added densities 
 	*/
-	double getDensity(const Vector3d &position) const;
+	long double getDensity(const Vector3d &position) const;
 	
 	/** Get the density of nucleons.
 	 This is the number of nucleons per volume, summed up all activated density and weight molecular hydrogyen twice
 	 @param position position in Galactic coordinates with Earth at (-8.5 kpc, 0, 0)
 	 @returns Density of nucleons at given position in particles/m^3, sum up all nucleon densities from added densities 
 	 */
-	double getNucleonDensity(const Vector3d &position) const;
+	long double getNucleonDensity(const Vector3d &position) const;
 
 	bool getIsForHI();
 	bool getIsForHII();

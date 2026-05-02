@@ -23,19 +23,19 @@ namespace crpropa {
  */
 class ParticleMapsContainer {
 private:
-	std::map<int, std::map <int, double*> > _data;
+	std::map<int, std::map <int, long double*> > _data;
 	Pixelization _pixelization;
-	double _deltaLogE;
-	double _bin0lowerEdge;
+	long double _deltaLogE;
+	long double _bin0lowerEdge;
 
 	// get the bin number of the energy
-	int energy2Idx(double energy) const;
-	double idx2Energy(int idx) const;
+	int energy2Idx(long double energy) const;
+	long double idx2Energy(int idx) const;
 
 	// weights of the particles
-	double _sumOfWeights;
-	std::map<int, double > _weightsPID;
-	std::map<int, map<int, double> > _weights_pidEnergy;
+	long double _sumOfWeights;
+	std::map<int, long double > _weightsPID;
+	std::map<int, map<int, long double> > _weights_pidEnergy;
 
 	// lazy update of weights
 	bool _weightsUpToDate;
@@ -46,7 +46,7 @@ public:
 	 @param deltaLogE		width of logarithmic energy bin [in eV]
 	 @param bin0lowerEdge	logarithm of energy of the lower edge of first bin [in log(eV)]
 	 */
-	ParticleMapsContainer(double deltaLogE = 0.02, double bin0lowerEdge = 17.99) : _deltaLogE(deltaLogE), _bin0lowerEdge(bin0lowerEdge), _pixelization(6), _weightsUpToDate(false), _sumOfWeights(0) {
+	ParticleMapsContainer(long double deltaLogE = 0.02, long double bin0lowerEdge = 17.99) : _deltaLogE(deltaLogE), _bin0lowerEdge(bin0lowerEdge), _pixelization(6), _weightsUpToDate(false), _sumOfWeights(0) {
 	}
 	/** Destructor.
 	 */
@@ -61,7 +61,7 @@ public:
 	 @param energy			the energy of the particle [in Joules]
 	 @returns The map for a given particleId with a given energy
 	 */
-	double *getMap(const int particleId, double energy);
+	long double *getMap(const int particleId, long double energy);
 
 	/** Adds a particle to the map container.
 	 @param particleId			id of the particle following the PDG numbering scheme
@@ -70,14 +70,14 @@ public:
 	 @param galacticLatitude	galactic latitude [radians]
 	 @param weight				relative weight for the specific particle
 	*/
-	void addParticle(const int particleId, double energy, double galacticLongitude, double galacticLatitude, double weight = 1);
+	void addParticle(const int particleId, long double energy, long double galacticLongitude, long double galacticLatitude, long double weight = 1);
 	/** Adds a particle to the map container.
 	 @param particleId			id of the particle following the PDG numbering scheme
 	 @param energy				the energy of the particle [in Joules]
 	 @param v					vector containing the arrival directions of a particle
 	 @param weight				relative weight for the specific particle
 	*/
-	void addParticle(const int particleId, double energy, const Vector3d &v, double weight = 1);
+	void addParticle(const int particleId, long double energy, const Vector3d &v, long double weight = 1);
 
 	/** Get all particle ids in the map.
 	 @returns Vector of all ids.
@@ -88,7 +88,7 @@ public:
 	 @param pid	id of the particle following the PDG numbering scheme
 	 @returns Energies are returned in units of eV (unlike in other CRPropa modules) for performance reasons
 	 */
-	std::vector<double> getEnergies(int pid);
+	std::vector<long double> getEnergies(int pid);
 
 	void applyLens(MagneticLens &lens);;
 
@@ -101,8 +101,8 @@ public:
 	 @param galacticLatitudes	latitude in the interval [-pi/2, pi/2] [in radians]
 	 */
 	void getRandomParticles(size_t N, vector<int> &particleId,
-		vector<double> &energy, vector<double> &galacticLongitudes,
-		vector<double> &galacticLatitudes);
+		vector<long double> &energy, vector<long double> &galacticLongitudes,
+		vector<long double> &galacticLatitudes);
 
 	/** Places a particle with given id and energy according to the  probability maps. 
 	 @param pid					id of the particle following the PDG numbering scheme
@@ -111,7 +111,7 @@ public:
 	 @param galacticLatitude	latitude in the interval [-pi/2, pi/2] [in radians]
 	 @returns Returns false if operation not possible; true otherwise.
 	 */
-	bool placeOnMap(int pid, double energy, double &galacticLongitude, double &galacticLatitude);
+	bool placeOnMap(int pid, long double energy, long double &galacticLongitude, long double &galacticLatitude);
 
 	/** Force weight update prior to getting random particles. 
 	 Only necessary when reusing pointer to maps after calculating weights.
@@ -121,7 +121,7 @@ public:
 	/** Get sum of weights of the maps.
 	 @returns Sum of all weights.
 	 */
-	double getSumOfWeights() {
+	long double getSumOfWeights() {
 		if (!_weightsUpToDate)
 			_updateWeights();
 		return _sumOfWeights;
@@ -132,7 +132,7 @@ public:
 	 @param energy				energy of interest [in eV]
 	 @returns Weight for the chosen particle and energy.
 	 */
-	double getWeight(int pid, double energy) {
+	long double getWeight(int pid, long double energy) {
 		if (!_weightsUpToDate)
 			_updateWeights();
 		return _weights_pidEnergy[pid][energy2Idx(energy)];

@@ -5,7 +5,7 @@
 
 namespace crpropa {
 
-AbstractAccelerationModule::AbstractAccelerationModule(double _stepLength)
+AbstractAccelerationModule::AbstractAccelerationModule(long double _stepLength)
 	: crpropa::Module(), stepLength(_stepLength) {}
 
 
@@ -18,13 +18,13 @@ void AbstractAccelerationModule::scatter(
 	crpropa::Candidate *candidate,
 	const crpropa::Vector3d &scatter_center_velocity) const {
 	// particle momentum in lab frame
-	const double E = candidate->current.getEnergy();
+	const long double E = candidate->current.getEnergy();
 	const crpropa::Vector3d p = candidate->current.getMomentum();
 
 	// transform to rest frame of scatter center (p: prime)
-	const double beta = scatter_center_velocity.getR() / crpropa::c_light;
-	const double gamma = 1. / sqrt(1 - beta * beta);
-	const double Ep = gamma * (E - scatter_center_velocity.dot(p));
+	const long double beta = scatter_center_velocity.getR() / crpropa::c_light;
+	const long double gamma = 1. / sqrt(1 - beta * beta);
+	const long double Ep = gamma * (E - scatter_center_velocity.dot(p));
 	const crpropa::Vector3d pp = (p - scatter_center_velocity* E /
 		(crpropa::c_light * crpropa::c_light)) * gamma;
 
@@ -32,7 +32,7 @@ void AbstractAccelerationModule::scatter(
 	const crpropa::Vector3d pp_new = crpropa::Random::instance().randVector() * pp.getR();
 
 	// transform back
-	const double E_new = gamma * (Ep + scatter_center_velocity.dot(pp_new));
+	const long double E_new = gamma * (Ep + scatter_center_velocity.dot(pp_new));
 	const crpropa::Vector3d p_new = (pp_new + scatter_center_velocity * Ep /
 		(crpropa::c_light * crpropa::c_light)) * gamma;
 
@@ -43,14 +43,14 @@ void AbstractAccelerationModule::scatter(
 
 
 void AbstractAccelerationModule::process(crpropa::Candidate *candidate) const {
-	double currentStepLength = stepLength;
+	long double currentStepLength = stepLength;
 	for (auto m : modifiers) {
 		currentStepLength = m->modify(currentStepLength, candidate);
 	}
 
-	double step = candidate->getCurrentStep();
+	long double step = candidate->getCurrentStep();
 	while (step > 0) {
-		double randDistance = -1. * log(crpropa::Random::instance().rand()) * currentStepLength;
+		long double randDistance = -1. * log(crpropa::Random::instance().rand()) * currentStepLength;
 
 		if (step < randDistance) {
 			candidate->limitNextStep(0.1 * currentStepLength);
@@ -62,7 +62,7 @@ void AbstractAccelerationModule::process(crpropa::Candidate *candidate) const {
 }
 
 
-SecondOrderFermi::SecondOrderFermi(double scatterVelocity, double stepLength,
+SecondOrderFermi::SecondOrderFermi(long double scatterVelocity, long double stepLength,
 								   unsigned int sizeOfPitchangleTable)
 	: AbstractAccelerationModule(stepLength),
 	  scatterVelocity(scatterVelocity) {
@@ -94,15 +94,15 @@ DirectedFlowOfScatterCenters::DirectedFlowOfScatterCenters(
 	: __scatterVelocity(scatterCenterVelocity) {}
 
 
-double DirectedFlowOfScatterCenters::modify(double steplength, Candidate* candidate)
+long double DirectedFlowOfScatterCenters::modify(long double steplength, Candidate* candidate)
 {
-	double directionModifier = (-1. * __scatterVelocity.dot(candidate->current.getDirection()) + c_light) / c_light;
+	long double directionModifier = (-1. * __scatterVelocity.dot(candidate->current.getDirection()) + c_light) / c_light;
 	return steplength / directionModifier;
 }
 
 
 DirectedFlowScattering::DirectedFlowScattering(
-	crpropa::Vector3d scatterCenterVelocity, double stepLength)
+	crpropa::Vector3d scatterCenterVelocity, long double stepLength)
 	: __scatterVelocity(scatterCenterVelocity),
 	  AbstractAccelerationModule(stepLength) {
 
@@ -119,14 +119,14 @@ crpropa::Vector3d DirectedFlowScattering::scatterCenterVelocity(
 }
 
 
-QuasiLinearTheory::QuasiLinearTheory(double referenecEnergy,
-									 double turbulenceIndex,
-									 double minimumRigidity)
+QuasiLinearTheory::QuasiLinearTheory(long double referenecEnergy,
+									 long double turbulenceIndex,
+									 long double minimumRigidity)
 	: __referenceEnergy(referenecEnergy), __turbulenceIndex(turbulenceIndex),
 	  __minimumRigidity(minimumRigidity) {}
 
 
-double QuasiLinearTheory::modify(double steplength, Candidate* candidate)
+long double QuasiLinearTheory::modify(long double steplength, Candidate* candidate)
 {
 	if (candidate->current.getRigidity() < __minimumRigidity)
 	{
@@ -142,14 +142,14 @@ double QuasiLinearTheory::modify(double steplength, Candidate* candidate)
 
 
 ParticleSplitting::ParticleSplitting(Surface *surface, int	crossingThreshold, 
-	int numberSplits, double minWeight, std::string counterid)
+	int numberSplits, long double minWeight, std::string counterid)
 	: surface(surface), crossingThreshold(crossingThreshold),
 	  numberSplits(numberSplits), minWeight(minWeight), counterid(counterid){};
 
 void ParticleSplitting::process(Candidate *candidate) const {
-	const double currentDistance =
+	const long double currentDistance =
 		surface->distance(candidate->current.getPosition());
-	const double previousDistance =
+	const long double previousDistance =
 		surface->distance(candidate->previous.getPosition());
 
 	if (currentDistance * previousDistance > 0)

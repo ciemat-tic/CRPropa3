@@ -28,15 +28,15 @@ class SimpleTurbulenceSpectrum : public TurbulenceSpectrum {
 	 @param lMax	 	Maximum physical scale of the turbulence
 	 @param sIndex	 	Spectral index of the energy spectrum in the inertial range
 	*/
-	SimpleTurbulenceSpectrum(double Brms, double lMin, double lMax,
-	                         double sIndex = 5. / 3)
+	SimpleTurbulenceSpectrum(long double Brms, long double lMin, long double lMax,
+	                         long double sIndex = 5. / 3)
 	    : TurbulenceSpectrum(Brms, lMin, lMax, 1000 * lMax, sIndex, 0) {}
 	~SimpleTurbulenceSpectrum() {}
 
 	/**
 	General energy spectrum for synthetic turbulence models
 	*/
-	double energySpectrum(double k) const {
+	long double energySpectrum(long double k) const {
 		return std::pow(k, -getSindex() - 2);
 	}
 
@@ -45,13 +45,13 @@ class SimpleTurbulenceSpectrum : public TurbulenceSpectrum {
 	   the formula in  Harari et al. JHEP03(2002)045
 	    @return Lc   coherence length of the magnetic field
 	*/
-	double getCorrelationLength() const {
+	long double getCorrelationLength() const {
 		return turbulentCorrelationLength(getLmin(), getLmax(),
 		                                  getSindex());
 	}
-	static double turbulentCorrelationLength(double lMin, double lMax,
-	                                         double s) {
-		double r = lMin / lMax;
+	static long double turbulentCorrelationLength(long double lMin, long double lMax,
+	                                         long double s) {
+		long double r = lMin / lMax;
 		return lMax / 2 * (s - 1) / s * (1 - pow(r, s)) / (1 - pow(r, s - 1));
 	}
 };
@@ -72,16 +72,16 @@ class SimpleGridTurbulence : public GridTurbulence {
 	SimpleGridTurbulence(const SimpleTurbulenceSpectrum &spectrum,
 	                     const GridProperties &gridProp, unsigned int seed = 0);
 
-	static void initTurbulence(ref_ptr<Grid3f> grid, double Brms, double lMin,
-	                           double lMax, double alpha, int seed);
+	static void initTurbulence(ref_ptr<Grid3f> grid, long double Brms, long double lMin,
+	                           long double lMax, long double alpha, int seed);
 };
 
 // Compatibility with old functions from GridTurbulence:
 
 /** Analytically calculate the correlation length of the simple model turbulent
  * field */
-inline double turbulentCorrelationLength(double lMin, double lMax,
-                                         double alpha = -11 / 3.) {
+inline long double turbulentCorrelationLength(long double lMin, long double lMax,
+                                         long double alpha = -11 / 3.) {
 	KISS_LOG_WARNING
 	    << "turbulentCorrelationLength is deprecated and will be "
 	       "removed in the future. Replace it with a more appropriate "
@@ -100,8 +100,8 @@ inline double turbulentCorrelationLength(double lMin, double lMax,
  @param Brms	RMS field strength
  @param seed	Random seed
  */
-inline void initTurbulence(ref_ptr<Grid3f> grid, double Brms, double lMin,
-                           double lMax, double alpha = -11 / 3., int seed = 0) {
+inline void initTurbulence(ref_ptr<Grid3f> grid, long double Brms, long double lMin,
+                           long double lMax, long double alpha = -11 / 3., int seed = 0) {
 	KISS_LOG_WARNING
 	    << "initTurbulence is deprecated and will be removed in the future. "
 	       "Replace it with a more appropriate turbulent field model instance.";

@@ -42,40 +42,40 @@ protected:
 	bool useXField;
 
 	// disk spiral arms
-	double rArms[8];       // radii where each arm crosses the negative x-axis
-	double pitch;          // pitch angle
-	double sinPitch, cosPitch, tanPitch, cotPitch, tan90MinusPitch;
+	long double rArms[8];       // radii where each arm crosses the negative x-axis
+	long double pitch;          // pitch angle
+	long double sinPitch, cosPitch, tanPitch, cotPitch, tan90MinusPitch;
 
 	// Regular field ----------------------------------------------------------
 	// disk
-	double bDisk[11];      // field strengths of the 8 arms at r=5 kpc; additional entries added for periodic closure in JF12FieldSolenoidal
-	double bRing;          // ring field strength 3<r<5 kpc
-	double hDisk, wDisk;   // disk/halo transistion and width
+	long double bDisk[11];      // field strengths of the 8 arms at r=5 kpc; additional entries added for periodic closure in JF12FieldSolenoidal
+	long double bRing;          // ring field strength 3<r<5 kpc
+	long double hDisk, wDisk;   // disk/halo transistion and width
 	// toroidal halo
-	double bNorth, bSouth; // northern, southern halo field strength
-	double rNorth, rSouth; // northern, southern transistion radius
-	double wHalo, z0;      // transistion width and vertical scale height
+	long double bNorth, bSouth; // northern, southern halo field strength
+	long double rNorth, rSouth; // northern, southern transistion radius
+	long double wHalo, z0;      // transistion width and vertical scale height
 	// poloidal halo
-	double bX;             // field strength at origin
-	double thetaX0;        // constant elevation angle at r > rXc, z = 0
-	double sinThetaX0, cosThetaX0, tanThetaX0, cotThetaX0;
-	double rXc;            // radius of varying elevation angle region
-	double rX;             // exponential scale height
+	long double bX;             // field strength at origin
+	long double thetaX0;        // constant elevation angle at r > rXc, z = 0
+	long double sinThetaX0, cosThetaX0, tanThetaX0, cotThetaX0;
+	long double rXc;            // radius of varying elevation angle region
+	long double rX;             // exponential scale height
 
 	// Striated field ---------------------------------------------------------
-	double sqrtbeta;       // relative strength of striated field
+	long double sqrtbeta;       // relative strength of striated field
 	ref_ptr<Grid1f> striatedGrid;
 
 	// Turbulent field --------------------------------------------------------
 	ref_ptr<Grid3f> turbulentGrid;
 	// disk
-	double bDiskTurb[8]; // field strengths in arms at r=5 kpc
-	double bDiskTurb5;   // field strength at r<5kpc
-	double zDiskTurb;	 // Gaussian scale height of disk
+	long double bDiskTurb[8]; // field strengths in arms at r=5 kpc
+	long double bDiskTurb5;   // field strength at r<5kpc
+	long double zDiskTurb;	 // Gaussian scale height of disk
 	// halo
-	double bHaloTurb; // halo field strength
-	double rHaloTurb; // exponential scale length
-	double zHaloTurb; // Gaussian scale height
+	long double bHaloTurb; // halo field strength
+	long double rHaloTurb; // exponential scale length
+	long double zHaloTurb; // Gaussian scale height
 
 public:
 	JF12Field();
@@ -117,19 +117,19 @@ public:
 	bool isUsingToroidalHaloField();
 	bool isUsingXField();
 
-	double logisticFunction(const double& x, const double& x0, const double& w) const;
+	long double logisticFunction(const long double& x, const long double& x0, const long double& w) const;
 
 	// Regular field components
 	Vector3d getRegularField(const Vector3d& pos) const;
-	virtual Vector3d getDiskField(const double& r, const double& z, const double& phi, const double& sinPhi, const double& cosPhi) const;
-	Vector3d getToroidalHaloField(const double& r, const double& z, const double& sinPhi, const double& cosPhi) const;
-	virtual Vector3d getXField(const double& r, const double& z, const double& sinPhi, const double& cosPhi) const;
+	virtual Vector3d getDiskField(const long double& r, const long double& z, const long double& phi, const long double& sinPhi, const long double& cosPhi) const;
+	Vector3d getToroidalHaloField(const long double& r, const long double& z, const long double& sinPhi, const long double& cosPhi) const;
+	virtual Vector3d getXField(const long double& r, const long double& z, const long double& sinPhi, const long double& cosPhi) const;
 
 	// Regular and striated field component
 	Vector3d getStriatedField(const Vector3d& pos) const;
 
 	// Brms of the turbulent field
-	double getTurbulentStrength(const Vector3d& pos) const;
+	long double getTurbulentStrength(const Vector3d& pos) const;
 
 	// Turbulent field component
 	Vector3d getTurbulentField(const Vector3d& pos) const;

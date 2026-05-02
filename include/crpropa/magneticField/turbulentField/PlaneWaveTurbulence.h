@@ -52,7 +52,7 @@ manually, or have the compiler figure it out for you.
 the exact same results. In fact, since the effective wave numbers used
 by the optimized implementation are very slightly different from those
 used by the non-optimized version (a difference smaller than the precision
-of a double, but nevertheless relevant at some point), the wavemodes go
+of a long double, but nevertheless relevant at some point), the wavemodes go
 out of phase for large distances from the origin, and the fields are no longer
 comparable at all.
 
@@ -94,16 +94,16 @@ class PlaneWaveTurbulence : public TurbulentField {
 
 	std::vector<Vector3d> xi;
 	std::vector<Vector3d> kappa;
-	std::vector<double> phi;
-	std::vector<double> costheta;
-	std::vector<double> beta;
-	std::vector<double> Ak;
-	std::vector<double> k;
+	std::vector<long double> phi;
+	std::vector<long double> costheta;
+	std::vector<long double> beta;
+	std::vector<long double> Ak;
+	std::vector<long double> k;
 
 	// data for FAST_WAVES
 	int avx_Nm;
 	int align_offset;
-	std::vector<double> avx_data;
+	std::vector<long double> avx_data;
 	// the following are index bases into the avx_data array.
 	// since each subarray has avx_Nm elements, the start offset
 	// of each subarray can be computed by multiplying the two,

@@ -4,22 +4,22 @@
 using namespace crpropa;
 
 // Defining Cash-Karp coefficients
-const double a[] = { 0., 0., 0., 0., 0., 0., 1. / 5., 0., 0., 0., 0.,
+const long double a[] = { 0., 0., 0., 0., 0., 0., 1. / 5., 0., 0., 0., 0.,
 		0., 3. / 40., 9. / 40., 0., 0., 0., 0., 3. / 10., -9. / 10., 6. / 5.,
 		0., 0., 0., -11. / 54., 5. / 2., -70. / 27., 35. / 27., 0., 0., 1631.
 				/ 55296., 175. / 512., 575. / 13824., 44275. / 110592., 253.
 				/ 4096., 0. };
 
-const double b[] = { 37. / 378., 0, 250. / 621., 125. / 594., 0., 512.
+const long double b[] = { 37. / 378., 0, 250. / 621., 125. / 594., 0., 512.
 		/ 1771. };
 
-const double bs[] = { 2825. / 27648., 0., 18575. / 48384., 13525.
+const long double bs[] = { 2825. / 27648., 0., 18575. / 48384., 13525.
 		/ 55296., 277. / 14336., 1. / 4. };
 
 
 
-DiffusionSDE::DiffusionSDE(ref_ptr<MagneticField> magneticField, double tolerance,
-				 double minStep, double maxStep, double epsilon) :
+DiffusionSDE::DiffusionSDE(ref_ptr<MagneticField> magneticField, long double tolerance,
+				 long double minStep, long double maxStep, long double epsilon) :
 	minStep(0)
 {
   	setMagneticField(magneticField);
@@ -31,7 +31,7 @@ DiffusionSDE::DiffusionSDE(ref_ptr<MagneticField> magneticField, double toleranc
   	setAlpha(1./3.);
 	}
 
-DiffusionSDE::DiffusionSDE(ref_ptr<MagneticField> magneticField, ref_ptr<AdvectionField> advectionField, double tolerance, double minStep, double maxStep, double epsilon) :
+DiffusionSDE::DiffusionSDE(ref_ptr<MagneticField> magneticField, ref_ptr<AdvectionField> advectionField, long double tolerance, long double minStep, long double maxStep, long double epsilon) :
   	minStep(0)
 {
 	setMagneticField(magneticField);
@@ -51,11 +51,11 @@ void DiffusionSDE::process(Candidate *candidate) const {
 	ParticleState &current = candidate->current;
 	candidate->previous = current;
 
-	double h = clip(candidate->getNextStep(), minStep, maxStep) / c_light;
+	long double h = clip(candidate->getNextStep(), minStep, maxStep) / c_light;
 	Vector3d PosIn = current.getPosition();
 	Vector3d DirIn = current.getDirection();
 
-    double time = candidate->getTime();
+    long double time = candidate->getTime();
 
     // rectilinear propagation for neutral particles
     // If an advection field is provided the drift is also included
@@ -74,23 +74,23 @@ void DiffusionSDE::process(Candidate *candidate) const {
 		return;
 	}
 
-	double z = candidate->getRedshift();
-	double rig = current.getEnergy() / current.getCharge();
+	long double z = candidate->getRedshift();
+	long double rig = current.getEnergy() / current.getCharge();
 
     // Calculate the Diffusion tensor
-	double BTensor[] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
+	long double BTensor[] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
 	calculateBTensor(rig, BTensor, PosIn, DirIn, z);
 
 
     // Generate random numbers
-	double eta[] = {0., 0., 0.};
+	long double eta[] = {0., 0., 0.};
 	for(size_t i=0; i < 3; i++) {
 	  	eta[i] =  Random::instance().randNorm();
 	}
 
-	double TStep = BTensor[0] * eta[0];
-	double NStep = BTensor[4] * eta[1];
-	double BStep = BTensor[8] * eta[2];
+	long double TStep = BTensor[0] * eta[0];
+	long double NStep = BTensor[4] * eta[1];
+	long double BStep = BTensor[8] * eta[2];
 
 	Vector3d TVec(0.);
 	Vector3d NVec(0.);
@@ -99,9 +99,9 @@ void DiffusionSDE::process(Candidate *candidate) const {
 	Vector3d DirOut = Vector3d(0.);
 
 
-	double propTime = TStep * sqrt(h) / c_light;
+	long double propTime = TStep * sqrt(h) / c_light;
 	size_t counter = 0;
-	double r=42.; //arbitrary number larger than one
+	long double r=42.; //arbitrary number larger than one
 
 	do {
 		Vector3d PosOut = Vector3d(0.);
@@ -117,7 +117,7 @@ void DiffusionSDE::process(Candidate *candidate) const {
 
 
 	size_t stepNumber = pow(2, counter-1);
-	double allowedTime = TStep * sqrt(h) / c_light / stepNumber;
+	long double allowedTime = TStep * sqrt(h) / c_light / stepNumber;
 	Vector3d Start = PosIn;
 	Vector3d PosOut = Vector3d(0.);
 	Vector3d PosErr = Vector3d(0.);
@@ -130,7 +130,7 @@ void DiffusionSDE::process(Candidate *candidate) const {
 	TVec = (PosOut-PosIn).getUnitVector();
     // Exception: If the magnetic field vanishes: Use only advection.
     // If an advection field is not provided --> rectilinear propagation.
-	double tTest = TVec.getR();
+	long double tTest = TVec.getR();
 	if (tTest != tTest) {
 	  	Vector3d dir = current.getDirection();
 		Vector3d Pos = current.getPosition();
@@ -139,14 +139,14 @@ void DiffusionSDE::process(Candidate *candidate) const {
 			driftStep(Pos, LinProp, h, time);
 			current.setPosition(Pos + LinProp);
 	 		candidate->setCurrentStep(h*c_light);
-	  		double newStep = 5*h*c_light;
+			long double newStep = 5*h*c_light;
 			newStep = clip(newStep, minStep, maxStep);
 	  		candidate->setNextStep(newStep);
 	  		return;
 		}
 		current.setPosition(Pos + dir*h*c_light);
 	 	candidate->setCurrentStep(h*c_light);
-		double newStep = 5*h*c_light;
+		long double newStep = 5*h*c_light;
 		newStep = clip(newStep, minStep, maxStep);
 	  	candidate->setNextStep(newStep);
 	  	return;
@@ -198,7 +198,7 @@ void DiffusionSDE::process(Candidate *candidate) const {
 	current.setDirection(DirOut);
 	candidate->setCurrentStep(h * c_light);
 
-	double nextStep;
+	long double nextStep;
 	if (stepNumber>1){
 		nextStep = h*pow(stepNumber, -2.)*c_light;
 	}
@@ -216,12 +216,12 @@ void DiffusionSDE::process(Candidate *candidate) const {
 /*
 	const std::string AL = "arcLength";
 	if (candidate->hasProperty(AL) == false){
-	  double arcLen = (TStep + NStep + BStep) * sqrt(h);
+	  long double arcLen = (TStep + NStep + BStep) * sqrt(h);
 	  candidate->setProperty(AL, arcLen);
 	  return;
 	}
 	else {
-	  double arcLen = candidate->getProperty(AL);
+	  long double arcLen = candidate->getProperty(AL);
 	  arcLen += (TStep + NStep + BStep) * sqrt(h);
 	  candidate->setProperty(AL, arcLen);
 	}
@@ -230,7 +230,7 @@ void DiffusionSDE::process(Candidate *candidate) const {
 }
 
 
-void DiffusionSDE::tryStep(const Vector3d &PosIn, Vector3d &POut, Vector3d &PosErr,double z, double propStep) const {
+void DiffusionSDE::tryStep(const Vector3d &PosIn, Vector3d &POut, Vector3d &PosErr,long double z, long double propStep) const {
 
 	Vector3d k[] = {Vector3d(0.),Vector3d(0.),Vector3d(0.),Vector3d(0.),Vector3d(0.),Vector3d(0.)};
 	POut = PosIn;
@@ -252,15 +252,15 @@ void DiffusionSDE::tryStep(const Vector3d &PosIn, Vector3d &POut, Vector3d &PosE
 	}
 }
 
-void DiffusionSDE::driftStep(const Vector3d &pos, Vector3d &linProp, double h, double t) const {
+void DiffusionSDE::driftStep(const Vector3d &pos, Vector3d &linProp, long double h, long double t) const {
 	Vector3d advField = getAdvectionFieldAtPosition(pos, t);
 	linProp += advField * h;
 	return;
 }
 
-void DiffusionSDE::calculateBTensor(double r, double BTen[], Vector3d pos, Vector3d dir, double z) const {
+void DiffusionSDE::calculateBTensor(long double r, long double BTen[], Vector3d pos, Vector3d dir, long double z) const {
 
-    double DifCoeff = scale * 6.1e24 * pow((std::abs(r) / 4.0e9), alpha);
+    long double DifCoeff = scale * 6.1e24 * pow((std::abs(r) / 4.0e9), alpha);
     BTen[0] = pow( 2  * DifCoeff, 0.5);
     BTen[4] = pow(2 * epsilon * DifCoeff, 0.5);
     BTen[8] = pow(2 * epsilon * DifCoeff, 0.5);
@@ -269,7 +269,7 @@ void DiffusionSDE::calculateBTensor(double r, double BTen[], Vector3d pos, Vecto
 }
 
 
-void DiffusionSDE::setMinimumStep(double min) {
+void DiffusionSDE::setMinimumStep(long double min) {
 	if (min < 0)
 		throw std::runtime_error("DiffusionSDE: minStep < 0 ");
 	if (min > maxStep)
@@ -277,21 +277,21 @@ void DiffusionSDE::setMinimumStep(double min) {
 	minStep = min;
 }
 
-void DiffusionSDE::setMaximumStep(double max) {
+void DiffusionSDE::setMaximumStep(long double max) {
 	if (max < minStep)
 		throw std::runtime_error("DiffusionSDE: maxStep < minStep");
 	maxStep = max;
 }
 
 
-void DiffusionSDE::setTolerance(double tol) {
+void DiffusionSDE::setTolerance(long double tol) {
 	if ((tol > 1) or (tol < 0))
 		throw std::runtime_error(
 				"DiffusionSDE: tolerance error not in range 0-1");
 	tolerance = tol;
 }
 
-void DiffusionSDE::setEpsilon(double e) {
+void DiffusionSDE::setEpsilon(long double e) {
 	if ((e > 1) or (e < 0))
 		throw std::runtime_error(
 				"DiffusionSDE: epsilon not in range 0-1");
@@ -299,14 +299,14 @@ void DiffusionSDE::setEpsilon(double e) {
 }
 
 
-void DiffusionSDE::setAlpha(double a) {
+void DiffusionSDE::setAlpha(long double a) {
 	if ((a > 2.) or (a < 0))
 		throw std::runtime_error(
 				"DiffusionSDE: alpha not in range 0-2");
 	alpha = a;
 }
 
-void DiffusionSDE::setScale(double s) {
+void DiffusionSDE::setScale(long double s) {
 	if (s < 0)
 		throw std::runtime_error(
 				"DiffusionSDE: Scale error: Scale < 0");
@@ -321,27 +321,27 @@ void DiffusionSDE::setAdvectionField(ref_ptr<AdvectionField> f) {
 	advectionField = f;
 }
 
-double DiffusionSDE::getMinimumStep() const {
+long double DiffusionSDE::getMinimumStep() const {
 	return minStep;
 }
 
-double DiffusionSDE::getMaximumStep() const {
+long double DiffusionSDE::getMaximumStep() const {
 	return maxStep;
 }
 
-double DiffusionSDE::getTolerance() const {
+long double DiffusionSDE::getTolerance() const {
 	return tolerance;
 }
 
-double DiffusionSDE::getEpsilon() const {
+long double DiffusionSDE::getEpsilon() const {
 	return epsilon;
 }
 
-double DiffusionSDE::getAlpha() const {
+long double DiffusionSDE::getAlpha() const {
 	return alpha;
 }
 
-double DiffusionSDE::getScale() const {
+long double DiffusionSDE::getScale() const {
 	return scale;
 }
 
@@ -349,7 +349,7 @@ ref_ptr<MagneticField> DiffusionSDE::getMagneticField() const {
 	return magneticField;
 }
 
-Vector3d DiffusionSDE::getMagneticFieldAtPosition(Vector3d pos, double z) const {
+Vector3d DiffusionSDE::getMagneticFieldAtPosition(Vector3d pos, long double z) const {
 	Vector3d B(0, 0, 0);
 	try {
 		// check if field is valid and use the field vector at the
@@ -368,7 +368,7 @@ ref_ptr<AdvectionField> DiffusionSDE::getAdvectionField() const {
 	return advectionField;
 }
 
-Vector3d DiffusionSDE::getAdvectionFieldAtPosition(Vector3d pos, double t) const {
+Vector3d DiffusionSDE::getAdvectionFieldAtPosition(Vector3d pos, long double t) const {
 	Vector3d AdvField(0.);
 	try {
 		// check if field is valid and use the field vector at the

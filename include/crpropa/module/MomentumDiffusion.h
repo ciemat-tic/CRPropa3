@@ -29,30 +29,30 @@ namespace crpropa {
 class ConstantMomentumDiffusion: public Module {
 
 private:
-	double Dpp; // Diffusion coefficient
-	double limit; // maximal fractional energy loss
+	long double Dpp; // Diffusion coefficient
+	long double limit; // maximal fractional energy loss
 
 public:
 	/** Constructor
 	@param Dpp 	momentum diffusion coefficient
 	*/
-	ConstantMomentumDiffusion(double Dpp);
+	ConstantMomentumDiffusion(long double Dpp);
 
 	/** Constructor
 	@param Dpp 		momentum diffusion coefficient
 	@param limit 	maximal fractional energy loss
 	*/
-	ConstantMomentumDiffusion(double Dpp, double limit);
+	ConstantMomentumDiffusion(long double Dpp, long double limit);
 
 	void process(Candidate *candidate) const;
-	double calculateAScalar(double p) const;
-	double calculateBScalar() const;
+	long double calculateAScalar(long double p) const;
+	long double calculateBScalar() const;
 
-	void setLimit(double l);
-	void setDpp(double Dpp);
+	void setLimit(long double l);
+	void setDpp(long double Dpp);
 
-	double getLimit() const;
-	double getDpp() const;
+	long double getLimit() const;
+	long double getDpp() const;
 
 	std::string getDescription() const;
 

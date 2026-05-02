@@ -132,7 +132,7 @@ namespace crpropa {
 
  Allows storage of multiple data types in one base class. Used to construct a map of `arbitrary' data types.
  Note that most default C++ types allow default conversions from `Variant` to the corresponding type.
- Types that require an explicit call via `toTargetType()` are: complex (float and double), Vector3, and vector<Variant>.
+ Types that require an explicit call via `toTargetType()` are: complex (float and long double), Vector3, and vector<Variant>.
  */
 class Variant {
 public:
@@ -180,8 +180,8 @@ public:
 	};
 
 	typedef std::complex<float> complex_f;
-	typedef std::complex<double> complex_d;
-	typedef Vector3<std::complex<double>> Vector3c;
+	typedef std::complex<long double> complex_d;
+	typedef Vector3<std::complex<long double>> Vector3c;
 	typedef std::vector<Variant> vector_t;
 
 protected:
@@ -198,7 +198,7 @@ protected:
 		int64_t _t_int64;
 		uint64_t _t_uint64;
 		float _t_float;
-		double _t_double;
+		long double _t_double;
 		long double _t_ldouble;
 		complex_f* _t_complex_f;
 		complex_d* _t_complex_d;
@@ -225,7 +225,7 @@ public:
 	static Type toType(const std::string& name);		
 	std::string toString(const std::string& delimiter = "\t") const;
 	std::complex<float> toComplexFloat() const;
-	std::complex<double> toComplexDouble() const;
+	std::complex<long double> toComplexDouble() const;
 	Vector3f toVector3f() const;
 	Vector3d toVector3d() const;
 	Vector3c toVector3c() const;
@@ -273,10 +273,10 @@ public:
 	VARIANT_ADD_TYPE_DECL_POD(Int64, TYPE_INT64, int64_t, int64)
 	VARIANT_ADD_TYPE_DECL_POD(UInt64, TYPE_UINT64, uint64_t, uint64)
 	VARIANT_ADD_TYPE_DECL_POD(Float, TYPE_FLOAT, float, float)
-	VARIANT_ADD_TYPE_DECL_POD(Double, TYPE_DOUBLE, double, double)
+	VARIANT_ADD_TYPE_DECL_POD(Double, TYPE_DOUBLE, long double, long double)
 	VARIANT_ADD_TYPE_DECL_POD(LongDouble, TYPE_LONGDOUBLE, long double, ldouble)
 	VARIANT_ADD_TYPE_DECL_PTR(ComplexFloat, TYPE_COMPLEXF, std::complex<float>, complex_f)
-	VARIANT_ADD_TYPE_DECL_PTR(ComplexDouble, TYPE_COMPLEXD, std::complex<double>, complex_d)
+	VARIANT_ADD_TYPE_DECL_PTR(ComplexDouble, TYPE_COMPLEXD, std::complex<long double>, complex_d)
 	VARIANT_ADD_TYPE_DECL_PTR(String, TYPE_STRING, std::string, string)
 	VARIANT_ADD_TYPE_DECL_PTR(Vector3f, TYPE_VECTOR3F, Vector3f, vector3f)
 	VARIANT_ADD_TYPE_DECL_PTR(Vector3d, TYPE_VECTOR3D, Vector3d, vector3d)
@@ -307,7 +307,7 @@ VARIANT_TO_DECL(UInt32, uint32_t)
 VARIANT_TO_DECL(Int64, int64_t)
 VARIANT_TO_DECL(UInt64, uint64_t)
 VARIANT_TO_DECL(Float, float)
-VARIANT_TO_DECL(Double, double)
+VARIANT_TO_DECL(Double, long double)
 VARIANT_TO_DECL(LongDouble, long double)
 VARIANT_TO_DECL(String, std::string)
 VARIANT_TO_DECL(Vector, Variant::vector_t)

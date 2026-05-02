@@ -79,7 +79,7 @@ bool PT11Field::isUsingHalo() {
 }
 
 Vector3d PT11Field::getField(const Vector3d& pos) const {
-	double r = sqrt(pos.x * pos.x + pos.y * pos.y);  // in-plane radius
+	long double r = sqrt(pos.x * pos.x + pos.y * pos.y);  // in-plane radius
 
 	Vector3d b(0.);
 
@@ -92,10 +92,10 @@ Vector3d PT11Field::getField(const Vector3d& pos) const {
 
 		// PT11 paper define Earth position at (+8.5, 0, 0) kpc; but usual convention is (-8.5, 0, 0)
 		// thus we have to rotate our position by 180 degree in azimuth
-		double theta = M_PI - pos.getPhi();  // azimuth angle theta: PT11 paper uses opposite convention for azimuth
+		long double theta = M_PI - pos.getPhi();  // azimuth angle theta: PT11 paper uses opposite convention for azimuth
 		// the following is equivalent to sin(pi - phi) and cos(pi - phi) which is computationally slower
-		double cos_theta = - pos.x / r;
-		double sin_theta = pos.y / r;
+		long double cos_theta = - pos.x / r;
+		long double sin_theta = pos.y / r;
 
 		// After some geometry calculations (on whiteboard) one finds:
 		// Bx = +cos(theta) * B_r - sin(theta) * B_{theta}
@@ -105,7 +105,7 @@ Vector3d PT11Field::getField(const Vector3d& pos) const {
 		b.y = - sin_pitch * sin_theta - cos_pitch * cos_theta;
 		b *= -1;	// flip magnetic field direction, as B_{theta} and B_{phi} refering to 180 degree rotated field
 
-		double bMag = cos(theta - cos_pitch / sin_pitch * log(r / R_sun) + PHI);
+		long double bMag = cos(theta - cos_pitch / sin_pitch * log(r / R_sun) + PHI);
 		if (useASS)
 			bMag = fabs(bMag);
 		bMag *= B0_D * R_sun / std::max(r, R_c) / cos_PHI * exp(-fabs(pos.z) / z0_D);
@@ -114,8 +114,8 @@ Vector3d PT11Field::getField(const Vector3d& pos) const {
 
 	// halo field
 	if (useHalo) {
-		double bMag = (pos.z > 0 ? B0_Hn : - B0_Hs);
-		double z1 = (fabs(pos.z) < z0_H ? z11_H : z12_H);
+		long double bMag = (pos.z > 0 ? B0_Hn : - B0_Hs);
+		long double z1 = (fabs(pos.z) < z0_H ? z11_H : z12_H);
 		bMag *= r / R0_H * exp(1 - r / R0_H) / (1 + pow((fabs(pos.z) - z0_H) / z1, 2.));
 		// equation (8) in paper: theta uses now the conventional azimuth definition in contrast to equation (3)
 		// cos(phi) = pos.x / r (phi going counter-clockwise)

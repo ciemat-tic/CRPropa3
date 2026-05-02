@@ -9,26 +9,26 @@
 namespace crpropa  {
 
 ParticleMapsContainer::~ParticleMapsContainer() {
-	for(std::map<int, std::map<int, double*> >::iterator pid_iter = _data.begin(); 
+	for(std::map<int, std::map<int, long double*> >::iterator pid_iter = _data.begin();
 			pid_iter != _data.end(); ++pid_iter) {
-		for(std::map<int, double*>::iterator energy_iter = pid_iter->second.begin();
+		for(std::map<int, long double*>::iterator energy_iter = pid_iter->second.begin();
 			energy_iter != pid_iter->second.end(); ++energy_iter) {
 			delete[] (energy_iter->second);
 		}
 	}
 }
 
-int ParticleMapsContainer::energy2Idx(double energy) const {
-	double lE = log10(energy / eV);
+int ParticleMapsContainer::energy2Idx(long double energy) const {
+	long double lE = log10(energy / eV);
 	return int((lE - _bin0lowerEdge) / _deltaLogE);
 }
 
-double ParticleMapsContainer::idx2Energy(int idx) const {
+long double ParticleMapsContainer::idx2Energy(int idx) const {
 	return pow(10, idx * _deltaLogE + _bin0lowerEdge + _deltaLogE / 2) * eV;
 }
 
 		
-double* ParticleMapsContainer::getMap(const int particleId, double energy) {
+long double* ParticleMapsContainer::getMap(const int particleId, long double energy) {
 	_weightsUpToDate = false;
 	if (_data.find(particleId) == _data.end()) {
 		std::cerr << "No map for ParticleID " << particleId << std::endl;
@@ -43,16 +43,16 @@ double* ParticleMapsContainer::getMap(const int particleId, double energy) {
 }
 			
 			
-void ParticleMapsContainer::addParticle(const int particleId, double energy, double galacticLongitude, double galacticLatitude, double weight) {
+void ParticleMapsContainer::addParticle(const int particleId, long double energy, long double galacticLongitude, long double galacticLatitude, long double weight) {
 	_weightsUpToDate = false;
 	if (_data.find(particleId) == _data.end()) {
-		map<int, double*> M;
+		map<int, long double*> M;
 		_data[particleId] = M;
 	}
 
 	int energyIdx	= energy2Idx(energy);
 	if (_data[particleId].find(energyIdx) == _data[particleId].end()) {
-		_data[particleId][energyIdx] = new double[_pixelization.getNumberOfPixels()];
+		_data[particleId][energyIdx] = new long double[_pixelization.getNumberOfPixels()];
 		std::fill(_data[particleId][energyIdx], _data[particleId][energyIdx] + _pixelization.getNumberOfPixels(), 0);
 	}
 
@@ -61,16 +61,16 @@ void ParticleMapsContainer::addParticle(const int particleId, double energy, dou
 }
 
 
-void ParticleMapsContainer::addParticle(const int particleId, double energy, const Vector3d &p, double weight) {
-	double galacticLongitude = atan2(-p.y, -p.x);
-	double galacticLatitude =	M_PI / 2 - acos(-p.z / p.getR());
+void ParticleMapsContainer::addParticle(const int particleId, long double energy, const Vector3d &p, long double weight) {
+	long double galacticLongitude = atan2(-p.y, -p.x);
+	long double galacticLatitude =	M_PI / 2 - acos(-p.z / p.getR());
 	addParticle(particleId, energy, galacticLongitude, galacticLatitude, weight);
 }
 
 
 std::vector<int> ParticleMapsContainer::getParticleIds() {
 	std::vector<int> ids;
-	for(std::map<int, std::map<int, double*> >::iterator pid_iter = _data.begin(); 
+	for(std::map<int, std::map<int, long double*> >::iterator pid_iter = _data.begin();
 			pid_iter != _data.end(); ++pid_iter) {
 		ids.push_back(pid_iter->first);
 	}
@@ -78,10 +78,10 @@ std::vector<int> ParticleMapsContainer::getParticleIds() {
 }
 
 
-std::vector<double> ParticleMapsContainer::getEnergies(int pid) {
-	std::vector<double> energies;
+std::vector<long double> ParticleMapsContainer::getEnergies(int pid) {
+	std::vector<long double> energies;
 	if (_data.find(pid) != _data.end()) {
-		for(std::map<int, double*>::iterator iter = _data[pid].begin(); 
+		for(std::map<int, long double*>::iterator iter = _data[pid].begin();
 			iter != _data[pid].end(); ++iter) {
 			energies.push_back( idx2Energy(iter->first) / eV );
 		}
@@ -94,12 +94,12 @@ void ParticleMapsContainer::applyLens(MagneticLens &lens) {
 	// if lens is normalized, this should not be necessary.
 	_weightsUpToDate = false;
 
-	for(std::map<int, std::map<int, double*> >::iterator pid_iter = _data.begin(); 
+	for(std::map<int, std::map<int, long double*> >::iterator pid_iter = _data.begin();
 			pid_iter != _data.end(); ++pid_iter) {
-		for(std::map<int, double*>::iterator energy_iter = pid_iter->second.begin();
+		for(std::map<int, long double*>::iterator energy_iter = pid_iter->second.begin();
 			energy_iter != pid_iter->second.end(); ++energy_iter) {
 			// transform only nuclei
-			double energy = idx2Energy(energy_iter->first);
+			long double energy = idx2Energy(energy_iter->first);
 			int chargeNumber = HepPID::Z(pid_iter->first);
 			if (chargeNumber != 0 && lens.rigidityCovered(energy / chargeNumber)) {
 				lens.transformModelVector(energy_iter->second, energy / chargeNumber);
@@ -117,11 +117,11 @@ void ParticleMapsContainer::_updateWeights() {
 	if (_weightsUpToDate)
 		return;
 
-	for(std::map<int, std::map<int, double*> >::iterator pid_iter = _data.begin(); 
+	for(std::map<int, std::map<int, long double*> >::iterator pid_iter = _data.begin();
 			pid_iter != _data.end(); ++pid_iter) {
 		_weightsPID[pid_iter->first] = 0;
 
-		for(std::map<int, double*>::iterator energy_iter = pid_iter->second.begin();
+		for(std::map<int, long double*>::iterator energy_iter = pid_iter->second.begin();
 			energy_iter != pid_iter->second.end(); ++energy_iter)  {
 
 			_weights_pidEnergy[pid_iter->first][energy_iter->first] = 0;
@@ -137,8 +137,8 @@ void ParticleMapsContainer::_updateWeights() {
 
 
 void ParticleMapsContainer::getRandomParticles(size_t N, vector<int> &particleId, 
-	vector<double> &energy, vector<double> &galacticLongitudes,
-	vector<double> &galacticLatitudes) {
+	vector<long double> &energy, vector<long double> &galacticLongitudes,
+	vector<long double> &galacticLatitudes) {
 	_updateWeights();
 
 	particleId.resize(N);
@@ -148,8 +148,8 @@ void ParticleMapsContainer::getRandomParticles(size_t N, vector<int> &particleId
 
 	for(size_t i=0; i< N; i++) {
 		//get particle
-		double r = Random::instance().rand() * _sumOfWeights;
-		std::map<int, double>::iterator iter = _weightsPID.begin();
+		long double r = Random::instance().rand() * _sumOfWeights;
+		std::map<int, long double>::iterator iter = _weightsPID.begin();
 		while ((r-= iter->second) > 0) {
 			++iter; 
 		}
@@ -168,7 +168,7 @@ void ParticleMapsContainer::getRandomParticles(size_t N, vector<int> &particleId
 }
 
 
-bool ParticleMapsContainer::placeOnMap(int pid, double energy, double &galacticLongitude, double &galacticLatitude) {
+bool ParticleMapsContainer::placeOnMap(int pid, long double energy, long double &galacticLongitude, long double &galacticLatitude) {
 	_updateWeights();
 
 	if (_data.find(pid) == _data.end()) {
@@ -179,7 +179,7 @@ bool ParticleMapsContainer::placeOnMap(int pid, double energy, double &galacticL
 		return false;
 	}
 
-	double r = Random::instance().rand() * _weights_pidEnergy[pid][energyIdx];
+	long double r = Random::instance().rand() * _weights_pidEnergy[pid][energyIdx];
 
 	for(size_t j = 0; j< _pixelization.getNumberOfPixels(); j++) {
 		r -= _data[pid][energyIdx][j];

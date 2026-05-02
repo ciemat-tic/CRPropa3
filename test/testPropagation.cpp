@@ -13,8 +13,8 @@
 namespace crpropa {
 
 TEST(testSimplePropagation, step) {
-	double minStep = 20;
-	double maxStep = 100;
+	long double minStep = 20;
+	long double maxStep = 100;
 	SimplePropagation propa(minStep, maxStep);
 
 	ParticleState p;
@@ -40,7 +40,7 @@ TEST(testSimplePropagation, step) {
 TEST(testPropagationCK, zeroField) {
 	PropagationCK propa(new UniformMagneticField(Vector3d(0, 0, 0)));
 
-	double minStep = 0.1 * kpc;
+	long double minStep = 0.1 * kpc;
 	propa.setMinimumStep(minStep);
 
 	ParticleState p;
@@ -85,9 +85,9 @@ TEST(testPropagationCK, constructor) {
 	// Test construction and parameters
 	ref_ptr<MagneticField> bField = new UniformMagneticField(Vector3d(0, 0, 1 * nG));
 
-	double minStep = 1.;
-	double maxStep = 100.;
-	double tolerance = 0.01;
+	long double minStep = 1.;
+	long double maxStep = 100.;
+	long double tolerance = 0.01;
 
 	PropagationCK propa(bField, tolerance, minStep, maxStep);
 
@@ -122,8 +122,8 @@ TEST(testPropagationCK, constructor) {
 TEST(testPropagationCK, reduceStep) {
 	PropagationCK propa(new UniformMagneticField(Vector3d(0, 0, 100 * nG)));
 
-	double minStep = 0.1 * kpc;
-	double maxStep = 1 * Gpc;
+	long double minStep = 0.1 * kpc;
+	long double maxStep = 1 * Gpc;
 	propa.setMinimumStep(minStep);
 	propa.setMaximumStep(maxStep);
 	// small tolerance leads to large values of r
@@ -150,8 +150,8 @@ TEST(testPropagationCK, reduceStep) {
 TEST(testPropagationCK, increaseStep) {
 	PropagationCK propa(new UniformMagneticField(Vector3d(0, 0, 1 * nG)));
 
-	double minStep = 0.001 * pc;
-	double maxStep = 3.125 * pc;
+	long double minStep = 0.001 * pc;
+	long double maxStep = 3.125 * pc;
 	propa.setMinimumStep(minStep);
 	propa.setMaximumStep(maxStep);
 	// large tolerance leads to small values of r. Consequently, the step size can be increased.
@@ -178,7 +178,7 @@ TEST(testPropagationCK, increaseStep) {
 TEST(testPropagationCK, proton) {
 	PropagationCK propa(new UniformMagneticField(Vector3d(0, 0, 1 * nG)));
 
-	double minStep = 0.1 * kpc;
+	long double minStep = 0.1 * kpc;
 	propa.setMinimumStep(minStep);
 
 	ParticleState p;
@@ -200,7 +200,7 @@ TEST(testPropagationCK, proton) {
 TEST(testPropagationCK, gyration) {
 	PropagationCK propa(new UniformMagneticField(Vector3d(0, 0, 1 * nG)));
 
-	double step = 10. * Mpc;  // gyroradius is 108.1 Mpc
+	long double step = 10. * Mpc;  // gyroradius is 108.1 Mpc
 	propa.setMaximumStep(step);
 	propa.setMinimumStep(step);
 
@@ -214,15 +214,15 @@ TEST(testPropagationCK, gyration) {
 	c.setNextStep(0);
 	propa.process(&c);
 
-	double dirX = c.current.getDirection().x;
-	double dirY = c.current.getDirection().y;
-	double dirZ = c.current.getDirection().z;
-	double posZ = c.current.getPosition().z;
+	long double dirX = c.current.getDirection().x;
+	long double dirY = c.current.getDirection().y;
+	long double dirZ = c.current.getDirection().z;
+	long double posZ = c.current.getPosition().z;
 
 	// Test if the analytical solution is achieved for the components of the momentum with the CK method as expected in
 	// the background magnetic field.
-	double precision = 1e-7;
-	double expected = 2 / 3.;
+	long double precision = 1e-7;
+	long double expected = 2 / 3.;
 	EXPECT_NEAR(expected, dirX * dirX + dirY * dirY, expected * precision);  // constant momentum in the plane perpendicular to background magnetic field field
 	expected = 1 / 3.;
 	EXPECT_NEAR(expected, dirZ * dirZ, expected * precision);  // constant momentum parallel to the background magnetic field
@@ -273,7 +273,7 @@ TEST(testPropagationCK, neutron) {
 TEST(testPropagationBP, zeroField) {
 	PropagationBP propa(new UniformMagneticField(Vector3d(0, 0, 0)), 1 * kpc);
 
-	double minStep = 0.1 * kpc;
+	long double minStep = 0.1 * kpc;
 	propa.setMinimumStep(minStep);
 	propa.setTolerance(0.42);
 
@@ -320,9 +320,9 @@ TEST(testPropagationBP, constructor) {
 	// Test construction and parameters
 	ref_ptr<MagneticField> bField = new UniformMagneticField(Vector3d(0, 0, 1 * nG));
 
-	double minStep = 1.;
-	double maxStep = 100.;
-	double tolerance = 0.01;
+	long double minStep = 1.;
+	long double maxStep = 100.;
+	long double tolerance = 0.01;
 
 	PropagationBP propa(bField, tolerance, minStep, maxStep);
 
@@ -362,8 +362,8 @@ TEST(testPropagationBP, constructor) {
 TEST(testPropagationBP, reduceStep) {
 	PropagationBP propa(new UniformMagneticField(Vector3d(0, 0, 100 * nG)), 1 * kpc);
 
-	double minStep = 0.1 * kpc;
-	double maxStep = 1 * Gpc;
+	long double minStep = 0.1 * kpc;
+	long double maxStep = 1 * Gpc;
 	propa.setMinimumStep(minStep);
 	propa.setMaximumStep(maxStep);
 	// small tolerance leads to large values of r
@@ -390,8 +390,8 @@ TEST(testPropagationBP, reduceStep) {
 TEST(testPropagationBP, increaseStep) {
 	PropagationBP propa(new UniformMagneticField(Vector3d(0, 0, 1 * nG)), 1 * kpc);
 
-	double minStep = 0.001 * pc;
-	double maxStep = 3.125 * pc;
+	long double minStep = 0.001 * pc;
+	long double maxStep = 3.125 * pc;
 	propa.setMinimumStep(minStep);
 	propa.setMaximumStep(maxStep);
 	// large tolerance leads to small values of r. Consequently, the step size can be increased.
@@ -418,7 +418,7 @@ TEST(testPropagationBP, increaseStep) {
 TEST(testPropagationBP, proton) {
 	PropagationBP propa(new UniformMagneticField(Vector3d(0, 0, 1 * nG)));
 
-	double step = 0.01 * kpc;
+	long double step = 0.01 * kpc;
 	propa.setMinimumStep(step);
 	propa.setMaximumStep(10*step);
 	propa.setTolerance(0.00001);
@@ -442,7 +442,7 @@ TEST(testPropagationBP, proton) {
 TEST(testPropagationBP, gyration) {
 	PropagationBP propa(new UniformMagneticField(Vector3d(0, 0, 1 * nG)));
 
-	double step = 10. * Mpc;  // gyroradius is 108.1 Mpc
+	long double step = 10. * Mpc;  // gyroradius is 108.1 Mpc
 	propa.setMaximumStep(step);
 	propa.setMinimumStep(step);
 
@@ -456,10 +456,10 @@ TEST(testPropagationBP, gyration) {
 	c.setNextStep(0);
 	propa.process(&c);
 
-	double dirX = c.current.getDirection().x;
-	double dirY = c.current.getDirection().y;
-	double dirZ = c.current.getDirection().z;
-	double posZ = c.current.getPosition().z;
+	long double dirX = c.current.getDirection().x;
+	long double dirY = c.current.getDirection().y;
+	long double dirZ = c.current.getDirection().z;
+	long double posZ = c.current.getPosition().z;
 
 	// Test if the analytical solution is achieved for the components of the momentum with the Boris push as expected in
 	// the background magnetic field.
@@ -487,7 +487,7 @@ TEST(testPropagationBP, gyration) {
 // Test the that the optimization for fixed step sizes works
 TEST(testPropagationBP, fixedStepOptimization) {
 	// particle 1 with fixed step sizes
-	double fixed_step = pc;
+	long double fixed_step = pc;
 	PropagationBP propa1(new PlaneWaveTurbulence(TurbulenceSpectrum(gauss, pc, 100*pc), 10, 1), fixed_step);
 	ParticleState p1;
 	p1.setId(nucleusId(1, 1));
@@ -503,7 +503,7 @@ TEST(testPropagationBP, fixedStepOptimization) {
 
 	// particle 2 with different min and max steps. The tolerance is chosen such that particle 2 will be
 	// propagated with the same step as particle 1, however not using the optimization for fixed step sizes
-	double tolerance = 1;
+	long double tolerance = 1;
 	PropagationBP propa2(new PlaneWaveTurbulence(TurbulenceSpectrum(gauss, pc, 100*pc), 10, 1), tolerance, fixed_step, 1.1*fixed_step);
 	ParticleState p2;
 	p2.setId(nucleusId(1, 1));

@@ -30,20 +30,20 @@ private:
 	bool useHalo; // switch for halo field
 
 	// disk parameters
-	double pitch, cos_pitch, sin_pitch, PHI, cos_PHI;  // pitch angle parameters
-	double d;     // distance to first field reversal
-	double R_sun; // distance between sun and galactic center
-	double R_c;   // radius of central region
-	double z0_D;    // vertical thickness in the galactic disk
-	double B0_D;    // magnetic field scale
+	long double pitch, cos_pitch, sin_pitch, PHI, cos_PHI;  // pitch angle parameters
+	long double d;     // distance to first field reversal
+	long double R_sun; // distance between sun and galactic center
+	long double R_c;   // radius of central region
+	long double z0_D;    // vertical thickness in the galactic disk
+	long double B0_D;    // magnetic field scale
 
 	// halo parameters
-	double z0_H;  // halo vertical position
-	double R0_H;  // halo radial position
-	double B0_Hn; // halo magnetic field scale (north)
-	double B0_Hs; // halo magnetic field scale (south)
-	double z11_H; // halo vertical thickness towards disc
-	double z12_H; // halo vertical thickness off the disk
+	long double z0_H;  // halo vertical position
+	long double R0_H;  // halo radial position
+	long double B0_Hn; // halo magnetic field scale (north)
+	long double B0_Hs; // halo magnetic field scale (south)
+	long double z11_H; // halo vertical thickness towards disc
+	long double z12_H; // halo vertical thickness off the disk
 
 	void SetParams();
 

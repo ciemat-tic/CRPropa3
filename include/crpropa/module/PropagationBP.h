@@ -37,11 +37,11 @@ public:
 				x(x), u(u) {
 		}
 
-		Y(double f) :
+		Y(long double f) :
 				x(Vector3d(f, f, f)), u(Vector3d(f, f, f)) {
 		}
 
-		Y operator *(double f) const {
+		Y operator *(long double f) const {
 			return Y(x * f, u * f);
 		}
 
@@ -54,16 +54,16 @@ public:
 
 private:
 	ref_ptr<MagneticField> field;
-	double tolerance; /** target relative error of the numerical integration */
-	double minStep; /** minimum step size of the propagation */
-	double maxStep; /** maximum step size of the propagation */
+	long double tolerance; /** target relative error of the numerical integration */
+	long double minStep; /** minimum step size of the propagation */
+	long double maxStep; /** maximum step size of the propagation */
 
 public:
 	/** Default constructor for the Boris push. It is constructed with a fixed step size.
 	 * @param field
 	 * @param fixedStep 
 	 */
-	PropagationBP(ref_ptr<MagneticField> field = NULL, double fixedStep = 1. * kpc);
+	PropagationBP(ref_ptr<MagneticField> field = NULL, long double fixedStep = 1. * kpc);
 
 	/** Constructor for the adaptive Boris push.
 	 * @param field
@@ -71,7 +71,7 @@ public:
 	 * @param minStep	   minStep/c_light is the minimum integration time step
 	 * @param maxStep	   maxStep/c_light is the maximum integration time step. 
 	 */
-    PropagationBP(ref_ptr<MagneticField> field, double tolerance, double minStep, double maxStep);
+    PropagationBP(ref_ptr<MagneticField> field, long double tolerance, long double minStep, long double maxStep);
 
 	/** Propagates the particle. Is called once per iteration.
 	 * @param candidate	 The Candidate is a passive object, that holds the information about the state of the cosmic ray and the simulation itself. */
@@ -86,7 +86,7 @@ public:
 	 * @param m		current mass of the candidate
 	 * @return	  return the new calculated position and direction of the candidate 
 	 */
-	Y dY(Vector3d  pos, Vector3d  dir, double step, double z, double q, double m) const;
+	Y dY(Vector3d  pos, Vector3d  dir, long double step, long double z, long double q, long double m) const;
 
 	/** comparison of the position after one step with the position after two steps with step/2.
 	 * @param x1	position after one step of size step
@@ -94,14 +94,14 @@ public:
 	 * @param step	current step size
 	 * @return	  measurement of the error of the step 
 	 */
-	double errorEstimation(const Vector3d x1, const Vector3d x2, double step) const;
+	long double errorEstimation(const Vector3d x1, const Vector3d x2, long double step) const;
 
 	/** Get magnetic field vector at current candidate position
 	 * @param pos   current position of the candidate
 	 * @param z	 current redshift is needed to calculate the magnetic field
 	 * @return	  magnetic field vector at the position pos 
 	 */
-	Vector3d getFieldAtPosition(Vector3d pos, double z) const;
+	Vector3d getFieldAtPosition(Vector3d pos, long double z) const;
 
 	/** Adapt step size if required and calculates the new position and direction of the particle with the usage of the function dY
 	 * @param y		 current position and direction of candidate
@@ -113,7 +113,7 @@ public:
 	 * @param q		 current charge of the candidate 
 	 * @param m		 current mass of the candidate
 	 */
-	void tryStep(const Y &y, Y &out, Y &error, double h, ParticleState &p, double z, double q, double m) const;
+	void tryStep(const Y &y, Y &out, Y &error, long double h, ParticleState &p, long double z, long double q, long double m) const;
 
 	/** Set functions for the parameters of the class PropagationBP */
 
@@ -124,22 +124,22 @@ public:
 	/** Set a specific tolerance for the step size adaption
 	 * @param tolerance	 tolerance is criterion for step adjustment. Step adjustment takes place only if minStep < maxStep. 
 	 */
-	void setTolerance(double tolerance);
+	void setTolerance(long double tolerance);
 	/** Set the minimum step for the Boris push
 	 * @param minStep	   minStep/c_light is the minimum integration time step 
 	 */
-	void setMinimumStep(double minStep);
+	void setMinimumStep(long double minStep);
 	/** Set the maximum step for the Boris push
 	 * @param maxStep	   maxStep/c_light is the maximum integration time step 
 	 */
-	void setMaximumStep(double maxStep);
+	void setMaximumStep(long double maxStep);
 
 	/** Get functions for the parameters of the class PropagationBP, similar to the set functions */
 
 	ref_ptr<MagneticField> getField() const;
-	double getTolerance() const;
-	double getMinimumStep() const;
-	double getMaximumStep() const;
+	long double getTolerance() const;
+	long double getMinimumStep() const;
+	long double getMaximumStep() const;
 	std::string getDescription() const;
 };
 /** @}*/

@@ -41,11 +41,11 @@ std::string PeriodicBox::getDescription() const {
 }
 
 
-ReflectiveShell::ReflectiveShell(Vector3d center, double r) :
+ReflectiveShell::ReflectiveShell(Vector3d center, long double r) :
 		center(center), radius(r) {
 		}
 
-double ReflectiveShell::distance(const Vector3d &point) const {
+long double ReflectiveShell::distance(const Vector3d &point) const {
 	Vector3d dR = point - center;
 	return dR.getR() - radius;
 }
@@ -56,16 +56,16 @@ Vector3d ReflectiveShell::normal(const Vector3d& point) const {
 }
 
 void ReflectiveShell::process(Candidate *c) const {
-	double currentDistance = distance(c->current.getPosition());
-	double previousDistance = distance(c->previous.getPosition());
+	long double currentDistance = distance(c->current.getPosition());
+	long double previousDistance = distance(c->previous.getPosition());
 	// check if cosmic ray crossed boundary in last step
 	if (currentDistance * previousDistance < 0){
 		Vector3d currentDirection = c->current.getDirection();
 		Vector3d previousPosition = c->previous.getPosition();
 		// get point where trajectory intersects the shell boundary
-		double p_half = previousPosition.dot(currentDirection) / currentDirection.getR2();
-		double q = (previousPosition.getR2() - radius * radius) / currentDirection.getR2();
-		double k1 = - p_half + sqrt(p_half * p_half - q);
+		long double p_half = previousPosition.dot(currentDirection) / currentDirection.getR2();
+		long double q = (previousPosition.getR2() - radius * radius) / currentDirection.getR2();
+		long double k1 = - p_half + sqrt(p_half * p_half - q);
 		Vector3d intersectPoint = previousPosition + k1 * currentDirection;
 		// flip component of velocity normal to surface
 		Vector3d surfaceNormal = normal(intersectPoint);
@@ -79,7 +79,7 @@ void ReflectiveShell::process(Candidate *c) const {
 void ReflectiveShell::setCenter(Vector3d c) {
 	center = c;
 }
-void ReflectiveShell::setRadius(double r) {
+void ReflectiveShell::setRadius(long double r) {
 	radius = r;
 }
 
@@ -119,21 +119,21 @@ void ReflectiveBox::process(Candidate *c) const {
 
 	// repeatedly translate until the current position is inside the cell
 	while ((cur.x < 0) or (cur.x > 1)) {
-		double t = 2 * (cur.x > 1);
+		long double t = 2 * (cur.x > 1);
 		src.x = t - src.x;
 		cre.x = t - cre.x;
 		prv.x = t - prv.x;
 		cur.x = t - cur.x;
 	}
 	while ((cur.y < 0) or (cur.y > 1)) {
-		double t = 2 * (cur.y > 1);
+		long double t = 2 * (cur.y > 1);
 		src.y = t - src.y;
 		cre.y = t - cre.y;
 		prv.y = t - prv.y;
 		cur.y = t - cur.y;
 	}
 	while ((cur.z < 0) or (cur.z > 1)) {
-		double t = 2 * (cur.z > 1);
+		long double t = 2 * (cur.z > 1);
 		src.z = t - src.z;
 		cre.z = t - cre.z;
 		prv.z = t - prv.z;
@@ -164,14 +164,14 @@ CubicBoundary::CubicBoundary() :
 		origin(Vector3d(0, 0, 0)), size(0), limitStep(true), margin(0.1 * kpc) {
 }
 
-CubicBoundary::CubicBoundary(Vector3d o, double s) :
+CubicBoundary::CubicBoundary(Vector3d o, long double s) :
 		origin(o), size(s), limitStep(true), margin(0.1 * kpc) {
 }
 
 void CubicBoundary::process(Candidate *c) const {
 	Vector3d r = c->current.getPosition() - origin;
-	double lo = r.min();
-	double hi = r.max();
+	long double lo = r.min();
+	long double hi = r.max();
 	if ((lo <= 0) or (hi >= size)) {
 		reject(c);
 	}
@@ -184,10 +184,10 @@ void CubicBoundary::process(Candidate *c) const {
 void CubicBoundary::setOrigin(Vector3d o) {
 	origin = o;
 }
-void CubicBoundary::setSize(double s) {
+void CubicBoundary::setSize(long double s) {
 	size = s;
 }
-void CubicBoundary::setMargin(double m) {
+void CubicBoundary::setMargin(long double m) {
 	margin = m;
 }
 void CubicBoundary::setLimitStep(bool b) {
@@ -209,12 +209,12 @@ SphericalBoundary::SphericalBoundary() :
 		center(Vector3d(0, 0, 0)), radius(0), limitStep(true), margin(0.1 * kpc) {
 }
 
-SphericalBoundary::SphericalBoundary(Vector3d c, double r) :
+SphericalBoundary::SphericalBoundary(Vector3d c, long double r) :
 		center(c), radius(r), limitStep(true), margin(0.1 * kpc) {
 }
 
 void SphericalBoundary::process(Candidate *c) const {
-	double d = (c->current.getPosition() - center).getR();
+	long double d = (c->current.getPosition() - center).getR();
 	if (d >= radius) {
 		reject(c);
 	}
@@ -225,10 +225,10 @@ void SphericalBoundary::process(Candidate *c) const {
 void SphericalBoundary::setCenter(Vector3d c) {
 	center = c;
 }
-void SphericalBoundary::setRadius(double r) {
+void SphericalBoundary::setRadius(long double r) {
 	radius = r;
 }
-void SphericalBoundary::setMargin(double m) {
+void SphericalBoundary::setMargin(long double m) {
 	margin = m;
 }
 void SphericalBoundary::setLimitStep(bool b) {
@@ -251,14 +251,14 @@ EllipsoidalBoundary::EllipsoidalBoundary() :
 		majorAxis(0), limitStep(true), margin(0.1 * kpc) {
 }
 
-EllipsoidalBoundary::EllipsoidalBoundary(Vector3d f1, Vector3d f2, double a) :
+EllipsoidalBoundary::EllipsoidalBoundary(Vector3d f1, Vector3d f2, long double a) :
 		focalPoint1(f1), focalPoint2(f2), majorAxis(a), limitStep(true),
 		margin(0.1 * kpc) {
 }
 
 void EllipsoidalBoundary::process(Candidate *c) const {
 	Vector3d pos = c->current.getPosition();
-	double d = pos.getDistanceTo(focalPoint1) + pos.getDistanceTo(focalPoint2);
+	long double d = pos.getDistanceTo(focalPoint1) + pos.getDistanceTo(focalPoint2);
 	if (d >= majorAxis) {
 		reject(c);
 	}
@@ -270,10 +270,10 @@ void EllipsoidalBoundary::setFocalPoints(Vector3d f1, Vector3d f2) {
 	focalPoint1 = f1;
 	focalPoint2 = f2;
 }
-void EllipsoidalBoundary::setMajorAxis(double a) {
+void EllipsoidalBoundary::setMajorAxis(long double a) {
 	majorAxis = a;
 }
-void EllipsoidalBoundary::setMargin(double m) {
+void EllipsoidalBoundary::setMargin(long double m) {
 	margin = m;
 }
 void EllipsoidalBoundary::setLimitStep(bool b) {
@@ -296,14 +296,14 @@ CylindricalBoundary::CylindricalBoundary() :
   origin(Vector3d(0,0,0)), height(0), radius(0), limitStep(false), margin(0) {
 }
 
-CylindricalBoundary::CylindricalBoundary(Vector3d o, double h, double r) :
+CylindricalBoundary::CylindricalBoundary(Vector3d o, long double h, long double r) :
   origin(o), height(h), radius(r), limitStep(false) , margin(0){
 }
 
 void CylindricalBoundary::process(Candidate *c) const {
 	Vector3d d = c->current.getPosition() - origin;
-	double R2 = pow(d.x, 2.)+pow(d.y, 2.);
-	double Z = fabs(d.z);
+	long double R2 = pow(d.x, 2.)+pow(d.y, 2.);
+	long double Z = fabs(d.z);
 	if ( R2 < pow(radius, 2.) and Z < height/2.) {
 		if(limitStep) {
 			c->limitNextStep(std::min(radius - pow(R2, 0.5), height/2. - Z) + margin);	
@@ -316,16 +316,16 @@ void CylindricalBoundary::process(Candidate *c) const {
 void CylindricalBoundary::setOrigin(Vector3d o) {
 	origin = o;
 }
-void CylindricalBoundary::setHeight(double h) {
+void CylindricalBoundary::setHeight(long double h) {
 	height = h;
 }
-void CylindricalBoundary::setRadius(double r) {
+void CylindricalBoundary::setRadius(long double r) {
 	radius = r;
 }
 void CylindricalBoundary::setLimitStep(bool b) {
 	limitStep = b;
 }
-void CylindricalBoundary::setMargin(double m) {
+void CylindricalBoundary::setMargin(long double m) {
 	margin = m;
 }
 

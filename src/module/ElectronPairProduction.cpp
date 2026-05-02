@@ -11,7 +11,7 @@
 namespace crpropa {
 
 ElectronPairProduction::ElectronPairProduction(ref_ptr<PhotonField> photonField,
-		bool haveElectrons, double limit) {
+		bool haveElectrons, long double limit) {
 	this->haveElectrons = haveElectrons;
 	this->limit = limit;
 	setPhotonField(photonField);
@@ -35,7 +35,7 @@ void ElectronPairProduction::setHaveElectrons(bool haveElectrons) {
 	}
 }
 
-void ElectronPairProduction::setLimit(double limit) {
+void ElectronPairProduction::setLimit(long double limit) {
 	this->limit = limit;
 }
 
@@ -51,7 +51,7 @@ void ElectronPairProduction::initRate(std::string filename) {
 
 	while (infile.good()) {
 		if (infile.peek() != '#') {
-			double a, b;
+			long double a, b;
 			infile >> a >> b;
 			if (infile) {
 				tabLorentzFactor.push_back(pow(10, a));
@@ -68,7 +68,7 @@ void ElectronPairProduction::initSpectrum(std::string filename) {
 	if (!infile.good())
 		throw std::runtime_error("ElectronPairProduction: could not open file " + filename);
 
-	double dNdE;
+	long double dNdE;
 	tabSpectrum.resize(70);
 	for (size_t i = 0; i < 70; i++) {
 		tabSpectrum[i].resize(170);
@@ -83,22 +83,22 @@ void ElectronPairProduction::initSpectrum(std::string filename) {
 	infile.close();
 }
 
-double ElectronPairProduction::lossLength(int id, double lf, double z) const {
-	double Z = chargeNumber(id);
+long double ElectronPairProduction::lossLength(int id, long double lf, long double z) const {
+	long double Z = chargeNumber(id);
 	if (Z == 0)
-		return std::numeric_limits<double>::max(); // no pair production on uncharged particles
+		return std::numeric_limits<long double>::max(); // no pair production on uncharged particles
 
 	lf *= (1 + z);
 	if (lf < tabLorentzFactor.front())
-		return std::numeric_limits<double>::max(); // below energy threshold
+		return std::numeric_limits<long double>::max(); // below energy threshold
 
-	double rate;
+	long double rate;
 	if (lf < tabLorentzFactor.back())
 		rate = interpolate(lf, tabLorentzFactor, tabLossRate); // interpolation
 	else
 		rate = tabLossRate.back() * pow(lf / tabLorentzFactor.back(), -0.6); // extrapolation
 
-	double A = nuclearMass(id) / mass_proton; // more accurate than massNumber(Id)
+	long double A = nuclearMass(id) / mass_proton; // more accurate than massNumber(Id)
 	rate *= Z * Z / A * pow_integer<3>(1 + z) * photonField->getRedshiftScaling(z);
 	return 1. / rate;
 }
@@ -108,17 +108,17 @@ void ElectronPairProduction::process(Candidate *c) const {
 	if (not (isNucleus(id)))
 		return; // only nuclei
 
-	double lf = c->current.getLorentzFactor();
-	double z = c->getRedshift();
-	double losslen = lossLength(id, lf, z);  // energy loss length
-	if (losslen >= std::numeric_limits<double>::max())
+	long double lf = c->current.getLorentzFactor();
+	long double z = c->getRedshift();
+	long double losslen = lossLength(id, lf, z);  // energy loss length
+	if (losslen >= std::numeric_limits<long double>::max())
 		return;
 
-	double step = c->getCurrentStep() / (1 + z); // step size in local frame
-	double loss = step / losslen;  // relative energy loss
+	long double step = c->getCurrentStep() / (1 + z); // step size in local frame
+	long double loss = step / losslen;  // relative energy loss
 
 	if (haveElectrons) {
-		double dE = c->current.getEnergy() * loss;  // energy loss
+		long double dE = c->current.getEnergy() * loss;  // energy loss
 		int i = round((log10(lf) - 6.05) * 10);  // find closest cdf(Ee|log10(gamma))
 		i = std::min(std::max(i, 0), 69);
 		Random &random = Random::instance();
@@ -126,8 +126,8 @@ void ElectronPairProduction::process(Candidate *c) const {
 		// draw pairs as long as their energy is smaller than the pair production energy loss
 		while (dE > 0) {
 			size_t j = random.randBin(tabSpectrum[i]);
-			double Ee = pow(10, 6.95 + (j + random.rand()) * 0.1) * eV;
-			double Epair = 2 * Ee; // NOTE: electron and positron in general don't have same lab frame energy, but averaged over many draws the result is consistent
+			long double Ee = pow(10, 6.95 + (j + random.rand()) * 0.1) * eV;
+			long double Epair = 2 * Ee; // NOTE: electron and positron in general don't have same lab frame energy, but averaged over many draws the result is consistent
 			// if the remaining energy is not sufficient check for random accepting
 			if (Epair > dE)
 				if (random.rand() > (dE / Epair))

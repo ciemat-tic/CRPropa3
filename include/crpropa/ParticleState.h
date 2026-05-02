@@ -22,11 +22,11 @@ namespace crpropa {
 class ParticleState {
 private:
 	int id; ///< particle ID (Particle Data Group numbering scheme)
-	double energy; ///< total energy
+	long double energy; ///< total energy
 	Vector3d position; ///< position vector in comoving coordinates
 	Vector3d direction; ///< unit vector of velocity or momentum
-	double pmass; ///< particle rest mass
-	double charge; ///< particle charge
+	long double pmass; ///< particle rest mass
+	long double charge; ///< particle charge
 
 public:
 	/** Constructor for a particle state.
@@ -35,7 +35,7 @@ public:
 	 @param position	vector containing the coordinates of the particle [in meters]
 	 @param direction	vector containing the direction of motion of the particle
 	 */
-	ParticleState(int id = 0, double energy = 0,
+	ParticleState(int id = 0, long double energy = 0,
 			Vector3d position = Vector3d(0, 0, 0),
 			Vector3d direction = Vector3d(-1, 0, 0));
 
@@ -61,15 +61,15 @@ public:
 	/** Set energy of particle.
 	 @param newEnergy	energy to be assigned to particle [in Joules]
 	 */
-	void setEnergy(double newEnergy);
+	void setEnergy(long double newEnergy);
 	/** Get energy of particle.
 	 @returns Energy of particle [in Joules]
 	 */
-	double getEnergy() const;
+	long double getEnergy() const;
 	/** Get rigidity of particle, defined as E/(Z*e).
 	 @returns Rigidity of the particle [in Volts]
 	 */
-	double getRigidity() const;
+	long double getRigidity() const;
 
 	/** Set particle ID.
 	 This follows the PDG numbering scheme:
@@ -89,20 +89,20 @@ public:
 	/** Get electrical charge of the particle.
 	 @returns Charge of the particle [in Coulombs]
 	 */
-	double getCharge() const;
+	long double getCharge() const;
 	/** Get mass of the particle.
 	 @returns Mass of the particle [kg]
 	 */
-	double getMass() const;
+	long double getMass() const;
 
 	/** Set Lorentz factor and modify the particle's energy accordingly.
 	 @param gamma		Lorentz factor
 	 */
-	void setLorentzFactor(double gamma);
+	void setLorentzFactor(long double gamma);
 	/** Get Lorentz factor
 	 @returns Lorentz factor of particle
 	 */
-	double getLorentzFactor() const;
+	long double getLorentzFactor() const;
 
 	/** Get velocity: direction times the speed of light.
 	 @returns Velocity of particle [m/s]

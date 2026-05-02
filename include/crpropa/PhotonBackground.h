@@ -30,9 +30,9 @@ public:
 	 @param ePhoton		photon energy [J]
 	 @param z			redshift (if redshift dependent, default = 0.)
 	 */
-	virtual double getPhotonDensity(double ePhoton, double z = 0.) const = 0;
-	virtual double getMinimumPhotonEnergy(double z) const = 0;
-	virtual double getMaximumPhotonEnergy(double z) const = 0;
+	virtual long double getPhotonDensity(long double ePhoton, long double z = 0.) const = 0;
+	virtual long double getMinimumPhotonEnergy(long double z) const = 0;
+	virtual long double getMaximumPhotonEnergy(long double z) const = 0;
 	virtual std::string getFieldName() const {
 		return this->fieldName;
 	}
@@ -42,7 +42,7 @@ public:
 	 (cf. CRPropa3-data/calc_scaling.py)
 	 @param z		redshift
 	 */
-	virtual double getRedshiftScaling(double z) const {
+	virtual long double getRedshiftScaling(long double z) const {
 		return 1.;
 	};
 
@@ -72,10 +72,10 @@ class TabularPhotonField: public PhotonField {
 public:
 	TabularPhotonField(const std::string fieldName, const bool isRedshiftDependent = true);
 
-	double getPhotonDensity(double ePhoton, double z = 0.) const;
-	double getRedshiftScaling(double z) const;
-	double getMinimumPhotonEnergy(double z) const;
-	double getMaximumPhotonEnergy(double z) const;
+	long double getPhotonDensity(long double ePhoton, long double z = 0.) const;
+	long double getRedshiftScaling(long double z) const;
+	long double getMinimumPhotonEnergy(long double z) const;
+	long double getMaximumPhotonEnergy(long double z) const;
 
 protected:
 	void readPhotonEnergy(std::string filePath);
@@ -84,10 +84,10 @@ protected:
 	void initRedshiftScaling();
 	void checkInputData() const;
 
-	std::vector<double> photonEnergies;
-	std::vector<double> photonDensity;
-	std::vector<double> redshifts;
-	std::vector<double> redshiftScalings;
+	std::vector<long double> photonEnergies;
+	std::vector<long double> photonDensity;
+	std::vector<long double> redshifts;
+	std::vector<long double> redshiftScalings;
 };
 
 /**
@@ -293,15 +293,15 @@ public:
  */
 class BlackbodyPhotonField: public PhotonField {
 public:
-	BlackbodyPhotonField(const std::string fieldName, const double blackbodyTemperature);
-	double getPhotonDensity(double ePhoton, double z = 0.) const;
-	double getMinimumPhotonEnergy(double z) const;
-	double getMaximumPhotonEnergy(double z) const;
-	void setQuantile(double q);
+	BlackbodyPhotonField(const std::string fieldName, const long double blackbodyTemperature);
+	long double getPhotonDensity(long double ePhoton, long double z = 0.) const;
+	long double getMinimumPhotonEnergy(long double z) const;
+	long double getMaximumPhotonEnergy(long double z) const;
+	void setQuantile(long double q);
 
 protected:
-	double blackbodyTemperature;
-	double quantile;
+	long double blackbodyTemperature;
+	long double quantile;
 };
 
 /**

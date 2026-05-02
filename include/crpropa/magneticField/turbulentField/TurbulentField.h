@@ -16,22 +16,22 @@ namespace crpropa {
  */
 class TurbulenceSpectrum : public Referenced {
   private:
-	const double Brms; /**< Brms value of the turbulent field (normalization) */
-	const double sIndex; /**< Spectral index for the inertial range, for example
+	const long double Brms; /**< Brms value of the turbulent field (normalization) */
+	const long double sIndex; /**< Spectral index for the inertial range, for example
 	                  s=5/3 for Kolmogorov spectrum; in some parts of the code this
 			  parameter is referred by alpha which is the total 3D isotropic
 			  spectrum with additional k^2 and the minus sign, e.g.,
 			  for Kolmogorov: alpha = -(s + 2) */
-	const double qIndex; /**< Spectral index for the injection range, for
+	const long double qIndex; /**< Spectral index for the injection range, for
 	                  example q=4 for 3D homogeneous turbulence */
-	const double lBendover;  /**< the bend-over scale */
-	const double lMin, lMax; /**< Min and Max scale of turbulence */
+	const long double lBendover;  /**< the bend-over scale */
+	const long double lMin, lMax; /**< Min and Max scale of turbulence */
 
   protected:
 	/**
 	Normalization for the below defined Lc
 	*/
-	double spectrumNormalization() const {
+	long double spectrumNormalization() const {
 		return std::tgamma((sIndex + qIndex) / 2.0) /
 		       (2.0 * std::tgamma((sIndex - 1) / 2.0) *
 		        std::tgamma((qIndex + 1) / 2.0));
@@ -46,9 +46,9 @@ class TurbulenceSpectrum : public Referenced {
 	 * @param sIndex	 Spectral index of the energy spectrum in the inertial range
 	 * @param qIndex	 Spectral index of the energy spectrum in the energy range
 	*/
-	TurbulenceSpectrum(double Brms, double lMin, double lMax,
-	                   double lBendover = 1, double sIndex = (5. / 3.),
-	                   double qIndex = 4)
+	TurbulenceSpectrum(long double Brms, long double lMin, long double lMax,
+	                   long double lBendover = 1, long double sIndex = (5. / 3.),
+	                   long double qIndex = 4)
 	    : Brms(Brms), lMin(lMin), lMax(lMax), lBendover(lBendover),
 	      sIndex(sIndex), qIndex(qIndex) {
 		if (lMin > lMax) {
@@ -61,19 +61,19 @@ class TurbulenceSpectrum : public Referenced {
 
 	~TurbulenceSpectrum() {}
 
-	double getBrms() const { return Brms; }
-	double getLmin() const { return lMin; }
-	double getLmax() const { return lMax; }
-	double getLbendover() const { return lBendover; }
-	double getSindex() const { return sIndex; }
-	double getQindex() const { return qIndex; }
+	long double getBrms() const { return Brms; }
+	long double getLmin() const { return lMin; }
+	long double getLmax() const { return lMax; }
+	long double getLbendover() const { return lBendover; }
+	long double getSindex() const { return sIndex; }
+	long double getQindex() const { return qIndex; }
 	
 	/**
 	General energy spectrum for synthetic turbulence models (not normalized!)
 	with normalized ^k = k*lBendover
 	*/
-	virtual double energySpectrum(double k) const {
-		double kHat = k * lBendover;
+	virtual long double energySpectrum(long double k) const {
+		long double kHat = k * lBendover;
 		return std::pow(kHat, qIndex) /
 				       std::pow(1.0 + kHat * kHat,
 			                (sIndex + qIndex) / 2.0 + 1.0);
@@ -85,7 +85,7 @@ class TurbulenceSpectrum : public Referenced {
 	Approximates the true value correctly as long as lBendover <= lMax/8 (~5%
   error) (for the true value the above integral should go from lMin to lMax)
 	*/
-	virtual double getCorrelationLength() const {
+	virtual long double getCorrelationLength() const {
 		return 4 * M_PI / ((sIndex + 2.0) * sIndex) * spectrumNormalization() *
 		       lBendover;
 	}
@@ -106,8 +106,8 @@ class TurbulentField : public MagneticField {
 	TurbulentField(const TurbulenceSpectrum &spectrum) : spectrum(spectrum) {}
 	virtual ~TurbulentField() {}
 
-	double getBrms() const { return spectrum.getBrms(); }
-	virtual double getCorrelationLength() const {
+	long double getBrms() const { return spectrum.getBrms(); }
+	virtual long double getCorrelationLength() const {
 		return spectrum.getCorrelationLength();
 	}
 };

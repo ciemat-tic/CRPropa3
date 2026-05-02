@@ -13,10 +13,10 @@ namespace crpropa {
 class CylindricalProjectionMap : public Referenced {
 private:
 	size_t nPhi, nTheta;
-	double sPhi, sTheta;
+	long double sPhi, sTheta;
 	mutable bool dirty;
-	std::vector<double> pdf;
-	mutable std::vector<double> cdf;
+	std::vector<long double> pdf;
+	mutable std::vector<long double> cdf;
 
 	/** Calculate the cdf from the pdf */
 	void updateCdf() const;
@@ -30,10 +30,10 @@ public:
 	CylindricalProjectionMap(size_t nPhi, size_t nTheta);
 
 	/** Increment the bin value in direction by weight. */
-	void fillBin(const Vector3d& direction, double weight = 1.);
+	void fillBin(const Vector3d& direction, long double weight = 1.);
 
 	/** Increment the bin value by weight. */
-	void fillBin(size_t bin, double weight = 1.);
+	void fillBin(size_t bin, long double weight = 1.);
 
 	/** Draw a random vector from the distribution. */
 	Vector3d drawDirection() const;
@@ -41,10 +41,10 @@ public:
 	/** Check if the direction has a non zero propabiliy. */
 	bool checkDirection(const Vector3d &direction) const;
 
-	const std::vector<double>& getPdf() const;
-	std::vector<double>& getPdf();
+	const std::vector<long double>& getPdf() const;
+	std::vector<long double>& getPdf();
 
-	const std::vector<double>& getCdf() const;
+	const std::vector<long double>& getCdf() const;
 
 	size_t getNPhi();
 	size_t getNTheta();
@@ -82,37 +82,37 @@ public:
 	 * @param minEnergy minimum energy for binning
 	 * @param maxEnergy maximum energy for binning
 	 */
-	EmissionMap(size_t nPhi, size_t nTheta, size_t nEnergy, double minEnergy, double maxEnergy);
+	EmissionMap(size_t nPhi, size_t nTheta, size_t nEnergy, long double minEnergy, long double maxEnergy);
 
 	/** Calculate energy from bin */
-	double energyFromBin(size_t bin) const;
+	long double energyFromBin(size_t bin) const;
 
 	/** Calculate bin from energy */
-	size_t binFromEnergy(double energy) const;
+	size_t binFromEnergy(long double energy) const;
 
 	map_t &getMaps();
 	const map_t &getMaps() const;
 
 	/** Increment the value for particle type, energy and direction by weight. */
-	void fillMap(int pid, double energy, const Vector3d& direction, double weight = 1.);
+	void fillMap(int pid, long double energy, const Vector3d& direction, long double weight = 1.);
 	/** Increment the value for the particle state by weight. */
-	void fillMap(const ParticleState& state, double weight = 1.);
+	void fillMap(const ParticleState& state, long double weight = 1.);
 
 	/** Draw a random vector from the distribution. */
-	bool drawDirection(int pid, double energy, Vector3d& direction) const;
+	bool drawDirection(int pid, long double energy, Vector3d& direction) const;
 	/** Draw a random vector from the distribution. */
 	bool drawDirection(const ParticleState& state, Vector3d& direction) const;
 
 	/** Check if the direction has a non zero propabiliy. */
-	bool checkDirection(int pid, double energy, const Vector3d& direction) const;
+	bool checkDirection(int pid, long double energy, const Vector3d& direction) const;
 	/** Check if the direction has a non zero propabiliy. */
 	bool checkDirection(const ParticleState& state) const;
 
 	/** Check if a valid map exists */
-	bool hasMap(int pid, double energy);
+	bool hasMap(int pid, long double energy);
 
 	/** Get the map for the specified pid and energy */
-	ref_ptr<CylindricalProjectionMap> getMap(int pid, double energy);
+	ref_ptr<CylindricalProjectionMap> getMap(int pid, long double energy);
 
 	/** Save the content of the maps into a text file */
 	void save(const std::string &filename);
@@ -126,7 +126,7 @@ public:
 	void merge(const std::string &filename);
 
 protected:
-	double minEnergy, maxEnergy, logStep;
+	long double minEnergy, maxEnergy, logStep;
 	size_t nPhi, nTheta, nEnergy;
 	map_t maps;
 };

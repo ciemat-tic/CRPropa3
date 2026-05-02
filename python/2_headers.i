@@ -47,9 +47,9 @@
 %ignore operator crpropa::CylindricalProjectionMap*;
 %ignore operator crpropa::EmissionMap*;
 %ignore operator crpropa::Grid< crpropa::Vector3< float > >*;
-%ignore operator crpropa::Grid< crpropa::Vector3< double > >*;
+%ignore operator crpropa::Grid< crpropa::Vector3< long double > >*;
 %ignore operator crpropa::Grid< float >*;
-%ignore operator crpropa::Grid< double >*;
+%ignore operator crpropa::Grid< long double >*;
 %ignore crpropa::TextOutput::load;
 
 %feature("ref")   crpropa::Referenced "$this->addReference();"
@@ -59,9 +59,9 @@
 %include "crpropa/Logging.h"
 
 /* ignore public references and replace with attributes for Vector3d and Vector3f*/
-%attribute(crpropa::Vector3<double>, double, x, getX, setX);
-%attribute(crpropa::Vector3<double>, double, y, getY, setY);
-%attribute(crpropa::Vector3<double>, double, z, getZ, setZ);
+%attribute(crpropa::Vector3<long double>, long double, x, getX, setX);
+%attribute(crpropa::Vector3<long double>, long double, y, getY, setY);
+%attribute(crpropa::Vector3<long double>, long double, z, getZ, setZ);
 %attribute(crpropa::Vector3<float>, float, x, getX, setX);
 %attribute(crpropa::Vector3<float>, float, y, getY, setY);
 %attribute(crpropa::Vector3<float>, float, z, getZ, setZ);
@@ -70,7 +70,7 @@
 %feature("python:slot", "sq_length", functype="lenfunc") crpropa::Vector3::__len__;
 %feature("python:slot", "mp_subscript", functype="binaryfunc") crpropa::Vector3::__getitem__;
 %feature("python:slot", "mp_ass_subscript", functype="objobjargproc") crpropa::Vector3::__setitem__;
-%typemap(directorin,numinputs=1) (const double *v) {
+%typemap(directorin,numinputs=1) (const long double *v) {
   npy_intp dim = 3;
   $input = PyArray_SimpleNewFromData(1, &dim, NPY_DOUBLE, (void *)$1);
 }
@@ -97,7 +97,7 @@
 }
 
 %extend crpropa::Vector3 {
-  double __getitem__(size_t i) {
+  long double __getitem__(size_t i) {
     if(i > 2) {
         throw RangeError();
     }
@@ -119,7 +119,7 @@
 %feature("python:slot", "tp_str", functype="reprfunc") crpropa::Vector3::getDescription();
 %feature("python:slot", "tp_repr", functype="reprfunc") crpropa::Vector3::getDescription();
 
-%template(Vector3d) crpropa::Vector3<double>;
+%template(Vector3d) crpropa::Vector3<long double>;
 %template(Vector3f) crpropa::Vector3<float>;
 
 %include "crpropa/Referenced.h"
@@ -185,9 +185,9 @@
     } else if (value.getTypeInfo() == typeid(uint64_t)) {
       return PyLong_FromUnsignedLong(value.toInt64());
     } else if (value.getTypeInfo() == typeid(float)) {
-      // convert float and double to pyfloat which is double precision
+      // convert float and long double to pyfloat which is long double precision
       return PyFloat_FromDouble(value.toDouble());
-    } else if (value.getTypeInfo() == typeid(double)) {
+    } else if (value.getTypeInfo() == typeid(long double)) {
       return PyFloat_FromDouble(value.toDouble());
     } else if (value.getTypeInfo() == typeid(std::string)) {
       return PyUnicode_FromString(value.toString().c_str());
@@ -283,24 +283,24 @@
 %include "crpropa/Grid.h"
 %include "crpropa/GridTools.h"
 
-%template(Array3d) std::array<double, 3>;
+%template(Array3d) std::array<long double, 3>;
 %template(Array3f) std::array<float, 3>;
 
 %implicitconv crpropa::ref_ptr<crpropa::Grid<crpropa::Vector3<float> > >;
 %template(Grid3fRefPtr) crpropa::ref_ptr<crpropa::Grid<crpropa::Vector3<float> > >;
 %template(Grid3f) crpropa::Grid<crpropa::Vector3<float> >;
 
-%implicitconv crpropa::ref_ptr<crpropa::Grid<crpropa::Vector3<double> > >;
-%template(Grid3dRefPtr) crpropa::ref_ptr<crpropa::Grid<crpropa::Vector3<double> > >;
-%template(Grid3d) crpropa::Grid<crpropa::Vector3<double> >;
+%implicitconv crpropa::ref_ptr<crpropa::Grid<crpropa::Vector3<long double> > >;
+%template(Grid3dRefPtr) crpropa::ref_ptr<crpropa::Grid<crpropa::Vector3<long double> > >;
+%template(Grid3d) crpropa::Grid<crpropa::Vector3<long double> >;
 
 %implicitconv crpropa::ref_ptr<crpropa::Grid<float> >;
 %template(Grid1fRefPtr) crpropa::ref_ptr<crpropa::Grid<float> >;
 %template(Grid1f) crpropa::Grid<float>;
 
-%implicitconv crpropa::ref_ptr<crpropa::Grid<double> >;
-%template(Grid1dRefPtr) crpropa::ref_ptr<crpropa::Grid<double> >;
-%template(Grid1d) crpropa::Grid<double>;
+%implicitconv crpropa::ref_ptr<crpropa::Grid<long double> >;
+%template(Grid1dRefPtr) crpropa::ref_ptr<crpropa::Grid<long double> >;
+%template(Grid1d) crpropa::Grid<long double>;
 
 %implicitconv std::pair<std::vector<int>, std::vector<float> >;
 %template(PairIntFloat) std::pair<int, float>;

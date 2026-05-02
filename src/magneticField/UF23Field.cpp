@@ -9,7 +9,7 @@
 namespace uf23 {
 
   template<typename T>
-  crpropa::Vector3d CylToCart(const T v, const double cosPhi, const double sinPhi)
+  crpropa::Vector3d CylToCart(const T v, const long double cosPhi, const long double sinPhi)
   {
     return crpropa::Vector3d(v[0] * cosPhi - v[1] * sinPhi,
                              v[0] * sinPhi + v[1] * cosPhi,
@@ -17,7 +17,7 @@ namespace uf23 {
   }
 
   template<typename T>
-  crpropa::Vector3d CartToCyl(const T v, const double cosPhi, const double sinPhi)
+  crpropa::Vector3d CartToCyl(const T v, const long double cosPhi, const long double sinPhi)
   {
     return crpropa::Vector3d(v[0] * cosPhi + v[1] * sinPhi,
                              -v[0] * sinPhi + v[1] * cosPhi,
@@ -26,16 +26,16 @@ namespace uf23 {
 
   // logistic sigmoid function
   inline
-  double
-  Sigmoid(const double x, const double x0, const double w)
+  long double
+  Sigmoid(const long double x, const long double x0, const long double w)
   {
     return 1 / (1 + exp(-(x-x0)/w));
   }
 
   // angle between v0 = (cos(phi0), sin(phi0)) and v1 = (cos(phi1), sin(phi1))
   inline
-  double
-  DeltaPhi(const double phi0, const double phi1)
+  long double
+  DeltaPhi(const long double phi0, const long double phi1)
   {
     return acos(cos(phi1)*cos(phi0) + sin(phi1)*sin(phi0));
   }
@@ -44,16 +44,16 @@ namespace uf23 {
   // Convert to crpropa with e.g. uf23::kpc / crpropa::kpc.
   // The conversion is, however, only needed in the single non-private
   // getField() method, all other functions use uf23 units.
-  const double kPi = 3.1415926535897932384626;
-  const double kTwoPi = 2*kPi;
-  const double degree = kPi/180.;
-  const double kpc = 1;
-  const double microgauss = 1;
-  const double megayear = 1;
-  const double Gpc = 1e6*kpc;
-  const double pc = 1e-3*kpc;
-  const double second  = megayear / (1e6*60*60*24*365.25);
-  const double kilometer = kpc / 3.0856775807e+16;
+  const long double kPi = 3.1415926535897932384626;
+  const long double kTwoPi = 2*kPi;
+  const long double degree = kPi/180.;
+  const long double kpc = 1;
+  const long double microgauss = 1;
+  const long double megayear = 1;
+  const long double Gpc = 1e6*kpc;
+  const long double pc = 1e-3*kpc;
+  const long double second  = megayear / (1e6*60*60*24*365.25);
+  const long double kilometer = kpc / 3.0856775807e+16;
 }
 
 namespace crpropa {
@@ -315,85 +315,85 @@ UF23Field::getHaloField(const Vector3d& pos)
 
 
 Vector3d
-UF23Field::getTwistedHaloField(const double x, const double y, const double z)
+UF23Field::getTwistedHaloField(const long double x, const long double y, const long double z)
   const
 {
-  const double r = sqrt(x*x + y*y);
-  const double cosPhi = r > std::numeric_limits<double>::min() ? x / r : 1;
-  const double sinPhi = r > std::numeric_limits<double>::min() ? y / r : 0;
+  const long double r = sqrt(x*x + y*y);
+  const long double cosPhi = r > std::numeric_limits<long double>::min() ? x / r : 1;
+  const long double sinPhi = r > std::numeric_limits<long double>::min() ? y / r : 0;
 
   const Vector3d bXCart = getPoloidalHaloField(x, y, z);
-  const double bXCartTmp[3] = {bXCart.x, bXCart.y, bXCart.z};
+  const long double bXCartTmp[3] = {bXCart.x, bXCart.y, bXCart.z};
   const Vector3d bXCyl = uf23::CartToCyl(bXCartTmp, cosPhi, sinPhi);
 
-  const double bZ = bXCyl.z;
-  const double bR = bXCyl.x;
+  const long double bZ = bXCyl.z;
+  const long double bR = bXCyl.x;
 
-  double bPhi = 0;
+  long double bPhi = 0;
 
   if (fTwistingTime != 0 && r != 0) {
     // radial rotation curve parameters (fit to Reid et al 2014)
-    const double v0 = -240 * uf23::kilometer/uf23::second;
-    const double r0 = 1.6 * uf23::kpc;
+    const long double v0 = -240 * uf23::kilometer/uf23::second;
+    const long double r0 = 1.6 * uf23::kpc;
     // vertical gradient (Levine+08)
-    const double z0 = 10 * uf23::kpc;
+    const long double z0 = 10 * uf23::kpc;
 
     // Eq.(43)
-    const double fr = 1 - exp(-r/r0);
+    const long double fr = 1 - exp(-r/r0);
     // Eq.(44)
-    const double t0 = exp(2*std::abs(z)/z0);
-    const double gz = 2 / (1 + t0);
+    const long double t0 = exp(2*std::abs(z)/z0);
+    const long double gz = 2 / (1 + t0);
 
     // Eq. (46)
-    const double signZ = z < 0 ? -1 : 1;
-    const double deltaZ =  -signZ * v0 * fr / z0  * t0 * pow(gz, 2);
+    const long double signZ = z < 0 ? -1 : 1;
+    const long double deltaZ =  -signZ * v0 * fr / z0  * t0 * pow(gz, 2);
     // Eq. (47)
-    const double deltaR = v0 * ((1-fr)/r0 - fr/r) * gz;
+    const long double deltaR = v0 * ((1-fr)/r0 - fr/r) * gz;
 
     // Eq.(45)
     bPhi = (bZ * deltaZ + bR * deltaR) * fTwistingTime;
 
   }
-  const double bCylX[3] = {bR, bPhi , bZ};
+  const long double bCylX[3] = {bR, bPhi , bZ};
   return uf23::CylToCart(bCylX, cosPhi, sinPhi);
 }
 
 Vector3d
-UF23Field::getToroidalHaloField(const double x, const double y, const double z)
+UF23Field::getToroidalHaloField(const long double x, const long double y, const long double z)
   const
 {
-  const double r2 = x*x + y*y;
-  const double r = sqrt(r2);
-  const double absZ = std::abs(z);
+  const long double r2 = x*x + y*y;
+  const long double r = sqrt(r2);
+  const long double absZ = std::abs(z);
 
-  const double b0 = z >= 0 ? fToroidalBN : fToroidalBS;
-  const double rh = fToroidalR;
-  const double z0 = fToroidalZ;
-  const double fwh = fToroidalW;
-  const double sigmoidR = uf23::Sigmoid(r, rh, fwh);
-  const double sigmoidZ = uf23::Sigmoid(absZ, fDiskH, fDiskW);
+  const long double b0 = z >= 0 ? fToroidalBN : fToroidalBS;
+  const long double rh = fToroidalR;
+  const long double z0 = fToroidalZ;
+  const long double fwh = fToroidalW;
+  const long double sigmoidR = uf23::Sigmoid(r, rh, fwh);
+  const long double sigmoidZ = uf23::Sigmoid(absZ, fDiskH, fDiskW);
 
   // Eq. (21)
-  const double bPhi = b0 * (1. - sigmoidR) * sigmoidZ * exp(-absZ/z0);
+  const long double bPhi = b0 * (1. - sigmoidR) * sigmoidZ * exp(-absZ/z0);
 
-  const double bCyl[3] = {0, bPhi, 0};
-  const double cosPhi = r > std::numeric_limits<double>::min() ? x / r : 1;
-  const double sinPhi = r > std::numeric_limits<double>::min() ? y / r : 0;
+  const long double bCyl[3] = {0, bPhi, 0};
+  const long double cosPhi = r > std::numeric_limits<long double>::min() ? x / r : 1;
+  const long double sinPhi = r > std::numeric_limits<long double>::min() ? y / r : 0;
   return uf23::CylToCart(bCyl, cosPhi, sinPhi);
 }
 
 Vector3d
-UF23Field::getPoloidalHaloField(const double x, const double y, const double z)
+UF23Field::getPoloidalHaloField(const long double x, const long double y, const long double z)
   const
 {
-  const double r2 = x*x + y*y;
-  const double r = sqrt(r2);
+  const long double r2 = x*x + y*y;
+  const long double r = sqrt(r2);
 
-  const double c = pow(fPoloidalA/fPoloidalZ, fPoloidalP);
-  const double a0p = pow(fPoloidalA, fPoloidalP);
-  const double rp = pow(r, fPoloidalP);
-  const double abszp = pow(std::abs(z), fPoloidalP);
-  const double cabszp = c*abszp;
+  const long double c = pow(fPoloidalA/fPoloidalZ, fPoloidalP);
+  const long double a0p = pow(fPoloidalA, fPoloidalP);
+  const long double rp = pow(r, fPoloidalP);
+  const long double abszp = pow(std::abs(z), fPoloidalP);
+  const long double cabszp = c*abszp;
 
   /*
     since $\sqrt{a^2 + b} - a$ is numerical unstable for $b\ll a$,
@@ -401,13 +401,13 @@ UF23Field::getPoloidalHaloField(const double x, const double y, const double z)
     + b} + a} = \frac{b}{\sqrt{a^2 + b} + a}$}
   */
 
-  const double t0 = a0p + cabszp - rp;
-  const double t1 = sqrt(pow(t0, 2) + 4*a0p*rp);
-  const double ap = 2*a0p*rp / (t1  + t0);
+  const long double t0 = a0p + cabszp - rp;
+  const long double t1 = sqrt(pow(t0, 2) + 4*a0p*rp);
+  const long double ap = 2*a0p*rp / (t1  + t0);
 
-  double a = 0;
+  long double a = 0;
   if (ap < 0) {
-    if (r > std::numeric_limits<double>::min()) {
+    if (r > std::numeric_limits<long double>::min()) {
       // this should never happen
       throw std::runtime_error("ap = " + std::to_string(ap));
     }
@@ -418,86 +418,86 @@ UF23Field::getPoloidalHaloField(const double x, const double y, const double z)
     a = pow(ap, 1/fPoloidalP);
 
   // Eq.(29) and Eq.(32)
-  const double radialDependence =
+  const long double radialDependence =
     fModelType == expX ?
     exp(-a/fPoloidalR) :
     1 - uf23::Sigmoid(a, fPoloidalR, fPoloidalW);
 
   // Eq.(28)
-  const double Bzz = fPoloidalB * radialDependence;
+  const long double Bzz = fPoloidalB * radialDependence;
 
   // (r/a)
-  const double rOverA =  1 / pow(2*a0p / (t1  + t0), 1/fPoloidalP);
+  const long double rOverA =  1 / pow(2*a0p / (t1  + t0), 1/fPoloidalP);
 
   // Eq.(35) for p=n
-  const double signZ = z < 0 ? -1 : 1;
-  const double Br =
+  const long double signZ = z < 0 ? -1 : 1;
+  const long double Br =
     Bzz * c * a / rOverA * signZ * pow(std::abs(z), fPoloidalP - 1) / t1;
 
   // Eq.(36) for p=n
-  const double Bz = Bzz * pow(rOverA, fPoloidalP-2) * (ap + a0p) / t1;
+  const long double Bz = Bzz * pow(rOverA, fPoloidalP-2) * (ap + a0p) / t1;
 
-  if (r < std::numeric_limits<double>::min())
+  if (r < std::numeric_limits<long double>::min())
     return Vector3d(0, 0, Bz);
   else {
-    const double bCylX[3] = {Br, 0 , Bz};
-    const double cosPhi =  x / r;
-    const double sinPhi =  y / r;
+    const long double bCylX[3] = {Br, 0 , Bz};
+    const long double cosPhi =  x / r;
+    const long double sinPhi =  y / r;
     return uf23::CylToCart(bCylX, cosPhi, sinPhi);
   }
 }
 
 Vector3d
-UF23Field::getSpurField(const double x, const double y, const double z)
+UF23Field::getSpurField(const long double x, const long double y, const long double z)
   const
 {
   // reference approximately at solar radius
-  const double rRef = 8.2*uf23::kpc;
+  const long double rRef = 8.2*uf23::kpc;
 
   // cylindrical coordinates
-  const double r2 = x*x + y*y;
-  const double r = sqrt(r2);
-  if (r < std::numeric_limits<double>::min())
+  const long double r2 = x*x + y*y;
+  const long double r = sqrt(r2);
+  if (r < std::numeric_limits<long double>::min())
     return Vector3d(0, 0, 0);
 
-  double phi = atan2(y, x);
+  long double phi = atan2(y, x);
   if (phi < 0)
     phi += uf23::kTwoPi;
 
-  const double phiRef = fDiskPhase1;
+  const long double phiRef = fDiskPhase1;
   int iBest = -2;
-  double bestDist = -1;
+  long double bestDist = -1;
   for (int i = -1; i <= 1; ++i) {
-    const double pphi = phi - phiRef + i*uf23::kTwoPi;
-    const double rr = rRef*exp(pphi * fTanPitch);
+    const long double pphi = phi - phiRef + i*uf23::kTwoPi;
+    const long double rr = rRef*exp(pphi * fTanPitch);
     if (bestDist < 0 || std::abs(r-rr) < bestDist) {
       bestDist =  std::abs(r-rr);
       iBest = i;
     }
   }
   if (iBest == 0) {
-    const double phi0 = phi - log(r/rRef) / fTanPitch;
+    const long double phi0 = phi - log(r/rRef) / fTanPitch;
 
     // Eq. (16)
-    const double deltaPhi0 = uf23::DeltaPhi(phiRef, phi0);
-    const double delta = deltaPhi0 / fSpurWidth;
-    const double B = fDiskB1 * exp(-0.5*pow(delta, 2));
+    const long double deltaPhi0 = uf23::DeltaPhi(phiRef, phi0);
+    const long double delta = deltaPhi0 / fSpurWidth;
+    const long double B = fDiskB1 * exp(-0.5*pow(delta, 2));
 
     // Eq. (18)
-    const double wS = 5*uf23::degree;
-    const double phiC = fSpurCenter;
-    const double deltaPhiC = uf23::DeltaPhi(phiC, phi);
-    const double lC = fSpurLength;
-    const double gS = 1 - uf23::Sigmoid(std::abs(deltaPhiC), lC, wS);
+    const long double wS = 5*uf23::degree;
+    const long double phiC = fSpurCenter;
+    const long double deltaPhiC = uf23::DeltaPhi(phiC, phi);
+    const long double lC = fSpurLength;
+    const long double gS = 1 - uf23::Sigmoid(std::abs(deltaPhiC), lC, wS);
 
     // Eq. (13)
-    const double hd = 1 - uf23::Sigmoid(std::abs(z), fDiskH, fDiskW);
+    const long double hd = 1 - uf23::Sigmoid(std::abs(z), fDiskH, fDiskW);
 
     // Eq. (17)
-    const double bS = rRef/r * B * hd * gS;
-    const double bCyl[3] = {bS * fSinPitch, bS * fCosPitch, 0};
-    const double cosPhi = x / r;
-    const double sinPhi = y / r;
+    const long double bS = rRef/r * B * hd * gS;
+    const long double bCyl[3] = {bS * fSinPitch, bS * fCosPitch, 0};
+    const long double cosPhi = x / r;
+    const long double sinPhi = y / r;
     return uf23::CylToCart(bCyl, cosPhi, sinPhi);
   }
   else
@@ -506,53 +506,53 @@ UF23Field::getSpurField(const double x, const double y, const double z)
 }
 
 Vector3d
-UF23Field::getSpiralField(const double x, const double y, const double z)
+UF23Field::getSpiralField(const long double x, const long double y, const long double z)
   const
 {
   // reference radius
-  const double rRef = 5*uf23::kpc;
+  const long double rRef = 5*uf23::kpc;
   // inner boundary of spiral field
-  const double rInner = 5*uf23::kpc;
-  const double wInner = 0.5*uf23::kpc;
+  const long double rInner = 5*uf23::kpc;
+  const long double wInner = 0.5*uf23::kpc;
   // outer boundary of spiral field
-  const double rOuter = 20*uf23::kpc;
-  const double wOuter = 0.5*uf23::kpc;
+  const long double rOuter = 20*uf23::kpc;
+  const long double wOuter = 0.5*uf23::kpc;
 
   // cylindrical coordinates
-  const double r2 = x*x + y*y;
+  const long double r2 = x*x + y*y;
   if (r2 == 0)
     return Vector3d(0, 0, 0);
-  const double r = sqrt(r2);
-  const double phi = atan2(y, x);
+  const long double r = sqrt(r2);
+  const long double phi = atan2(y, x);
 
   // Eq.(13)
-  const double hdz = 1 - uf23::Sigmoid(std::abs(z), fDiskH, fDiskW);
+  const long double hdz = 1 - uf23::Sigmoid(std::abs(z), fDiskH, fDiskW);
 
   // Eq.(14) times rRef divided by r
-  const double rFacI = uf23::Sigmoid(r, rInner, wInner);
-  const double rFacO = 1 - uf23::Sigmoid(r, rOuter, wOuter);
+  const long double rFacI = uf23::Sigmoid(r, rInner, wInner);
+  const long double rFacO = 1 - uf23::Sigmoid(r, rOuter, wOuter);
   // (using lim r--> 0 (1-exp(-r^2))/r --> r - r^3/2 + ...)
-  const double rFac =  r > 1e-5*uf23::pc ? (1-exp(-r*r)) / r : r * (1 - r2/2);
-  const double gdrTimesRrefByR = rRef * rFac * rFacO * rFacI;
+  const long double rFac =  r > 1e-5*uf23::pc ? (1-exp(-r*r)) / r : r * (1 - r2/2);
+  const long double gdrTimesRrefByR = rRef * rFac * rFacO * rFacI;
 
   // Eq. (12)
-  const double phi0 = phi - log(r/rRef) / fTanPitch;
+  const long double phi0 = phi - log(r/rRef) / fTanPitch;
 
   // Eq. (10)
-  const double b =
+  const long double b =
     fDiskB1 * cos(1 * (phi0 - fDiskPhase1)) +
     fDiskB2 * cos(2 * (phi0 - fDiskPhase2)) +
     fDiskB3 * cos(3 * (phi0 - fDiskPhase3));
 
   // Eq. (11)
-  const double fac = hdz * gdrTimesRrefByR;
-  const double bCyl[3] =
+  const long double fac = hdz * gdrTimesRrefByR;
+  const long double bCyl[3] =
     { b * fac * fSinPitch,
       b * fac * fCosPitch,
       0};
 
-  const double cosPhi = x / r;
-  const double sinPhi = y / r;
+  const long double cosPhi = x / r;
+  const long double sinPhi = y / r;
   return uf23::CylToCart(bCyl, cosPhi, sinPhi);
 }
 }

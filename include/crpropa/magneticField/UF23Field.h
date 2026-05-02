@@ -94,42 +94,42 @@ private:
   /// model type given in constructor
   const ModelType fModelType;
   /// maximum galacto-centric radius beyond which B=0
-  const double fMaxRadiusSquared;
+  const long double fMaxRadiusSquared;
 
   // parameters are stored in array
-  double fParameters[eNpar] = { 0 };
+  long double fParameters[eNpar] = { 0 };
   // references to parameters for convience
-  double& fDiskB1       = fParameters[eDiskB1];
-  double& fDiskB2       = fParameters[eDiskB2];
-  double& fDiskB3       = fParameters[eDiskB3];
-  double& fDiskH        = fParameters[eDiskH];
-  double& fDiskPhase1   = fParameters[eDiskPhase1];
-  double& fDiskPhase2   = fParameters[eDiskPhase2];
-  double& fDiskPhase3   = fParameters[eDiskPhase3];
-  double& fDiskPitch    = fParameters[eDiskPitch];
-  double& fDiskW        = fParameters[eDiskW];
-  double& fPoloidalA    = fParameters[ePoloidalA];
-  double& fPoloidalB    = fParameters[ePoloidalB];
-  double& fPoloidalP    = fParameters[ePoloidalP];
-  double& fPoloidalR    = fParameters[ePoloidalR];
-  double& fPoloidalW    = fParameters[ePoloidalW];
-  double& fPoloidalZ    = fParameters[ePoloidalZ];
-  double& fPoloidalXi   = fParameters[ePoloidalXi];
-  double& fSpurCenter   = fParameters[eSpurCenter];
-  double& fSpurLength   = fParameters[eSpurLength];
-  double& fSpurWidth    = fParameters[eSpurWidth];
-  double& fStriation    = fParameters[eStriation];
-  double& fToroidalBN   = fParameters[eToroidalBN];
-  double& fToroidalBS   = fParameters[eToroidalBS];
-  double& fToroidalR    = fParameters[eToroidalR];
-  double& fToroidalW    = fParameters[eToroidalW];
-  double& fToroidalZ    = fParameters[eToroidalZ];
-  double& fTwistingTime = fParameters[eTwistingTime];
+  long double& fDiskB1       = fParameters[eDiskB1];
+  long double& fDiskB2       = fParameters[eDiskB2];
+  long double& fDiskB3       = fParameters[eDiskB3];
+  long double& fDiskH        = fParameters[eDiskH];
+  long double& fDiskPhase1   = fParameters[eDiskPhase1];
+  long double& fDiskPhase2   = fParameters[eDiskPhase2];
+  long double& fDiskPhase3   = fParameters[eDiskPhase3];
+  long double& fDiskPitch    = fParameters[eDiskPitch];
+  long double& fDiskW        = fParameters[eDiskW];
+  long double& fPoloidalA    = fParameters[ePoloidalA];
+  long double& fPoloidalB    = fParameters[ePoloidalB];
+  long double& fPoloidalP    = fParameters[ePoloidalP];
+  long double& fPoloidalR    = fParameters[ePoloidalR];
+  long double& fPoloidalW    = fParameters[ePoloidalW];
+  long double& fPoloidalZ    = fParameters[ePoloidalZ];
+  long double& fPoloidalXi   = fParameters[ePoloidalXi];
+  long double& fSpurCenter   = fParameters[eSpurCenter];
+  long double& fSpurLength   = fParameters[eSpurLength];
+  long double& fSpurWidth    = fParameters[eSpurWidth];
+  long double& fStriation    = fParameters[eStriation];
+  long double& fToroidalBN   = fParameters[eToroidalBN];
+  long double& fToroidalBS   = fParameters[eToroidalBS];
+  long double& fToroidalR    = fParameters[eToroidalR];
+  long double& fToroidalW    = fParameters[eToroidalW];
+  long double& fToroidalZ    = fParameters[eToroidalZ];
+  long double& fTwistingTime = fParameters[eTwistingTime];
 
   // some pre-calculated derived parameter values
-  double fSinPitch  = 0;
-  double fCosPitch  = 0;
-  double fTanPitch  = 0;
+  long double fSinPitch  = 0;
+  long double fCosPitch  = 0;
+  long double fTanPitch  = 0;
 
   /// major field components
   Vector3d getDiskField(const Vector3d& pos) const;
@@ -137,15 +137,15 @@ private:
 
   /// sub-components depending on model type
   /// -- Sec. 5.2.2
-  Vector3d getSpiralField(const double x, const double y, const double z) const;
+  Vector3d getSpiralField(const long double x, const long double y, const long double z) const;
   /// -- Sec. 5.2.3
-  Vector3d getSpurField(const double x, const double y, const double z) const;
+  Vector3d getSpurField(const long double x, const long double y, const long double z) const;
   /// -- Sec. 5.3.1
-  Vector3d getToroidalHaloField(const double x, const double y, const double z) const;
+  Vector3d getToroidalHaloField(const long double x, const long double y, const long double z) const;
   /// -- Sec. 5.3.2
-  Vector3d getPoloidalHaloField(const double x, const double y, const double z) const;
+  Vector3d getPoloidalHaloField(const long double x, const long double y, const long double z) const;
   /// -- Sec. 5.3.3
-  Vector3d getTwistedHaloField(const double x, const double y, const double z) const;
+  Vector3d getTwistedHaloField(const long double x, const long double y, const long double z) const;
 
 };
 /** @} */

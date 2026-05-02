@@ -14,7 +14,7 @@ namespace crpropa {
  @param id		id of the particle following the PDG numbering scheme
  @returns The mass of a the particle
  */
- double particleMass(int id);
+ long double particleMass(int id);
  
 /** Get the nucleus mass by lookup from a table.
  The masses are the atomic masses from the NIST database: 
@@ -25,7 +25,7 @@ namespace crpropa {
  @param id		id of the particle following the PDG numbering scheme
  @returns The mass of a the nucleus
  */
-double nuclearMass(int id);
+long double nuclearMass(int id);
 
 /** Get the nucleus mass by lookup from a table.
  The masses are the atomic masses from the NIST database: 
@@ -37,7 +37,7 @@ double nuclearMass(int id);
  @param Z		atomic number of the nucleus
  @returns The mass of a the nucleus
  */
-double nuclearMass(int A, int Z);
+long double nuclearMass(int A, int Z);
 
 /** @}*/
 } // namespace crpropa

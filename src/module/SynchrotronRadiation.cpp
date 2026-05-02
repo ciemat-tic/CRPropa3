@@ -8,7 +8,7 @@
 
 namespace crpropa {
 
-SynchrotronRadiation::SynchrotronRadiation(ref_ptr<MagneticField> field, bool havePhotons, double thinning, int nSamples, double limit) {
+SynchrotronRadiation::SynchrotronRadiation(ref_ptr<MagneticField> field, bool havePhotons, long double thinning, int nSamples, long double limit) {
 	setField(field);
 	setBrms(0);
 	initSpectrum();
@@ -19,7 +19,7 @@ SynchrotronRadiation::SynchrotronRadiation(ref_ptr<MagneticField> field, bool ha
 	setThinning(thinning);
 }
 
-SynchrotronRadiation::SynchrotronRadiation(double Brms, bool havePhotons, double thinning, int nSamples, double limit) {
+SynchrotronRadiation::SynchrotronRadiation(long double Brms, bool havePhotons, long double thinning, int nSamples, long double limit) {
 	setBrms(Brms);
 	initSpectrum();
 	setHavePhotons(havePhotons);
@@ -37,11 +37,11 @@ ref_ptr<MagneticField> SynchrotronRadiation::getField() {
 	return field;
 }
 
-void SynchrotronRadiation::setBrms(double Brms) {
+void SynchrotronRadiation::setBrms(long double Brms) {
 	this->Brms = Brms;
 }
 
-double SynchrotronRadiation::getBrms() {
+long double SynchrotronRadiation::getBrms() {
 	return Brms;
 }
 
@@ -53,19 +53,19 @@ bool SynchrotronRadiation::getHavePhotons() {
 	return havePhotons;
 }
 
-void SynchrotronRadiation::setThinning(double thinning) {
+void SynchrotronRadiation::setThinning(long double thinning) {
 	this->thinning = thinning;
 }
 
-double SynchrotronRadiation::getThinning() {
+long double SynchrotronRadiation::getThinning() {
 	return thinning;
 }
 
-void SynchrotronRadiation::setLimit(double limit) {
+void SynchrotronRadiation::setLimit(long double limit) {
 	this->limit = limit;
 }
 
-double SynchrotronRadiation::getLimit() {
+long double SynchrotronRadiation::getLimit() {
 	return limit;
 }
 
@@ -77,11 +77,11 @@ int SynchrotronRadiation::getMaximumSamples() {
 	return maximumSamples;
 }
 
-void SynchrotronRadiation::setSecondaryThreshold(double threshold) {
+void SynchrotronRadiation::setSecondaryThreshold(long double threshold) {
 	secondaryThreshold = threshold;
 }
 
-double SynchrotronRadiation::getSecondaryThreshold() const {
+long double SynchrotronRadiation::getSecondaryThreshold() const {
 	return secondaryThreshold;
 }
 
@@ -98,7 +98,7 @@ void SynchrotronRadiation::initSpectrum() {
 
 	while (infile.good()) {
 		if (infile.peek() != '#') {
-			double a, b;
+			long double a, b;
 			infile >> a >> b;
 			if (infile) {
 				tabx.push_back(pow(10, a));
@@ -111,13 +111,13 @@ void SynchrotronRadiation::initSpectrum() {
 }
 
 void SynchrotronRadiation::process(Candidate *candidate) const {
-	double charge = fabs(candidate->current.getCharge());
+	long double charge = fabs(candidate->current.getCharge());
 	if (charge == 0)
 		return; // only charged particles
 
 	// calculate gyroradius, evaluated at the current position
-	double z = candidate->getRedshift();
-	double B;
+	long double z = candidate->getRedshift();
+	long double B;
 	if (field.valid()) {
 		Vector3d Bvec = field->getField(candidate->current.getPosition(), z);
 		B = Bvec.cross(candidate->current.getDirection()).getR();
@@ -125,16 +125,16 @@ void SynchrotronRadiation::process(Candidate *candidate) const {
 		B = sqrt(2. / 3) * Brms; // average perpendicular field component
 	}
 	B *= pow(1 + z, 2); // cosmological scaling
-	double Rg = candidate->current.getMomentum().getR() / charge / B;
+	long double Rg = candidate->current.getMomentum().getR() / charge / B;
 
 	// calculate energy loss
-	double lf = candidate->current.getLorentzFactor();
-	double dEdx = 1. / 6 / M_PI / epsilon0 * pow(lf * lf - 1, 2) * pow(charge / Rg, 2); // Jackson p. 770 (14.31)
-	double step = candidate->getCurrentStep() / (1 + z); // step size in local frame
-	double dE = step * dEdx;
+	long double lf = candidate->current.getLorentzFactor();
+	long double dEdx = 1. / 6 / M_PI / epsilon0 * pow(lf * lf - 1, 2) * pow(charge / Rg, 2); // Jackson p. 770 (14.31)
+	long double step = candidate->getCurrentStep() / (1 + z); // step size in local frame
+	long double dE = step * dEdx;
 
 	// apply energy loss and limit next step
-	double E = candidate->current.getEnergy();
+	long double E = candidate->current.getEnergy();
 	candidate->current.setEnergy(E - dE);
 	candidate->limitNextStep(limit * E / dEdx);
 
@@ -143,23 +143,23 @@ void SynchrotronRadiation::process(Candidate *candidate) const {
 		return;
 
 	// check if photons with energies > 14 * Ecrit are possible
-	double Ecrit = 3. / 4 * h_planck / M_PI * c_light * pow(lf, 3) / Rg;
+	long double Ecrit = 3. / 4 * h_planck / M_PI * c_light * pow(lf, 3) / Rg;
 	if (14 * Ecrit < secondaryThreshold)
 		return;
 
 	// draw photons up to the total energy loss
 	// if maximumSamples is reached before that, compensate the total energy afterwards
 	Random &random = Random::instance();
-	double dE0 = dE;
-	std::vector<double> energies;
+	long double dE0 = dE;
+	std::vector<long double> energies;
 	int counter = 0;
 	while (dE > 0) {
 		// draw random value between 0 and maximum of corresponding cdf
 		// choose bin of s where cdf(x) = cdf_rand -> x_rand
 		size_t i = random.randBin(tabCDF); // draw random bin (upper bin boundary returned)
-		double binWidth = (tabx[i] - tabx[i-1]);
-		double x = tabx[i-1] + random.rand() * binWidth; // draw random x uniformly distributed in bin
-		double Ephoton = x * Ecrit;
+		long double binWidth = (tabx[i] - tabx[i-1]);
+		long double x = tabx[i-1] + random.rand() * binWidth; // draw random x uniformly distributed in bin
+		long double Ephoton = x * Ecrit;
 
 		// if the remaining energy is not sufficient check for random accepting
 		if (Ephoton > dE) {
@@ -184,15 +184,15 @@ void SynchrotronRadiation::process(Candidate *candidate) const {
 	}
 
 	// while loop before gave total energy which is just a fraction of the required
-	double w1 = 1;
+	long double w1 = 1;
 	if (maximumSamples > 0 && dE > 0)
 		w1 = 1. / (1. - dE / dE0); 
 
 	// loop over sampled photons and attribute weights accordingly
 	for (int i = 0; i < energies.size(); i++) {
-		double Ephoton = energies[i];
-		double f = Ephoton / (E - dE0);
-		double w = w1 / pow(f, thinning);
+		long double Ephoton = energies[i];
+		long double f = Ephoton / (E - dE0);
+		long double w = w1 / pow(f, thinning);
 
 		// thinning procedure: accepts only a few random secondaries
 		if (random.rand() < pow(f, thinning)) {

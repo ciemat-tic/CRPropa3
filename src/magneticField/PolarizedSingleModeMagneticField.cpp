@@ -2,7 +2,7 @@
 
 namespace crpropa {
 
-PolarizedSingleModeMagneticField::PolarizedSingleModeMagneticField( const double &B_0, const double &wavelength, const double &sigma, const Vector3d &r_0, const Vector3d &e_1, const Vector3d &e_2, std::string flagAmplitudeRms, std::string flagPolarizationHelicity, std::string flagMode ) {
+PolarizedSingleModeMagneticField::PolarizedSingleModeMagneticField( const long double &B_0, const long double &wavelength, const long double &sigma, const Vector3d &r_0, const Vector3d &e_1, const Vector3d &e_2, std::string flagAmplitudeRms, std::string flagPolarizationHelicity, std::string flagMode ) {
 	if (flagMode == "elliptical") {
 		if (abs(sigma) > 1)
 			throw std::runtime_error("PolarizedSingleModeMagneticField: The value of the  polarization parameter has to lie in the range [-1;+1].");

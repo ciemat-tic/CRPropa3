@@ -53,7 +53,7 @@ TEST(ElectronPairProduction, energyDecreasing) {
 	ref_ptr<PhotonField> cmb = new CMB();
 	ElectronPairProduction epp1(cmb);
 	for (int i = 0; i < 80; i++) {
-		double E = pow(10, 15 + i * 0.1) * eV;
+		long double E = pow(10, 15 + i * 0.1) * eV;
 		c.current.setEnergy(E);
 		epp1.process(&c);
 		EXPECT_LE(c.current.getEnergy(), E);
@@ -62,7 +62,7 @@ TEST(ElectronPairProduction, energyDecreasing) {
 	ref_ptr<PhotonField> irb = new IRB_Kneiske04();
 	ElectronPairProduction epp2(irb);
 	for (int i = 0; i < 80; i++) {
-		double E = pow(10, 15 + i * 0.1) * eV;
+		long double E = pow(10, 15 + i * 0.1) * eV;
 		c.current.setEnergy(E);
 		epp2.process(&c);
 		EXPECT_LE(c.current.getEnergy(), E);
@@ -89,12 +89,12 @@ TEST(ElectronPairProduction, thisIsNotNucleonic) {
 
 TEST(ElectronPairProduction, valuesCMB) {
 	// Test if energy loss corresponds to the data table.
-	std::vector<double> x;
-	std::vector<double> y;
+	std::vector<long double> x;
+	std::vector<long double> y;
 	std::ifstream infile(getDataPath("pair_CMB.txt").c_str());
 	while (infile.good()) {
 		if (infile.peek() != '#') {
-			double a, b;
+			long double a, b;
 			infile >> a >> b;
 			if (infile) {
 				x.push_back(a * eV);
@@ -114,8 +114,8 @@ TEST(ElectronPairProduction, valuesCMB) {
 	for (int i = 0; i < x.size(); i++) {
 		c.current.setEnergy(x[i]);
 		epp.process(&c);
-		double dE = x[i] - c.current.getEnergy();
-		double dE_table = y[i] * 1 * Mpc;
+		long double dE = x[i] - c.current.getEnergy();
+		long double dE_table = y[i] * 1 * Mpc;
 		EXPECT_NEAR(dE_table, dE, 1e-12);
 	}
 }
@@ -146,12 +146,12 @@ TEST(ElectronPairProduction, interactionTag) {
 
 TEST(ElectronPairProduction, valuesIRB) {
 	// Test if energy loss corresponds to the data table.
-	std::vector<double> x;
-	std::vector<double> y;
+	std::vector<long double> x;
+	std::vector<long double> y;
 	std::ifstream infile(getDataPath("pairIRB.txt").c_str());
 	while (infile.good()) {
 		if (infile.peek() != '#') {
-			double a, b;
+			long double a, b;
 			infile >> a >> b;
 			if (infile) {
 				x.push_back(a * eV);
@@ -171,8 +171,8 @@ TEST(ElectronPairProduction, valuesIRB) {
 	for (int i = 0; i < x.size(); i++) {
 		c.current.setEnergy(x[i]);
 		epp.process(&c);
-		double dE = x[i] - c.current.getEnergy();
-		double dE_table = y[i] * 1 * Mpc;
+		long double dE = x[i] - c.current.getEnergy();
+		long double dE_table = y[i] * 1 * Mpc;
 		EXPECT_NEAR(dE, dE_table, 1e-12);
 	}
 }
@@ -184,7 +184,7 @@ TEST(NuclearDecay, scandium44) {
 	NuclearDecay d(true, true);
 	Candidate c(nucleusId(44, 21), 1E18 * eV);
 	c.setCurrentStep(100 * Mpc);
-	double gamma = c.current.getLorentzFactor();
+	long double gamma = c.current.getLorentzFactor();
 	d.process(&c);
 	
 	// expected decay product: 44Ca
@@ -237,9 +237,9 @@ TEST(NuclearDecay, limitNextStep) {
 	// Test if next step is limited in case of a neutron.
 	NuclearDecay decay;
 	Candidate c(nucleusId(1, 0), 10 * EeV);
-	c.setNextStep(std::numeric_limits<double>::max());
+	c.setNextStep(std::numeric_limits<long double>::max());
 	decay.process(&c);
-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
+	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
 }
 
 TEST(NuclearDecay, allChannelsWorking) {
@@ -299,7 +299,7 @@ TEST(NuclearDecay, thisIsNotNucleonic) {
 	// Test if nothing happens to an electron
 	NuclearDecay decay;
 	Candidate c(11, 10 * EeV);
-	c.setNextStep(std::numeric_limits<double>::max());
+	c.setNextStep(std::numeric_limits<long double>::max());
 	decay.process(&c);
 	EXPECT_EQ(11, c.current.getId());
 	EXPECT_EQ(10 * EeV, c.current.getEnergy());
@@ -367,7 +367,7 @@ TEST(PhotoDisintegration, carbon) {
 	EXPECT_TRUE(c.secondaries.size() > 0);
 	// secondaries produced
 
-	double E = c.current.getEnergy();
+	long double E = c.current.getEnergy();
 	id = c.current.getId();
 	int A = massNumber(id);
 	int Z = chargeNumber(id);
@@ -404,7 +404,7 @@ TEST(PhotoDisintegration, iron) {
 	// expect secondaries produced
 	EXPECT_TRUE(c.secondaries.size() > 0);
 
-	double E = c.current.getEnergy();
+	long double E = c.current.getEnergy();
 	id = c.current.getId();
 	int A = massNumber(id);
 	int Z = chargeNumber(id);
@@ -444,11 +444,11 @@ TEST(PhotoDisintegration, limitNextStep) {
 	ref_ptr<PhotonField> cmb = new CMB();
 	PhotoDisintegration pd(cmb);
 	Candidate c;
-	c.setNextStep(std::numeric_limits<double>::max());
+	c.setNextStep(std::numeric_limits<long double>::max());
 	c.current.setId(nucleusId(4, 2));
 	c.current.setEnergy(200 * EeV);
 	pd.process(&c);
-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
+	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
 }
 
 TEST(PhotoDisintegration, allIsotopes) {
@@ -535,7 +535,7 @@ TEST(ElasticScattering, secondaries) {
 	for (int i = 0; i < c.secondaries.size(); i++) {
 		int id = (*c.secondaries[i]).current.getId();
 		EXPECT_EQ(id, 22);
-		double energy = (*c.secondaries[i]).current.getEnergy();
+		long double energy = (*c.secondaries[i]).current.getEnergy();
 		EXPECT_GT(energy, 0);
 		EXPECT_LT(energy, 200 * EeV);
 	}
@@ -623,9 +623,9 @@ TEST(PhotoPionProduction, limitNextStep) {
 	ref_ptr<PhotonField> cmb = new CMB();
 	PhotoPionProduction ppp(cmb);
 	Candidate c(nucleusId(1, 1), 200 * EeV);
-	c.setNextStep(std::numeric_limits<double>::max());
+	c.setNextStep(std::numeric_limits<long double>::max());
 	ppp.process(&c);
-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
+	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
 }
 
 TEST(PhotoPionProduction, secondaries) {
@@ -645,14 +645,14 @@ TEST(PhotoPionProduction, sampling) {
 	// by testing the calculated pEpsMax for CMB(), also indirectly
 	// testing epsMinInteraction and logSampling (default).
 	ref_ptr<PhotonField> cmb = new CMB(); //create CMB instance
-	double energy = 1.e10; //1e10 GeV
+	long double energy = 1.e10; //1e10 GeV
 	bool onProton = true; //proton
-	double z = 0; //no redshift
+	long double z = 0; //no redshift
 	PhotoPionProduction ppp(cmb, true, true, true);
-	double correctionFactor = ppp.getCorrectionFactor(); //get current correctionFactor
-	double epsMin = std::max(cmb -> getMinimumPhotonEnergy(z) / eV, 0.00710614); // 0.00710614 = epsMinInteraction(onProton,energy)
-	double epsMax = cmb -> getMaximumPhotonEnergy(z) / eV;
-	double pEpsMax = ppp.probEpsMax(onProton, energy, z, epsMin, epsMax) / correctionFactor;
+	long double correctionFactor = ppp.getCorrectionFactor(); //get current correctionFactor
+	long double epsMin = std::max(cmb -> getMinimumPhotonEnergy(z) / eV, 0.00710614); // 0.00710614 = epsMinInteraction(onProton,energy)
+	long double epsMax = cmb -> getMaximumPhotonEnergy(z) / eV;
+	long double pEpsMax = ppp.probEpsMax(onProton, energy, z, epsMin, epsMax) / correctionFactor;
 	EXPECT_DOUBLE_EQ(pEpsMax,132673934934.922);
 }
 
@@ -737,9 +737,9 @@ TEST(EMPairProduction, limitNextStep) {
 	ref_ptr<PhotonField> cmb = new CMB();
 	EMPairProduction m(cmb);
 	Candidate c(22, 1E17 * eV);
-	c.setNextStep(std::numeric_limits<double>::max());
+	c.setNextStep(std::numeric_limits<long double>::max());
 	m.process(&c);
-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
+	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
 }
 
 TEST(EMPairProduction, secondaries) {
@@ -760,7 +760,7 @@ TEST(EMPairProduction, secondaries) {
 	for (int f = 0; f < fields.size(); f++) {
 		m.setPhotonField(fields[f]);
 		for (int i = 0; i < 140; i++) { // loop over energies Ep = (1e10 - 1e23) eV
-			double Ep = pow(10, 9.05 + 0.1 * i) * eV;
+			long double Ep = pow(10, 9.05 + 0.1 * i) * eV;
 			Candidate c(22, Ep);
 			c.setCurrentStep(1e10 * Mpc);
 
@@ -774,7 +774,7 @@ TEST(EMPairProduction, secondaries) {
 			EXPECT_EQ(c.secondaries.size(), 2);
 
 			// expect electron / positron with energies 0 < E < Ephoton
-			double Etot = 0;
+			long double Etot = 0;
 			for (int j = 0; j < c.secondaries.size(); j++) {
 				Candidate s = *c.secondaries[j];
 				EXPECT_EQ(abs(s.current.getId()), 11);
@@ -842,9 +842,9 @@ TEST(EMDoublePairProduction, limitNextStep) {
 	ref_ptr<PhotonField> cmb = new CMB();
 	EMDoublePairProduction m(cmb);
 	Candidate c(22, 1E17 * eV);
-	c.setNextStep(std::numeric_limits<double>::max());
+	c.setNextStep(std::numeric_limits<long double>::max());
 	m.process(&c);
-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
+	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
 }
 
 TEST(EMDoublePairProduction, secondaries) {
@@ -867,7 +867,7 @@ TEST(EMDoublePairProduction, secondaries) {
 		
 		// loop over energies Ep = (1e9 - 1e23) eV
 		for (int i = 0; i < 140; i++) {
-			double Ep = pow(10, 9.05 + 0.1 * i) * eV;
+			long double Ep = pow(10, 9.05 + 0.1 * i) * eV;
 			Candidate c(22, Ep);
 			c.setCurrentStep(1e4 * Mpc); // use lower value so that the test can run faster
 			m.process(&c);
@@ -880,7 +880,7 @@ TEST(EMDoublePairProduction, secondaries) {
 			EXPECT_EQ(c.secondaries.size(), 2);
 
 			// expect electron / positron with energies 0 < E < Ephoton
-			double Etot = 0;
+			long double Etot = 0;
 			for (int j = 0; j < c.secondaries.size(); j++) {
 				Candidate s = *c.secondaries[j];
 				EXPECT_EQ(abs(s.current.getId()), 11);
@@ -948,9 +948,9 @@ TEST(EMTripletPairProduction, limitNextStep) {
 	ref_ptr<PhotonField> cmb = new CMB();
 	EMTripletPairProduction m(cmb);
 	Candidate c(11, 1E17 * eV);
-	c.setNextStep(std::numeric_limits<double>::max());
+	c.setNextStep(std::numeric_limits<long double>::max());
 	m.process(&c);
-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
+	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
 }
 
 TEST(EMTripletPairProduction, secondaries) {
@@ -974,7 +974,7 @@ TEST(EMTripletPairProduction, secondaries) {
 		// loop over energies Ep = (1e9 - 1e23) eV
 		for (int i = 0; i < 140; i++) {
 
-			double Ep = pow(10, 9.05 + 0.1 * i) * eV;
+			long double Ep = pow(10, 9.05 + 0.1 * i) * eV;
 			Candidate c(11, Ep);
 			c.setCurrentStep(1e4 * Mpc); // use lower value so that the test can run faster
 			m.process(&c);
@@ -985,7 +985,7 @@ TEST(EMTripletPairProduction, secondaries) {
 
 			// expect positive energy of primary electron
 			EXPECT_GT(c.current.getEnergy(), 0);
-			double Etot = c.current.getEnergy();
+			long double Etot = c.current.getEnergy();
 
 			// expect electron / positron with energies 0 < E < Ephoton
 			for (int j = 0; j < c.secondaries.size(); j++) {
@@ -1055,9 +1055,9 @@ TEST(EMInverseComptonScattering, limitNextStep) {
 	ref_ptr<PhotonField> cmb = new CMB();
 	EMInverseComptonScattering m(cmb);
 	Candidate c(11, 1E17 * eV);
-	c.setNextStep(std::numeric_limits<double>::max());
+	c.setNextStep(std::numeric_limits<long double>::max());
 	m.process(&c);
-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
+	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
 }
 
 TEST(EMInverseComptonScattering, secondaries) {
@@ -1080,7 +1080,7 @@ TEST(EMInverseComptonScattering, secondaries) {
 		
 		// loop over energies Ep = (1e9 - 1e23) eV
 		for (int i = 0; i < 140; i++) {
-			double Ep = pow(10, 9.05 + 0.1 * i) * eV;
+			long double Ep = pow(10, 9.05 + 0.1 * i) * eV;
 			Candidate c(11, Ep);
 			c.setCurrentStep(1e3 * Mpc); // use lower value so that the test can run faster
 			m.process(&c);
@@ -1099,7 +1099,7 @@ TEST(EMInverseComptonScattering, secondaries) {
 			EXPECT_TRUE(s.current.getEnergy() < Ep);
 
 
-			double Etot = c.current.getEnergy();
+			long double Etot = c.current.getEnergy();
 			for (int j = 0; j < c.secondaries.size(); j++) {
 				s = *c.secondaries[j];
 				Etot += s.current.getEnergy();
@@ -1158,10 +1158,10 @@ TEST(SynchrotronRadiation, simpleTestRMS) {
 	EXPECT_EQ(sync.getSecondaryThreshold(), 1 * MeV);
 
 	// init with custom values 
-	double b = 1 * muG; 
-	double thinning = 0.23;
+	long double b = 1 * muG;
+	long double thinning = 0.23;
 	int samples = 4; 
-	double limit = 0.123;
+	long double limit = 0.123;
 	SynchrotronRadiation sync2(b, true, thinning, samples, limit);
 
 	EXPECT_EQ(sync2.getBrms(), b);
@@ -1190,9 +1190,9 @@ TEST(SynchrotronRadiation, simpleTestField) {
 	EXPECT_EQ(fieldAtPosition.getR(), b.getR());
 
 	// init with custom values 
-	double thinning = 0.23;
+	long double thinning = 0.23;
 	int samples = 4; 
-	double limit = 0.123;
+	long double limit = 0.123;
 	SynchrotronRadiation sync2(field, true, thinning, samples, limit);
 
 	EXPECT_EQ(sync2.getBrms(), 0);
@@ -1240,15 +1240,15 @@ TEST(SynchrotronRadiation, getSetFunctions) {
 }
 
 TEST(SynchrotronRadiation, energyLoss) {
-	double brms = 1 * muG; 
-	double step = 1 * kpc; 
+	long double brms = 1 * muG;
+	long double step = 1 * kpc;
 	SynchrotronRadiation sync(brms, false);
 
-	double dE, lf, Rg, dEdx;
+	long double dE, lf, Rg, dEdx;
 	Candidate c(11); 
 	c.setCurrentStep(step);
 	c.setNextStep(step);
-	double charge = eplus;
+	long double charge = eplus;
 
 	// 1 GeV 
 	c.current.setEnergy(1 * GeV);
@@ -1288,24 +1288,24 @@ TEST(SynchrotronRadiation, energyLoss) {
 }
 
 TEST(SynchrotronRadiation, PhotonEnergy) {
-	double brms = 1 * muG; 
+	long double brms = 1 * muG;
 	SynchrotronRadiation sync(brms, true);
 	sync.setSecondaryThreshold(0.); // allow all secondaries for testing
 
-	double E = 1 * TeV;
+	long double E = 1 * TeV;
 	Candidate c(11, E);
 	c.setCurrentStep(10 * pc); 
 	c.setNextStep(10 * pc);
 	
-	double lf = c.current.getLorentzFactor();
-	double Rg = E / eplus / c_light / (brms * sqrt(2. / 3) ); // factor 2/3 for avg magnetic field direction. 
-	double Ecrit = 3. / 4 * h_planck / M_PI * c_light * pow(lf, 3) / Rg;
+	long double lf = c.current.getLorentzFactor();
+	long double Rg = E / eplus / c_light / (brms * sqrt(2. / 3) ); // factor 2/3 for avg magnetic field direction.
+	long double Ecrit = 3. / 4 * h_planck / M_PI * c_light * pow(lf, 3) / Rg;
 
 	sync.process(&c);
 	EXPECT_TRUE(c.secondaries.size() > 0);	// must have secondaries
 
 	// check avg energy of the secondary photons 
-	double Esec = 0; 
+	long double Esec = 0;
 	for (size_t i = 0; i < c.secondaries.size(); i++) {
 		Esec += c.secondaries[i] -> current.getEnergy();
 	}

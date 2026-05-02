@@ -15,7 +15,7 @@
 
 namespace crpropa {
 
-PhotoPionProduction::PhotoPionProduction(ref_ptr<PhotonField> field, bool photons, bool neutrinos, bool electrons, bool antiNucleons, double l, bool redshift) {
+PhotoPionProduction::PhotoPionProduction(ref_ptr<PhotonField> field, bool photons, bool neutrinos, bool electrons, bool antiNucleons, long double l, bool redshift) {
 	havePhotons = photons;
 	haveNeutrinos = neutrinos;
 	haveElectrons = electrons;
@@ -67,7 +67,7 @@ void PhotoPionProduction::setHaveRedshiftDependence(bool b) {
 	setPhotonField(photonField);
 }
 
-void PhotoPionProduction::setLimit(double l) {
+void PhotoPionProduction::setLimit(long double l) {
 	limit = l;
 }
 
@@ -83,13 +83,13 @@ void PhotoPionProduction::initRate(std::string filename) {
 		throw std::runtime_error("PhotoPionProduction: could not open file " + filename);
 
 	if (haveRedshiftDependence) {
-		double zOld = -1, aOld = -1;
+		long double zOld = -1, aOld = -1;
 		while (infile.good()) {
 			if (infile.peek() == '#') {
 				infile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 				continue;
 			}
-			double z, a, b, c;
+			long double z, a, b, c;
 			infile >> z >> a >> b >> c;
 			if (!infile)
 				break;
@@ -110,7 +110,7 @@ void PhotoPionProduction::initRate(std::string filename) {
 				infile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 				continue;
 			}
-			double a, b, c;
+			long double a, b, c;
 			infile >> a >> b >> c;
 			if (!infile)
 				break;
@@ -123,15 +123,15 @@ void PhotoPionProduction::initRate(std::string filename) {
 	infile.close();
 }
 
-double PhotoPionProduction::nucleonMFP(double gamma, double z, bool onProton) const {
-	const std::vector<double> &tabRate = (onProton)? tabProtonRate : tabNeutronRate;
+long double PhotoPionProduction::nucleonMFP(long double gamma, long double z, bool onProton) const {
+	const std::vector<long double> &tabRate = (onProton)? tabProtonRate : tabNeutronRate;
 
 	// scale nucleus energy instead of background photon energy
 	gamma *= (1 + z);
 	if (gamma < tabLorentz.front() or (gamma > tabLorentz.back()))
-		return std::numeric_limits<double>::max();
+		return std::numeric_limits<long double>::max();
 
-	double rate;
+	long double rate;
 	if (haveRedshiftDependence)
 		rate = interpolate2d(z, gamma, tabRedshifts, tabLorentz, tabRate);
 	else
@@ -143,7 +143,7 @@ double PhotoPionProduction::nucleonMFP(double gamma, double z, bool onProton) co
 	return 1. / rate;
 }
 
-double PhotoPionProduction::nucleiModification(int A, int X) const {
+long double PhotoPionProduction::nucleiModification(int A, int X) const {
 	if (A == 1)
 		return 1.;
 	if (A <= 8)
@@ -152,8 +152,8 @@ double PhotoPionProduction::nucleiModification(int A, int X) const {
 }
 
 void PhotoPionProduction::process(Candidate *candidate) const {
-	double step = candidate->getCurrentStep();
-	double z = candidate->getRedshift();
+	long double step = candidate->getCurrentStep();
+	long double z = candidate->getRedshift();
 	// the loop is processed at least once for limiting the next step
 	do {
 		// check if nucleus
@@ -163,15 +163,15 @@ void PhotoPionProduction::process(Candidate *candidate) const {
 
 		// find interaction with minimum random distance
 		Random &random = Random::instance();
-		double randDistance = std::numeric_limits<double>::max();
-		double meanFreePath;
-		double totalRate = 0;
+		long double randDistance = std::numeric_limits<long double>::max();
+		long double meanFreePath;
+		long double totalRate = 0;
 		bool onProton = true; // interacting particle: proton or neutron
 
 		int A = massNumber(id);
 		int Z = chargeNumber(id);
 		int N = A - Z;
-		double gamma = candidate->current.getLorentzFactor();
+		long double gamma = candidate->current.getLorentzFactor();
 
 		// check for interaction on protons
 		if (Z > 0) {
@@ -183,7 +183,7 @@ void PhotoPionProduction::process(Candidate *candidate) const {
 		if (N > 0) {
 			meanFreePath = nucleonMFP(gamma, z, false) / nucleiModification(A, N);
 			totalRate += 1. / meanFreePath;
-			double d = -log(random.rand()) * meanFreePath;
+			long double d = -log(random.rand()) * meanFreePath;
 			if (d < randDistance) {
 				randDistance = d;
 				onProton = false;
@@ -207,9 +207,9 @@ void PhotoPionProduction::performInteraction(Candidate *candidate, bool onProton
 	int id = candidate->current.getId();
 	int A = massNumber(id);
 	int Z = chargeNumber(id);
-	double E = candidate->current.getEnergy();
-	double EpA = E / A;
-	double z = candidate->getRedshift();
+	long double E = candidate->current.getEnergy();
+	long double EpA = E / A;
+	long double z = candidate->getRedshift();
 
 	// SOPHIA simulates interactions only for protons / neutrons.
 	// For anti-protons / neutrons assume charge symmetry and change all
@@ -217,17 +217,17 @@ void PhotoPionProduction::performInteraction(Candidate *candidate, bool onProton
 	int sign = (id > 0) ? 1 : -1;
 
 	// check if below SOPHIA's energy threshold
-	double E_threshold = (photonField->getFieldName() == "CMB") ? 3.72e18 * eV : 5.83e15 * eV;
+	long double E_threshold = (photonField->getFieldName() == "CMB") ? 3.72e18 * eV : 5.83e15 * eV;
 	if (EpA * (1 + z) < E_threshold)
 		return;
 
 	// SOPHIA - input:
 	int nature = 1 - static_cast<int>(onProton);  // 0=proton, 1=neutron
-	double Ein = EpA / GeV;  // GeV is the SOPHIA standard unit
-	double eps = sampleEps(onProton, EpA, z) / GeV;  // GeV for SOPHIA
+	long double Ein = EpA / GeV;  // GeV is the SOPHIA standard unit
+	long double eps = sampleEps(onProton, EpA, z) / GeV;  // GeV for SOPHIA
 
 	// SOPHIA - output:
-	double outputEnergy[5][2000];  // [GeV/c, GeV/c, GeV/c, GeV, GeV/c^2]
+	long double outputEnergy[5][2000];  // [GeV/c, GeV/c, GeV/c, GeV, GeV/c^2]
 	int outPartID[2000];
 	int nParticles;
 
@@ -239,11 +239,11 @@ void PhotoPionProduction::performInteraction(Candidate *candidate, bool onProton
 	Random &random = Random::instance();
 	Vector3d pos = random.randomInterpolatedPosition(candidate->previous.getPosition(), candidate->current.getPosition());
 	std::vector<int> pnType;  // filled with either 13 (proton) or 14 (neutron)
-	std::vector<double> pnEnergy;  // corresponding energies of proton or neutron
+	std::vector<long double> pnEnergy;  // corresponding energies of proton or neutron
 	if (nParticles == 0)
 		return;
 	for (int i = 0; i < nParticles; i++) { // loop over out-going particles
-		double Eout = outputEnergy[3][i] * GeV; // only the energy is used; could be changed for more detail
+		long double Eout = outputEnergy[3][i] * GeV; // only the energy is used; could be changed for more detail
 		int pType = outPartID[i];
 		switch (pType) {
 		case 13: // proton
@@ -297,7 +297,7 @@ void PhotoPionProduction::performInteraction(Candidate *candidate, bool onProton
 			throw std::runtime_error("PhotoPionProduction: unexpected particle " + kiss::str(pType));
 		}
 	}
-	double maxEnergy = *std::max_element(pnEnergy.begin(), pnEnergy.end());  // criterion for being declared primary
+	long double maxEnergy = *std::max_element(pnEnergy.begin(), pnEnergy.end());  // criterion for being declared primary
 	for (int i = 0; i < pnEnergy.size(); ++i) {
 		if (pnEnergy[i] == maxEnergy) {  // nucleon is primary particle
 			if (A == 1) {
@@ -332,12 +332,12 @@ void PhotoPionProduction::performInteraction(Candidate *candidate, bool onProton
 	}
 }
 
-double PhotoPionProduction::lossLength(int id, double gamma, double z) {
+long double PhotoPionProduction::lossLength(int id, long double gamma, long double z) {
 	int A = massNumber(id);
 	int Z = chargeNumber(id);
 	int N = A - Z;
 
-	double lossRate = 0;
+	long double lossRate = 0;
 	if (Z > 0)
 		lossRate += 1 / nucleonMFP(gamma, z, true) * nucleiModification(A, Z);
 	if (N > 0)
@@ -346,7 +346,7 @@ double PhotoPionProduction::lossLength(int id, double gamma, double z) {
 	// approximate the relative energy loss
 	// - nucleons keep the fraction of mass to delta-resonance mass
 	// - nuclei lose the energy 1/A the interacting nucleon is carrying
-	double relativeEnergyLoss = (A == 1) ? 1 - 938. / 1232. : 1. / A;
+	long double relativeEnergyLoss = (A == 1) ? 1 - 938. / 1232. : 1. / A;
 	lossRate *= relativeEnergyLoss;
 
 	// scaling factor: interaction rate --> energy loss rate
@@ -355,14 +355,14 @@ double PhotoPionProduction::lossLength(int id, double gamma, double z) {
 	return 1. / lossRate;
 }
 
-SophiaEventOutput PhotoPionProduction::sophiaEvent(bool onProton, double Ein, double eps) const {
+SophiaEventOutput PhotoPionProduction::sophiaEvent(bool onProton, long double Ein, long double eps) const {
 	// SOPHIA - input:
 	int nature = 1 - static_cast<int>(onProton);  // 0=proton, 1=neutron
 	Ein /= GeV;  // GeV is the SOPHIA standard unit
 	eps /= GeV;  // GeV for SOPHIA
 
 	// SOPHIA - output:
-	double outputEnergy[5][2000];  // [Px GeV/c, Py GeV/c, Pz GeV/c, E GeV, m0 GeV/c^2]
+	long double outputEnergy[5][2000];  // [Px GeV/c, Py GeV/c, Pz GeV/c, E GeV, m0 GeV/c^2]
 	int outPartID[2000];
 	int nParticles;
 
@@ -413,59 +413,59 @@ SophiaEventOutput PhotoPionProduction::sophiaEvent(bool onProton, double Ein, do
 	return output;
 }
 
-double PhotoPionProduction::sampleEps(bool onProton, double E, double z) const {
+long double PhotoPionProduction::sampleEps(bool onProton, long double E, long double z) const {
 	// sample eps between epsMin ... epsMax
-	double Ein = E / GeV;
-	double epsMin = std::max(photonField -> getMinimumPhotonEnergy(z) / eV, epsMinInteraction(onProton, Ein));
-	double epsMax = photonField -> getMaximumPhotonEnergy(z) / eV;
-	double pEpsMax = probEpsMax(onProton, Ein, z, epsMin, epsMax);
+	long double Ein = E / GeV;
+	long double epsMin = std::max(photonField -> getMinimumPhotonEnergy(z) / eV, epsMinInteraction(onProton, Ein));
+	long double epsMax = photonField -> getMaximumPhotonEnergy(z) / eV;
+	long double pEpsMax = probEpsMax(onProton, Ein, z, epsMin, epsMax);
 
 	Random &random = Random::instance();
 	for (int i = 0; i < 1000000; i++) {
-		double eps = epsMin + random.rand() * (epsMax - epsMin);
-		double pEps = probEps(eps, onProton, Ein, z);
+		long double eps = epsMin + random.rand() * (epsMax - epsMin);
+		long double pEps = probEps(eps, onProton, Ein, z);
 		if (random.rand() * pEpsMax < pEps)
 			return eps * eV;
 	}
 	throw std::runtime_error("error: no photon found in sampleEps, please make sure that photon field provides photons for the interaction by adapting the energy range of the tabulated photon field.");
 }
 
-double PhotoPionProduction::epsMinInteraction(bool onProton, double Ein) const {
+long double PhotoPionProduction::epsMinInteraction(bool onProton, long double Ein) const {
 	// labframe energy of least energetic photon where PPP can occur
 	// this kind-of ties samplingEps to the PPP and SOPHIA
-	const double m = mass(onProton);
-	const double p = momentum(onProton, Ein);
-	double epsMin = 1.e9 * (1.1646 - m * m) / 2. / (Ein + p); // eV
+	const long double m = mass(onProton);
+	const long double p = momentum(onProton, Ein);
+	long double epsMin = 1.e9 * (1.1646 - m * m) / 2. / (Ein + p); // eV
 	return epsMin;
 }
 
-double PhotoPionProduction::probEpsMax(bool onProton, double Ein, double z, double epsMin, double epsMax) const {
+long double PhotoPionProduction::probEpsMax(bool onProton, long double Ein, long double z, long double epsMin, long double epsMax) const {
 	// find pEpsMax by testing photon energies (eps) for their interaction
 	// probabilities (p) in order to find the maximum (max) probability
 	const int nrSteps = 100;
-	double pEpsMaxTested = 0.;
-	double step = 0.;
+	long double pEpsMaxTested = 0.;
+	long double step = 0.;
 	if (sampleLog){
 		// sample in logspace with stepsize that is at max Δlog(E/eV) = 0.01 or otherwise dep. on size of energy range with nrSteps+1 steps log. equidis. spaced
 		step = std::min(0.01, std::log10(epsMax / epsMin) / nrSteps);
 	} else
 		step = (epsMax - epsMin) / nrSteps;
 
-	double epsDummy = 0.;
+	long double epsDummy = 0.;
 	int i = 0;
 	while (epsDummy < epsMax) {
 		if (sampleLog)
 			epsDummy = epsMin * pow(10, step * i);
 		else
 			epsDummy = epsMin + step * i;
-		double p = probEps(epsDummy, onProton, Ein, z);
+		long double p = probEps(epsDummy, onProton, Ein, z);
 		if(p > pEpsMaxTested)
 			pEpsMaxTested = p;
 		i++;
 	}
 	// the following factor corrects for only trying to find the maximum on nrIteration photon energies
 	// the factor should be determined in convergence tests
-	double pEpsMax = pEpsMaxTested * correctionFactor;
+	long double pEpsMax = pEpsMaxTested * correctionFactor;
 
 	if(pEpsMax == 0) {
 		KISS_LOG_WARNING << "pEpsMax is 0 in the following configuration: \n"
@@ -479,47 +479,47 @@ double PhotoPionProduction::probEpsMax(bool onProton, double Ein, double z, doub
 	return pEpsMax;
 }
 
-double PhotoPionProduction::probEps(double eps, bool onProton, double Ein, double z) const {
+long double PhotoPionProduction::probEps(long double eps, bool onProton, long double Ein, long double z) const {
 	// probEps returns "probability to encounter a photon of energy eps", given a primary nucleon
 	// note, probEps does not return a normalized probability [0,...,1]
-	double photonDensity = photonField->getPhotonDensity(eps * eV, z) * ccm / eps;
+	long double photonDensity = photonField->getPhotonDensity(eps * eV, z) * ccm / eps;
 	if (photonDensity != 0.) {
-		const double p = momentum(onProton, Ein);
-		const double sMax = mass(onProton) * mass(onProton) + 2. * eps * (Ein + p) / 1.e9;
+		const long double p = momentum(onProton, Ein);
+		const long double sMax = mass(onProton) * mass(onProton) + 2. * eps * (Ein + p) / 1.e9;
 		if (sMax <= sMin())
 			return 0;
-		double sIntegr = gaussInt([this, onProton](double s) { return this->functs(s, onProton); }, sMin(), sMax);
+		long double sIntegr = gaussInt([this, onProton](long double s) { return this->functs(s, onProton); }, sMin(), sMax);
 		return photonDensity * sIntegr / eps / eps / p / 8. * 1.e18 * 1.e6;
 	}
 	return 0;
 }
 
-double PhotoPionProduction::momentum(bool onProton, double Ein) const {
-	const double m = mass(onProton);
-	const double momentumHadron = sqrt(Ein * Ein - m * m);  // GeV/c
+long double PhotoPionProduction::momentum(bool onProton, long double Ein) const {
+	const long double m = mass(onProton);
+	const long double momentumHadron = sqrt(Ein * Ein - m * m);  // GeV/c
 	return momentumHadron;
 }
 
-double PhotoPionProduction::crossection(double eps, bool onProton) const {
-	const double m = mass(onProton);
-	const double s = m * m + 2. * m * eps;
+long double PhotoPionProduction::crossection(long double eps, bool onProton) const {
+	const long double m = mass(onProton);
+	const long double s = m * m + 2. * m * eps;
 	if (s < sMin())
 		return 0.;
-	double cross_res = 0.;
-	double cross_dir = 0.;
-	double cross_dir1 = 0.;
-	double cross_dir2 = 0.;
-	double sig_res[9];
+	long double cross_res = 0.;
+	long double cross_dir = 0.;
+	long double cross_dir1 = 0.;
+	long double cross_dir2 = 0.;
+	long double sig_res[9];
 
 	// first half of array: 9x proton resonance data | second half of array 9x neutron resonance data
-	static const double AMRES[18] = {1.231, 1.440, 1.515, 1.525, 1.675, 1.680, 1.690, 1.895, 1.950, 1.231, 1.440, 1.515, 1.525, 1.675, 1.675, 1.690, 1.895, 1.950};
-	static const double BGAMMA[18] = {5.6, 0.5, 4.6, 2.5, 1.0, 2.1, 2.0, 0.2, 1.0, 6.1, 0.3, 4.0, 2.5, 0.0, 0.2, 2.0, 0.2, 1.0};
-	static const double WIDTH[18] = {0.11, 0.35, 0.11, 0.1, 0.16, 0.125, 0.29, 0.35, 0.3, 0.11, 0.35, 0.11, 0.1, 0.16, 0.150, 0.29, 0.35, 0.3};
-	static const double RATIOJ[18] = {1., 0.5, 1., 0.5, 0.5, 1.5, 1., 1.5, 2., 1., 0.5, 1., 0.5, 0.5, 1.5, 1., 1.5, 2.};
-	static const double AM2[2] = {0.882792, 0.880351};
+	static const long double AMRES[18] = {1.231, 1.440, 1.515, 1.525, 1.675, 1.680, 1.690, 1.895, 1.950, 1.231, 1.440, 1.515, 1.525, 1.675, 1.675, 1.690, 1.895, 1.950};
+	static const long double BGAMMA[18] = {5.6, 0.5, 4.6, 2.5, 1.0, 2.1, 2.0, 0.2, 1.0, 6.1, 0.3, 4.0, 2.5, 0.0, 0.2, 2.0, 0.2, 1.0};
+	static const long double WIDTH[18] = {0.11, 0.35, 0.11, 0.1, 0.16, 0.125, 0.29, 0.35, 0.3, 0.11, 0.35, 0.11, 0.1, 0.16, 0.150, 0.29, 0.35, 0.3};
+	static const long double RATIOJ[18] = {1., 0.5, 1., 0.5, 0.5, 1.5, 1., 1.5, 2., 1., 0.5, 1., 0.5, 0.5, 1.5, 1., 1.5, 2.};
+	static const long double AM2[2] = {0.882792, 0.880351};
 
 	const int idx = onProton? 0 : 9;
-	double SIG0[9];
+	long double SIG0[9];
 	for (int i = 0; i < 9; ++i) {
 		SIG0[i] = 4.893089117 / AM2[int(onProton)] * RATIOJ[i + idx] * BGAMMA[i + idx];
 	}
@@ -538,21 +538,21 @@ double PhotoPionProduction::crossection(double eps, bool onProton) const {
 		} else {
 			cross_dir1 = 92.7 * Pl(eps, 0.152, 0.25, 2.0);  // single pion production
 		}
-		cross_dir2 = 37.7 * Pl(eps, 0.4, 0.6, 2.0);  // double pion production
+		cross_dir2 = 37.7 * Pl(eps, 0.4, 0.6, 2.0);  // long double pion production
 		cross_dir = cross_dir1 + cross_dir2;
 	}
 	// fragmentation 2:
-	double cross_frag2 = onProton? 80.3 : 60.2;
+	long double cross_frag2 = onProton? 80.3 : 60.2;
 	cross_frag2 *= Ef(eps, 0.5, 0.1) * std::pow(s, -0.34);
 	// multipion production/fragmentation 1 cross section
-	double cs_multidiff = 0.;
-	double cs_multi = 0.;
-	double cross_diffr1 = 0.;
-	double cross_diffr2 = 0.;
-	double cross_diffr = 0.;
+	long double cs_multidiff = 0.;
+	long double cs_multi = 0.;
+	long double cross_diffr1 = 0.;
+	long double cross_diffr2 = 0.;
+	long double cross_diffr = 0.;
 	if (eps > 0.85) {
-		double ss1 = (eps - 0.85) / 0.69;
-		double ss2 = onProton? 29.3 : 26.4;
+		long double ss1 = (eps - 0.85) / 0.69;
+		long double ss2 = onProton? 29.3 : 26.4;
 		ss2 *= std::pow(s, -0.34) + 59.3 * std::pow(s, 0.095);
 		cs_multidiff = (1. - std::exp(-ss1)) * ss2;
 		cs_multi = 0.89 * cs_multidiff;
@@ -563,10 +563,10 @@ double PhotoPionProduction::crossection(double eps, bool onProton) const {
 		// **************************************
 		ss1 = std::pow(eps - 0.85, 0.75) / 0.64;
 		ss2 = 74.1 * std::pow(eps, -0.44) + 62. * std::pow(s, 0.08);
-		double cs_tmp = 0.96 * (1. - std::exp(-ss1)) * ss2;
+		long double cs_tmp = 0.96 * (1. - std::exp(-ss1)) * ss2;
 		cross_diffr1 = 0.14 * cs_tmp;
 		cross_diffr2 = 0.013 * cs_tmp;
-		double cs_delta = cross_frag2 - (cross_diffr1 + cross_diffr2 - cross_diffr);
+		long double cs_delta = cross_frag2 - (cross_diffr1 + cross_diffr2 - cross_diffr);
 		if (cs_delta < 0.) {
 			cross_frag2 = 0.;
 			cs_multi += cs_delta;
@@ -581,17 +581,17 @@ double PhotoPionProduction::crossection(double eps, bool onProton) const {
 	return cross_res + cross_dir + cs_multidiff + cross_frag2;
 }
 
-double PhotoPionProduction::Pl(double eps, double epsTh, double epsMax, double alpha) const {
+long double PhotoPionProduction::Pl(long double eps, long double epsTh, long double epsMax, long double alpha) const {
 	if (epsTh > eps)
 		return 0.;
-	const double a = alpha * epsMax / epsTh;
-	const double prod1 = std::pow((eps - epsTh) / (epsMax - epsTh), a - alpha);
-	const double prod2 = std::pow(eps / epsMax, -a);
+	const long double a = alpha * epsMax / epsTh;
+	const long double prod1 = std::pow((eps - epsTh) / (epsMax - epsTh), a - alpha);
+	const long double prod2 = std::pow(eps / epsMax, -a);
 	return prod1 * prod2;
 }
 
-double PhotoPionProduction::Ef(double eps, double epsTh, double w) const {
-	const double wTh = w + epsTh;
+long double PhotoPionProduction::Ef(long double eps, long double epsTh, long double w) const {
+	const long double wTh = w + epsTh;
 	if (eps <= epsTh) {
 		return 0.;
 	} else if ((eps > epsTh) && (eps < wTh)) {
@@ -603,27 +603,27 @@ double PhotoPionProduction::Ef(double eps, double epsTh, double w) const {
 	}
 }
 
-double PhotoPionProduction::breitwigner(double sigma0, double gamma, double DMM, double epsPrime, bool onProton) const {
-	const double m = mass(onProton);
-	const double s = m * m + 2. * m * epsPrime;
-	const double gam2s = gamma * gamma * s;
+long double PhotoPionProduction::breitwigner(long double sigma0, long double gamma, long double DMM, long double epsPrime, bool onProton) const {
+	const long double m = mass(onProton);
+	const long double s = m * m + 2. * m * epsPrime;
+	const long double gam2s = gamma * gamma * s;
 	return sigma0 * (s / epsPrime / epsPrime) * gam2s / ((s - DMM * DMM) * (s - DMM * DMM) + gam2s);
 }
 
-double PhotoPionProduction::functs(double s, bool onProton) const {
-	const double m = mass(onProton);
-	const double factor = s - m * m;
-	const double epsPrime = factor / 2. / m;
-	const double sigmaPg = crossection(epsPrime, onProton);
+long double PhotoPionProduction::functs(long double s, bool onProton) const {
+	const long double m = mass(onProton);
+	const long double factor = s - m * m;
+	const long double epsPrime = factor / 2. / m;
+	const long double sigmaPg = crossection(epsPrime, onProton);
 	return factor * sigmaPg;
 }
 
-double PhotoPionProduction::mass(bool onProton) const {
-	const double m =  onProton ? mass_proton : mass_neutron;
+long double PhotoPionProduction::mass(bool onProton) const {
+	const long double m =  onProton ? mass_proton : mass_neutron;
 	return m / GeV * c_squared;
 }
 
-double PhotoPionProduction::sMin() const {
+long double PhotoPionProduction::sMin() const {
 	return 1.1646; // [GeV^2] head-on collision
 }
 
@@ -631,7 +631,7 @@ void PhotoPionProduction::setSampleLog(bool b) {
 	sampleLog = b;
 }
 
-void PhotoPionProduction::setCorrectionFactor(double factor) {
+void PhotoPionProduction::setCorrectionFactor(long double factor) {
 	correctionFactor = factor;
 }
 
@@ -659,7 +659,7 @@ bool PhotoPionProduction::getHaveRedshiftDependence() const {
 	return haveRedshiftDependence;
 }
 
-double PhotoPionProduction::getLimit() const {
+long double PhotoPionProduction::getLimit() const {
 	return limit;
 }
 
@@ -667,7 +667,7 @@ bool PhotoPionProduction::getSampleLog() const {
 	return sampleLog;
 }
 
-double PhotoPionProduction::getCorrectionFactor() const {
+long double PhotoPionProduction::getCorrectionFactor() const {
 	return correctionFactor;
 }
 

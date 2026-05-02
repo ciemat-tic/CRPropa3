@@ -23,15 +23,15 @@ namespace crpropa {
  */
 class NuclearDecay: public Module {
 private:
-	double limit;
+	long double limit;
 	bool haveElectrons;
 	bool havePhotons;
 	bool haveNeutrinos;
 	struct DecayMode {
 		int channel; // (#beta- #beta+ #alpha #proton #neutron)
-		double rate; // decay rate in [1/m]
-		std::vector<double> energy; // photon energies of ensuing gamma decays
-		std::vector<double> intensity; // probabilities of ensuing gamma decays
+		long double rate; // decay rate in [1/m]
+		std::vector<long double> energy; // photon energies of ensuing gamma decays
+		std::vector<long double> intensity; // probabilities of ensuing gamma decays
 	};
 	std::vector<std::vector<DecayMode> > decayTable; // decayTable[Z * 31 + N] = vector<DecayMode>
 	std::string interactionTag = "ND";
@@ -43,12 +43,12 @@ public:
 	 @param neutrinos		if true, add secondary neutrinos as candidates
 	 @param limit			step size limit as fraction of mean free path
 	 */
-	NuclearDecay(bool electrons = false, bool photons = false, bool neutrinos = false, double limit = 0.1);
+	NuclearDecay(bool electrons = false, bool photons = false, bool neutrinos = false, long double limit = 0.1);
 
 	/** Limit the propagation step to a fraction of the mean free path
 	 * @param limit fraction of the mean free path
 	 */
-	void setLimit(double limit);
+	void setLimit(long double limit);
 
 	// decide if secondary electrons are added to the simulation	
 	void setHaveElectrons(bool b);
@@ -78,7 +78,7 @@ public:
 	 @param gamma   Lorentz factor of particle
 	 @returns The mean free path [in meters]
 	 */
-	double meanFreePath(int id, double gamma);
+	long double meanFreePath(int id, long double gamma);
 };
 /** @}*/
 

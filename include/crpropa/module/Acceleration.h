@@ -24,7 +24,7 @@ class StepLengthModifier : public Referenced {
 	/// @param candidate 	Additional candidate properties are usually 
 	///						included in the calculation of the updated
 	///						step length.
-	virtual double modify(double steplength, Candidate *candidate) = 0;
+	virtual long double modify(long double steplength, Candidate *candidate) = 0;
 };
 
 
@@ -35,12 +35,12 @@ class StepLengthModifier : public Referenced {
 ///  for performance reasons. Models for the dependence of the step length of
 ///  the scatter process are set via modifiers.
 class AbstractAccelerationModule : public Module {
-	double stepLength;
+	long double stepLength;
 	std::vector<ref_ptr<StepLengthModifier>> modifiers;
 
   public:
 	/// The parent's constructor need to be called on initialization!
-	AbstractAccelerationModule(double _stepLength = 1. * parsec);
+	AbstractAccelerationModule(long double _stepLength = 1. * parsec);
 	// add a step length modifier to the model
 	void add(StepLengthModifier *modifier);
 	// update the candidate
@@ -62,9 +62,9 @@ class AbstractAccelerationModule : public Module {
 /// @brief  Implements scattering with centers moving in isotropic directions.
 ///   All scatter centers have the same velocity.
 class SecondOrderFermi : public AbstractAccelerationModule {
-	double scatterVelocity;
-	std::vector<double> angle;
-	std::vector<double> angleCDF;
+	long double scatterVelocity;
+	std::vector<long double> angle;
+	std::vector<long double> angleCDF;
 
   public:
 	/** Constructor
@@ -72,8 +72,8 @@ class SecondOrderFermi : public AbstractAccelerationModule {
 	@param stepLength				average mean free path
 	@param sizeOfPitchangleTable	number of precalculated pitch angles
 	*/
-	SecondOrderFermi(double scatterVelocity = .1 * crpropa::c_light,
-	                 double stepLength = 1. * crpropa::parsec,
+	SecondOrderFermi(long double scatterVelocity = .1 * crpropa::c_light,
+	                 long double stepLength = 1. * crpropa::parsec,
 	                 unsigned int sizeOfPitchangleTable = 10000);
 	virtual crpropa::Vector3d
 	scatterCenterVelocity(crpropa::Candidate *candidate) const;
@@ -96,7 +96,7 @@ class DirectedFlowScattering : public AbstractAccelerationModule {
    * @param stepLength				average mean free path
   */
 	DirectedFlowScattering(crpropa::Vector3d scatterCenterVelocity,
-	                       double stepLength = 1. * parsec);
+	                       long double stepLength = 1. * parsec);
 	virtual crpropa::Vector3d
 	scatterCenterVelocity(crpropa::Candidate *candidate) const;
 };
@@ -115,7 +115,7 @@ class DirectedFlowOfScatterCenters : public StepLengthModifier {
    * @param scatterCenterVelocity	velocity of scattering centers
   */
 	DirectedFlowOfScatterCenters(const Vector3d &scatterCenterVelocity);
-	double modify(double steplength, Candidate *candidate);
+	long double modify(long double steplength, Candidate *candidate);
 };
 
 
@@ -139,9 +139,9 @@ class DirectedFlowOfScatterCenters : public StepLengthModifier {
 ///      The Astrophysical Journal 336 (1989) 264. doi:10.1086/167010.
 class QuasiLinearTheory : public StepLengthModifier {
 	private:
-	double __referenceEnergy;
-	double __turbulenceIndex;
-	double __minimumRigidity;
+	long double __referenceEnergy;
+	long double __turbulenceIndex;
+	long double __minimumRigidity;
 
   public:
   /** Constructor
@@ -151,10 +151,10 @@ class QuasiLinearTheory : public StepLengthModifier {
    * 						to Kolmogorov turbulence.
    * @param minimumRigidity	minimal rigidity
   */
-	QuasiLinearTheory(double referenecEnergy = 1. * EeV,
-	                  double turbulenceIndex = 5. / 3,
-	                  double minimumRigidity = 0);
-	double modify(double steplength, Candidate *candidate);
+	QuasiLinearTheory(long double referenecEnergy = 1. * EeV,
+	                  long double turbulenceIndex = 5. / 3,
+	                  long double minimumRigidity = 0);
+	long double modify(long double steplength, Candidate *candidate);
 };
 
 
@@ -170,7 +170,7 @@ class QuasiLinearTheory : public StepLengthModifier {
 class ParticleSplitting : public Module {
 	int numberSplits;
 	int crossingThreshold;
-	double minWeight;
+	long double minWeight;
 	ref_ptr<Surface> surface;
 	std::string counterid;
 
@@ -186,7 +186,7 @@ class ParticleSplitting : public Module {
 	                            multiple splitting modules are present.
 	*/
 	ParticleSplitting(Surface *surface, int crossingThreshold = 50,
-	                  int numberSplits = 5, double minWeight = 0.01,
+	                  int numberSplits = 5, long double minWeight = 0.01,
 	                  std::string counterid = "ParticleSplittingCounter");
 
 	// update the candidate

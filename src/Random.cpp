@@ -77,52 +77,52 @@ Random::Random() {
 	seed();
 }
 
-double Random::rand() {
-	return double(randInt()) * (1.0 / 4294967295.0);
+long double Random::rand() {
+	return long double(randInt()) * (1.0 / 4294967295.0);
 }
 
-double Random::rand(const double& n) {
+long double Random::rand(const long double& n) {
 	return rand() * n;
 }
 
-double Random::randExc() {
-	return double(randInt()) * (1.0 / 4294967296.0);
+long double Random::randExc() {
+	return long double(randInt()) * (1.0 / 4294967296.0);
 }
 
-double Random::randExc(const double& n) {
+long double Random::randExc(const long double& n) {
 	return randExc() * n;
 }
 
-double Random::randDblExc() {
-	return (double(randInt()) + 0.5) * (1.0 / 4294967296.0);
+long double Random::randDblExc() {
+	return (long double(randInt()) + 0.5) * (1.0 / 4294967296.0);
 }
 
-double Random::randDblExc(const double& n) {
+long double Random::randDblExc(const long double& n) {
 	return randDblExc() * n;
 }
 
-double Random::rand53() {
+long double Random::rand53() {
 	uint32_t a = randInt() >> 5, b = randInt() >> 6;
 	return (a * 67108864.0 + b) * (1.0 / 9007199254740992.0); // by Isaku Wada
 }
 
 // Return a real number from a normal (Gaussian) distribution with given
 // mean and variance by Box-Muller method
-double Random::randNorm(const double& mean, const double& variance) {
-	double r = sqrt(-2.0 * log(1.0 - randDblExc())) * variance;
-	double phi = 2.0 * 3.14159265358979323846264338328 * randExc();
+long double Random::randNorm(const long double& mean, const long double& variance) {
+	long double r = sqrt(-2.0 * log(1.0 - randDblExc())) * variance;
+	long double phi = 2.0 * 3.14159265358979323846264338328 * randExc();
 	return mean + r * cos(phi);
 }
 
-double Random::randUniform(double min, double max) {
+long double Random::randUniform(long double min, long double max) {
 	return min + (max - min) * rand();
 }
 
-double Random::randRayleigh(double sigma) {
+long double Random::randRayleigh(long double sigma) {
 	return sigma * sqrt(-2.0 * log(1 - rand()));
 }
 
-double Random::randFisher(double kappa) {
+long double Random::randFisher(long double kappa) {
 	return acos(1. + 1. / kappa * log(1 - rand() * (1 - exp(-2 * kappa))));
 }
 
@@ -132,40 +132,40 @@ size_t Random::randBin(const std::vector<float> &cdf) {
 	return it - cdf.begin();
 }
 
-size_t Random::randBin(const std::vector<double> &cdf) {
-	std::vector<double>::const_iterator it = std::lower_bound(cdf.begin(),
+size_t Random::randBin(const std::vector<long double> &cdf) {
+	std::vector<long double>::const_iterator it = std::lower_bound(cdf.begin(),
 			cdf.end(), rand() * cdf.back());
 	return it - cdf.begin();
 }
 
 Vector3d Random::randVector() {
-	double z = randUniform(-1.0, 1.0);
-	double t = randUniform(-1.0 * M_PI, M_PI);
-	double r = sqrt(1 - z * z);
+	long double z = randUniform(-1.0, 1.0);
+	long double t = randUniform(-1.0 * M_PI, M_PI);
+	long double r = sqrt(1 - z * z);
 	return Vector3d(r * cos(t), r * sin(t), z);
 }
 
 Vector3d Random::randVectorAroundMean(const Vector3d &meanDirection,
-		double angle) {
+		long double angle) {
 	Vector3d axis = meanDirection.cross(randVector());
 	Vector3d v = meanDirection;
 	return v.getRotated(axis, angle);
 }
 
-Vector3d Random::randFisherVector(const Vector3d &meanDirection, double kappa) {
+Vector3d Random::randFisherVector(const Vector3d &meanDirection, long double kappa) {
 	return randVectorAroundMean(meanDirection, randFisher(kappa));
 }
 
-Vector3d Random::randConeVector(const Vector3d &meanDirection, double angularRadius) {
-        const double theta = acos(randUniform(1, cos(angularRadius)));
+Vector3d Random::randConeVector(const Vector3d &meanDirection, long double angularRadius) {
+        const long double theta = acos(randUniform(1, cos(angularRadius)));
         return randVectorAroundMean(meanDirection, theta);
 }
 
 Vector3d Random::randVectorLamberts() {
 	// random vector following Lamberts cosine law (https://en.wikipedia.org/wiki/Lambert%27s_cosine_law)
 	// for a surface element with normal vector pointing in positive z-axis (0, 0, 1)
-	double phi = randUniform(-1.0 * M_PI, M_PI);
-	double theta = M_PI / 2.0 - acos(sqrt(randUniform(0, 1)));
+	long double phi = randUniform(-1.0 * M_PI, M_PI);
+	long double theta = M_PI / 2.0 - acos(sqrt(randUniform(0, 1)));
 	return Vector3d(cos(phi) * cos(theta), sin(phi) * cos(theta), sin(theta));
 }
 
@@ -174,10 +174,10 @@ Vector3d Random::randVectorLamberts(const Vector3d &normalVector) {
 	Vector3d vLambertz = randVectorLamberts();
 	// find rotation axis that rotates the z-axis to the normalVector of the surface element
 	Vector3d axis = normalVector.cross(Vector3d(0, 0, 1));
-	if (axis.getR() < std::numeric_limits<double>::epsilon()) {
+	if (axis.getR() < std::numeric_limits<long double>::epsilon()) {
 		axis = Vector3d(0, 0, 1);
 	}
-	double angle = normalVector.getAngleTo(Vector3d(0, 0, 1));
+	long double angle = normalVector.getAngleTo(Vector3d(0, 0, 1));
 	// rotate the random Lamberts vector from z-axis to respective surface element
 	return vLambertz.getRotated(axis / axis.getR(), -angle);
 }
@@ -186,26 +186,26 @@ Vector3d Random::randomInterpolatedPosition(const Vector3d &a, const Vector3d &b
 	return a + rand() * (b - a);
 }
 
-double Random::randPowerLaw(double index, double min, double max) {
+long double Random::randPowerLaw(long double index, long double min, long double max) {
 	if ((min < 0) || (max < min)) {
 		throw std::runtime_error(
 				"Power law distribution only possible for 0 <= min <= max");
 	}
 	//check for index -1!
-	if ((std::abs(index + 1.0)) < std::numeric_limits<double>::epsilon()) {
-		double part1 = log(max);
-		double part2 = log(min);
+	if ((std::abs(index + 1.0)) < std::numeric_limits<long double>::epsilon()) {
+		long double part1 = log(max);
+		long double part2 = log(min);
 		return exp((part1 - part2) * rand() + part2);
 	} else {
-		double part1 = pow(max, index + 1);
-		double part2 = pow(min, index + 1);
-		double ex = 1 / (index + 1);
+		long double part1 = pow(max, index + 1);
+		long double part2 = pow(min, index + 1);
+		long double ex = 1 / (index + 1);
 		return pow((part1 - part2) * rand() + part2, ex);
 	}
 }
 
-double Random::randBrokenPowerLaw(double index1, double index2,
-		double breakpoint, double min, double max) {
+long double Random::randBrokenPowerLaw(long double index1, long double index2,
+		long double breakpoint, long double min, long double max) {
 	if ((min <= 0) || (max < min)) {
 		throw std::runtime_error(
 				"Power law distribution only possible for 0 < min <= max");
@@ -215,17 +215,17 @@ double Random::randBrokenPowerLaw(double index1, double index2,
 	} else if (max <= breakpoint) {
 		return this->randPowerLaw(index2, min, max);
 	} else {
-		double intPL1;
+		long double intPL1;
 		// check if index1 = -1
-		if ((std::abs(index1 + 1.0)) < std::numeric_limits<double>::epsilon()) {
+		if ((std::abs(index1 + 1.0)) < std::numeric_limits<long double>::epsilon()) {
 			intPL1 = log(breakpoint / min);
 		} else {
 			intPL1 = (pow(breakpoint, index1 + 1) - pow(min, index1 + 1))
 					/ (index1 + 1);
 		}
-		double intPL2;
+		long double intPL2;
 		// check if index2 = -1
-		if ((std::abs(index2 + 1.0)) < std::numeric_limits<double>::epsilon()) {
+		if ((std::abs(index2 + 1.0)) < std::numeric_limits<long double>::epsilon()) {
 			intPL2 = log(max / breakpoint) * pow(breakpoint, index1 - index2);
 		} else {
 			intPL2 = (pow(max, index2 + 1) - pow(breakpoint, index2 + 1))
@@ -238,11 +238,11 @@ double Random::randBrokenPowerLaw(double index1, double index2,
 	}
 }
 
-double Random::randExponential() {
-	double dum;
+long double Random::randExponential() {
+	long double dum;
 	do {
 		dum = rand();
-	} while (dum < std::numeric_limits<double>::epsilon());
+	} while (dum < std::numeric_limits<long double>::epsilon());
 	return -1.0 * log(dum);
 }
 

@@ -32,30 +32,30 @@ private:
 
 	// disk parameters
 	bool useDiskField;
-	double a_disk;
-	double z1_disk;
-	double r1_disk;
-	double B1_disk;
-	double L_disk;
-	double phi_star_disk;
-	double H_disk;
+	long double a_disk;
+	long double z1_disk;
+	long double r1_disk;
+	long double B1_disk;
+	long double L_disk;
+	long double phi_star_disk;
+	long double H_disk;
 
 	// halo parameters
 	bool useHaloField;
-	double a_halo;
-	double z1_halo;
-	double B1_halo;
-	double L_halo;
-	double phi_star_halo;
+	long double a_halo;
+	long double z1_halo;
+	long double B1_halo;
+	long double L_halo;
+	long double phi_star_halo;
 
 	// universal parameters
-	double p_0;
-	double cot_p0;
-	double H_p;
-	double L_p;
+	long double p_0;
+	long double cot_p0;
+	long double H_p;
+	long double L_p;
 
 	// security to avoid 0 division
-	double epsilon;
+	long double epsilon;
 
 	void SetParams();
 
@@ -75,79 +75,79 @@ public:
      *          Automatically set at initialization
      * @param B1    magnetic field amplitude in Gauss
      */
-    void set_B1_disk(const double B1);
+    void set_B1_disk(const long double B1);
     /**@brief   set reference height for the disk magnetic field (model Dd1) 
      *          Automatically set at initialization
      * @param z1    height in kpc 
      */
-    void set_z1_disk(const double z1);
+    void set_z1_disk(const long double z1);
     /**@brief   set reference radius for the disk magnetic field (models Ad1 and Bd1)
      *          Automatically set at initialization
      * @param r1    radius in kpc 
      */
-    void set_r1_disk(const double r1);
+    void set_r1_disk(const long double r1);
     /**@brief   set scale height of Br for the disk magnetic field (models Ad1 and Bd1)
      *          Automatically set at initialization
      * @param H    height in kpc 
      */
-    void set_H_disk(const double H);
+    void set_H_disk(const long double H);
     /**@brief   set scale length of Bz for the disk magnetic field (models Dd1)
      *          Automatically set at initialization
      * @param L    length in kpc 
      */
-    void set_L_disk(const double L);
+    void set_L_disk(const long double L);
     /**@brief   set opening parameter for poloidal lines for the disk magnetic field (models Ad1)
      *          Automatically set at initialization
      * @param a     opening parameter in / kpc / kpc
      */
-    void set_a_disk(const double a);
+    void set_a_disk(const long double a);
     /**@brief   set orientation angle of the azimuthal pattern for the disk magnetic field
      *          Automatically set at initialization
      * @param phi     opening parameter in rad
      */
-    void set_phi_star_disk(const double phi);
+    void set_phi_star_disk(const long double phi);
 
     /**@brief   set reference amplitude for the halo magnetic field
      *          Automatically set at initialization
      * @param B1    magnetic field amplitude in Gauss
      */
-    void set_B1_halo(const double B1);
+    void set_B1_halo(const long double B1);
     /**@brief   set reference height for the halo magnetic field
      *          Automatically set at initialization
      * @param z1    height in kpc 
      */
-    void set_z1_halo(const double z1);
+    void set_z1_halo(const long double z1);
     /**@brief   set scale length of Bz for the halo magnetic field
      *          Automatically set at initialization
      * @param L    length in kpc 
      */
-    void set_L_halo(const double L);
+    void set_L_halo(const long double L);
     /**@brief   set opening parameter for poloidal lines for the halo magnetic field
      *          Automatically set at initialization
      * @param a     opening parameter in / kpc / kpc
      */
-    void set_a_halo(const double a);
+    void set_a_halo(const long double a);
     /**@brief   set orientation angle of the azimuthal pattern for the disk magnetic field
      *          Automatically set at initialization
      * @param phi     opening parameter in rad
      */
-    void set_phi_star_halo(const double phi);
+    void set_phi_star_halo(const long double phi);
 
     /**@brief   set pitch angle origin (all models)
      *          Automatically set at initialization
      * @param p0    height in rad
      */
-    void set_p0(const double p0);
+    void set_p0(const long double p0);
     /**@brief   set scale height of winding function (all models)
      *          Automatically set at initialization
      * @param H    height in kpc 
      */
-    void set_Hp(const double H);
+    void set_Hp(const long double H);
     /**@brief   set scale length of winding function (all models)
      *          Automatically set at initialization
      * @param L    length in kpc 
      */
-    void set_Lp(const double L);
+    void set_Lp(const long double L);
 
     /**@brief   Get the disk model used as a string
      * @return  disk model
@@ -159,8 +159,8 @@ public:
     string getHaloModel() const;
 
 	Vector3d getField(const Vector3d& pos) const;
-	Vector3d getDiskField(const double& r, const double& z, const double& phi, const double& sinPhi, const double& cosPhi) const;
-	Vector3d getHaloField(const double& r, const double& z, const double& phi, const double& sinPhi, const double& cosPhi) const;
+	Vector3d getDiskField(const long double& r, const long double& z, const long double& phi, const long double& sinPhi, const long double& cosPhi) const;
+	Vector3d getHaloField(const long double& r, const long double& z, const long double& phi, const long double& sinPhi, const long double& cosPhi) const;
 
     /**@brief   Compute the azimuthal field component Bphi as define by equation 28 in TF17
      * @param r     radius in cylindrical coordinates
@@ -169,7 +169,7 @@ public:
      * @param B_z    height component of the magnetic field at position (r,z)
      * @return  the value of the azimuthal field component Bphi
      */
-	double azimuthalFieldComponent(const double& r, const double& z, const double& B_r, const double& B_z) const;
+	long double azimuthalFieldComponent(const long double& r, const long double& z, const long double& B_r, const long double& B_z) const;
 
     /**@brief   Compute the scaling of the disk magnetic field amplitude (equation 30, models Ad1
      * and Bd1)
@@ -181,20 +181,20 @@ public:
      * @param z         cylindrical coordinates
      * @return  the radial field component Br(r1, z1, phi1)
      */
-	double radialFieldScale(const double& B1, const double& phi_star, const double& z1, const double& phi, const double& r, const double& z) const;
+	long double radialFieldScale(const long double& B1, const long double& phi_star, const long double& z1, const long double& phi, const long double& r, const long double& z) const;
 
     /**@brief   Compute the shifted winding function (equation 23)
      * @param r         cylindrical coordinates
      * @param z         cylindrical coordinates
      * @return  g_phi, the shifted winding function
      */
-	double shiftedWindingFunction(const double& r, const double& z) const;
+	long double shiftedWindingFunction(const long double& r, const long double& z) const;
 
     /**@brief   Compute the height scaling appearing numerous times in the equations
      * @param z         cylindrical coordinates
      * @return  z_scale = 1 + (z/Hp)^2
      */
-	double zscale(const double& z) const;
+	long double zscale(const long double& z) const;
 };
 /**@}*/
 } // CRPROPA NAMESPACE

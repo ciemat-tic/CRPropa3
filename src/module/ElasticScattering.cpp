@@ -12,11 +12,11 @@
 
 namespace crpropa {
 
-const double ElasticScattering::lgmin = 6.;  // minimum log10(Lorentz-factor)
-const double ElasticScattering::lgmax = 14.; // maximum log10(Lorentz-factor)
+const long double ElasticScattering::lgmin = 6.;  // minimum log10(Lorentz-factor)
+const long double ElasticScattering::lgmax = 14.; // maximum log10(Lorentz-factor)
 const size_t ElasticScattering::nlg = 201;   // number of Lorentz-factor steps
-const double ElasticScattering::epsmin = log10(2 * eV) + 3;    // log10 minimum photon background energy in nucleus rest frame for elastic scattering
-const double ElasticScattering::epsmax = log10(2 * eV) + 8.12; // log10 maximum photon background energy in nucleus rest frame for elastic scattering
+const long double ElasticScattering::epsmin = log10(2 * eV) + 3;    // log10 minimum photon background energy in nucleus rest frame for elastic scattering
+const long double ElasticScattering::epsmax = log10(2 * eV) + 8.12; // log10 maximum photon background energy in nucleus rest frame for elastic scattering
 const size_t ElasticScattering::neps = 513; // number of photon background energies in nucleus rest frame
 
 ElasticScattering::ElasticScattering(ref_ptr<PhotonField> f) {
@@ -43,7 +43,7 @@ void ElasticScattering::initRate(std::string filename) {
 			infile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			continue;
 		}
-		double r;
+		long double r;
 		infile >> r;
 		if (!infile)
 			break;
@@ -60,7 +60,7 @@ void ElasticScattering::initCDF(std::string filename) {
 
 	tabCDF.clear();
 	std::string line;
-	double a;
+	long double a;
 	while (std::getline(infile, line)) {
 		if (line[0] == '#')
 			continue;
@@ -68,7 +68,7 @@ void ElasticScattering::initCDF(std::string filename) {
 		std::stringstream lineStream(line);
 		lineStream >> a;
 
-		std::vector<double> cdf(neps);
+		std::vector<long double> cdf(neps);
 		for (size_t i = 0; i < neps; i++) {
 			lineStream >> a;
 			cdf[i] = a;
@@ -81,12 +81,12 @@ void ElasticScattering::initCDF(std::string filename) {
 
 void ElasticScattering::process(Candidate *candidate) const {
 	int id = candidate->current.getId();
-	double z = candidate->getRedshift();
+	long double z = candidate->getRedshift();
 
 	if (not isNucleus(id))
 		return;
 
-	double lg = log10(candidate->current.getLorentzFactor() * (1 + z));
+	long double lg = log10(candidate->current.getLorentzFactor() * (1 + z));
 	if ((lg < lgmin) or (lg > lgmax))
 		return;
 
@@ -94,28 +94,28 @@ void ElasticScattering::process(Candidate *candidate) const {
 	int Z = chargeNumber(id);
 	int N = A - Z;
 
-	double step = candidate->getCurrentStep();
+	long double step = candidate->getCurrentStep();
 	while (step > 0) {
 
-		double rate = interpolateEquidistant(lg, lgmin, lgmax, tabRate);
-		rate *= Z * N / double(A);  // TRK scaling
+		long double rate = interpolateEquidistant(lg, lgmin, lgmax, tabRate);
+		rate *= Z * N / long double(A);  // TRK scaling
 		rate *= pow_integer<2>(1 + z) * photonField->getRedshiftScaling(z);  // cosmological scaling
 
 		// check for interaction
 		Random &random = Random::instance();
-		double randDist = -log(random.rand()) / rate;
+		long double randDist = -log(random.rand()) / rate;
 		if (step < randDist)
 			return;
 
 		// draw random background photon energy from CDF
 		size_t i = floor((lg - lgmin) / (lgmax - lgmin) * (nlg - 1)); // index of closest gamma tabulation point
 		size_t j = random.randBin(tabCDF[i]) - 1; // index of next lower tabulated eps value
-		double binWidth = (epsmax - epsmin) / (neps - 1); // logarithmic bin width
-		double eps = pow(10, epsmin + (j + random.rand()) * binWidth);
+		long double binWidth = (epsmax - epsmin) / (neps - 1); // logarithmic bin width
+		long double eps = pow(10, epsmin + (j + random.rand()) * binWidth);
 
 		// boost to lab frame
-		double cosTheta = 2 * random.rand() - 1;
-		double E = eps * candidate->current.getLorentzFactor() * (1. - cosTheta);
+		long double cosTheta = 2 * random.rand() - 1;
+		long double E = eps * candidate->current.getLorentzFactor() * (1. - cosTheta);
 
 		Vector3d pos = random.randomInterpolatedPosition(candidate->previous.getPosition(), candidate->current.getPosition());
 		candidate->addSecondary(22, E, pos, 1., interactionTag);

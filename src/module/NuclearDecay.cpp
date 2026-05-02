@@ -13,7 +13,7 @@
 
 namespace crpropa {
 
-NuclearDecay::NuclearDecay(bool electrons, bool photons, bool neutrinos, double l) {
+NuclearDecay::NuclearDecay(bool electrons, bool photons, bool neutrinos, long double l) {
 	haveElectrons = electrons;
 	havePhotons = photons;
 	haveNeutrinos = neutrinos;
@@ -35,11 +35,11 @@ NuclearDecay::NuclearDecay(bool electrons, bool photons, bool neutrinos, double 
 			continue;
 		DecayMode decay;
 		int Z, N;
-		double lifetime;
+		long double lifetime;
 		stream >> Z >> N >> decay.channel >> lifetime;
 		decay.rate = 1. / lifetime / c_light; // decay rate in [1/m]
-		std::vector<double> gamma;
-		double val;
+		std::vector<long double> gamma;
+		long double val;
 		while (stream >> val)
 			gamma.push_back(val);
 		for (int i = 0; i < gamma.size(); i += 2) {
@@ -64,14 +64,14 @@ void NuclearDecay::setHaveNeutrinos(bool b) {
 	haveNeutrinos = b;
 }
 
-void NuclearDecay::setLimit(double l) {
+void NuclearDecay::setLimit(long double l) {
 	limit = l;
 }
 
 void NuclearDecay::process(Candidate *candidate) const {
 	// the loop should be processed at least once for limiting the next step
-	double step = candidate->getCurrentStep();
-	double z = candidate->getRedshift();
+	long double step = candidate->getCurrentStep();
+	long double z = candidate->getRedshift();
 	do {
 		// check if nucleus
 		int id = candidate->current.getId();
@@ -89,16 +89,16 @@ void NuclearDecay::process(Candidate *candidate) const {
 
 		// find interaction mode with minimum random decay distance
 		Random &random = Random::instance();
-		double randDistance = std::numeric_limits<double>::max();
+		long double randDistance = std::numeric_limits<long double>::max();
 		int channel;
-		double totalRate = 0;
+		long double totalRate = 0;
 
 		for (size_t i = 0; i < decays.size(); i++) {
-			double rate = decays[i].rate;
+			long double rate = decays[i].rate;
 			rate /= candidate->current.getLorentzFactor();  // relativistic time dilation
 			rate /= (1 + z);  // rate per light travel distance -> rate per comoving distance
 			totalRate += rate;
-			double d = -log(random.rand()) / rate;
+			long double d = -log(random.rand()) / rate;
 			if (d > randDistance)
 				continue;
 			randDistance = d;
@@ -154,8 +154,8 @@ void NuclearDecay::gammaEmission(Candidate *candidate, int channel) const {
 			break;
 	}
 
-	const std::vector<double> &energy = decays[idecay].energy;
-	const std::vector<double> &intensity = decays[idecay].intensity;
+	const std::vector<long double> &energy = decays[idecay].energy;
+	const std::vector<long double> &intensity = decays[idecay].intensity;
 
 	// check if photon emission available
 	if (energy.size() == 0)
@@ -169,14 +169,14 @@ void NuclearDecay::gammaEmission(Candidate *candidate, int channel) const {
 		if (random.rand() > intensity[i])
 			continue;
 		// create secondary photon; boost to lab frame
-		double cosTheta = 2 * random.rand() - 1;
-		double E = energy[i] * candidate->current.getLorentzFactor() * (1. - cosTheta);
+		long double cosTheta = 2 * random.rand() - 1;
+		long double E = energy[i] * candidate->current.getLorentzFactor() * (1. - cosTheta);
 		candidate->addSecondary(22, E, pos, 1., interactionTag);
 	}
 }
 
 void NuclearDecay::betaDecay(Candidate *candidate, bool isBetaPlus) const {
-	double gamma = candidate->current.getLorentzFactor();
+	long double gamma = candidate->current.getLorentzFactor();
 	int id = candidate->current.getId();
 	int A = massNumber(id);
 	int Z = chargeNumber(id);
@@ -209,24 +209,24 @@ void NuclearDecay::betaDecay(Candidate *candidate, bool isBetaPlus) const {
 		return;
 
 	// Q-value of the decay, subtract total energy of emitted photons
-	double m1 = nuclearMass(A, Z);
-	double m2 = nuclearMass(A, Z+dZ);
-	double Q = (m1 - m2 - mass_electron) * c_squared;
+	long double m1 = nuclearMass(A, Z);
+	long double m2 = nuclearMass(A, Z+dZ);
+	long double Q = (m1 - m2 - mass_electron) * c_squared;
 
 	// generate cdf of electron energy, neglecting Coulomb correction
 	// see Basdevant, Fundamentals in Nuclear Physics, eq. (4.92)
 	// This leads to deviations from theoretical expectations at low 
 	// primary energies.
-	std::vector<double> energies;
-	std::vector<double> densities; // cdf(E), unnormalized
+	std::vector<long double> energies;
+	std::vector<long double> densities; // cdf(E), unnormalized
 
 	energies.reserve(51);
 	densities.reserve(51);
 
-	double me = mass_electron * c_squared;
-	double cdf = 0;
+	long double me = mass_electron * c_squared;
+	long double cdf = 0;
 	for (int i = 0; i <= 50; i++) {
-		double E = me + i / 50. * Q;
+		long double E = me + i / 50. * Q;
 		cdf += E * sqrt(E * E - me * me) * pow(Q + me - E, 2);
 		energies.push_back(E);
 		densities.push_back(cdf);
@@ -237,13 +237,13 @@ void NuclearDecay::betaDecay(Candidate *candidate, bool isBetaPlus) const {
 	// leads to deviations from theoretical predictions
 	// is not problematic for usual CRPropa energies E>~TeV
 	Random &random = Random::instance();
-	double E = interpolate(random.rand() * cdf, densities, energies);
-	double p = sqrt(E * E - me * me);  // p*c
-	double cosTheta = 2 * random.rand() - 1;
+	long double E = interpolate(random.rand() * cdf, densities, energies);
+	long double p = sqrt(E * E - me * me);  // p*c
+	long double cosTheta = 2 * random.rand() - 1;
 
 	// boost to lab frame
-	double Ee = gamma * (E - p * cosTheta);
-	double Enu = gamma * (Q + me - E) * (1 + cosTheta);  // pnu*c ~ Enu
+	long double Ee = gamma * (E - p * cosTheta);
+	long double Enu = gamma * (Q + me - E) * (1 + cosTheta);  // pnu*c ~ Enu
 
 	Vector3d pos = random.randomInterpolatedPosition(candidate->previous.getPosition(), candidate->current.getPosition());
 	if (haveElectrons)
@@ -257,7 +257,7 @@ void NuclearDecay::nucleonEmission(Candidate *candidate, int dA, int dZ) const {
 	int id = candidate->current.getId();
 	int A = massNumber(id);
 	int Z = chargeNumber(id);
-	double EpA = candidate->current.getEnergy() / double(A);
+	long double EpA = candidate->current.getEnergy() / long double(A);
 
 	try
 	{
@@ -284,9 +284,9 @@ void NuclearDecay::nucleonEmission(Candidate *candidate, int dA, int dZ) const {
 
 }
 
-double NuclearDecay::meanFreePath(int id, double gamma) {
+long double NuclearDecay::meanFreePath(int id, long double gamma) {
 	if (not (isNucleus(id)))
-		return std::numeric_limits<double>::max();
+		return std::numeric_limits<long double>::max();
 
 	int A = massNumber(id);
 	int Z = chargeNumber(id);
@@ -295,12 +295,12 @@ double NuclearDecay::meanFreePath(int id, double gamma) {
 	// check if particle can decay
 	const std::vector<DecayMode> &decays = decayTable[Z * 31 + N];
 	if (decays.size() == 0)
-		return std::numeric_limits<double>::max();
+		return std::numeric_limits<long double>::max();
 
-	double totalRate = 0;
+	long double totalRate = 0;
 
 	for (size_t i = 0; i < decays.size(); i++) {
-		double rate = decays[i].rate;
+		long double rate = decays[i].rate;
 		rate /= gamma;
 		totalRate += rate;
 	}

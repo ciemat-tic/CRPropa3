@@ -1,0 +1,1565 @@
+--- a/test/testAdiabaticCooling.cpp
++++ b/test/testAdiabaticCooling.cpp
+@@ -18,14 +18,14 @@
+ 	Candidate c(nucleusId(1,1), 1e13*eV);
+ 	c.setCurrentStep(10*kpc);
+ 	c.setNextStep(10*kpc);
+-	double E = c.current.getEnergy();
++	long double E = c.current.getEnergy();
+ 	AC.process(&c);
+ 
+ 	// Energy is expected to be conserved
+ 	EXPECT_DOUBLE_EQ(c.current.getEnergy(), E);
+ 	EXPECT_DOUBLE_EQ(c.getNextStep(), 10*kpc);
+ 
+-	double limit = 0.2;
++	long double limit = 0.2;
+ 	AdiabaticCooling AC2(new UniformAdvectionField(Vector3d(1,0,0)), limit);
+ 	
+ 	EXPECT_DOUBLE_EQ(AC2.getLimit(), limit);
+@@ -42,7 +42,7 @@
+ 	c.current.setPosition(Vector3d(1,0,0));
+ 	c.setCurrentStep(c_light);
+ 	c.setNextStep(c_light);
+-	double E = c.current.getEnergy();
++	long double E = c.current.getEnergy();
+ 	AC.process(&c);
+ 
+ 	// Check energy loss and step limitation
+--- a/test/testAdvectionField.cpp
++++ b/test/testAdvectionField.cpp
+@@ -12,7 +12,7 @@
+ TEST(testUniformAdvectionField, SimpleTest) {
+ 	UniformAdvectionField A(Vector3d(-1, 5, 3));
+ 	Vector3d a = A.getField(Vector3d(1, 0, 0));
+-	double D = A.getDivergence(Vector3d(1, 0, 0));
++	long double D = A.getDivergence(Vector3d(1, 0, 0));
+ 	EXPECT_DOUBLE_EQ(a.x, -1);
+ 	EXPECT_DOUBLE_EQ(a.y, 5);
+ 	EXPECT_DOUBLE_EQ(a.z, 3);
+@@ -26,7 +26,7 @@
+ 	A.addField(new UniformAdvectionField(Vector3d(0, 2, 0)));
+ 	A.addField(new UniformAdvectionField(Vector3d(0, 0, 3)));
+ 	Vector3d a = A.getField(Vector3d(0.));
+-	double D = A.getDivergence(Vector3d(1, 2, 3));
++	long double D = A.getDivergence(Vector3d(1, 2, 3));
+ 	EXPECT_DOUBLE_EQ(a.x, 1);
+ 	EXPECT_DOUBLE_EQ(a.y, 2);
+ 	EXPECT_DOUBLE_EQ(a.z, 3);
+@@ -36,7 +36,7 @@
+ TEST(testConstantSphericalAdvectionField, SimpleTest) {
+ 	
+ 	Vector3d origin(1, 0, 0);
+-	double V_wind(10);
++	long double V_wind(10);
+ 	
+ 	ConstantSphericalAdvectionField A(origin, V_wind);
+ 	
+@@ -57,17 +57,17 @@
+ 	
+ 	// Divergence should be 2*V/r
+ 	Vector3d Pos2(2, 0, 0);
+-	double D = A.getDivergence(Pos2);
++	long double D = A.getDivergence(Pos2);
+ 	EXPECT_DOUBLE_EQ(D, 2*10);
+ }
+ 
+ TEST(testSphericalAdvectionField, SimpleTest) {
+ 
+ 	Vector3d origin(1, 0, 0);
+-	double R_max(10);
+-	double V_max(1000);
+-	double tau(3.);
+-	double alpha(2.);
++	long double R_max(10);
++	long double V_max(1000);
++	long double tau(3.);
++	long double alpha(2.);
+ 
+ 	SphericalAdvectionField A(origin, R_max, V_max, tau, alpha);
+ 
+@@ -89,7 +89,7 @@
+ 	Vector3d Pos(2, 0, 0);
+ 	Vector3d a = A.getField(Pos);
+ 	Vector3d a0 = a.getUnitVector();
+-	double d = A.getDivergence(Pos);
++	long double d = A.getDivergence(Pos);
+ 
+ 	EXPECT_DOUBLE_EQ(a0.x, 1.);
+ 	EXPECT_DOUBLE_EQ(a0.y, 0.);
+@@ -109,11 +109,11 @@
+ TEST(testSphericalAdvectionShock, SimpleTest) {
+ 
+ 	Vector3d origin(0, 0, 0);
+-	double R_0(10);
+-	double V_0(1000);
+-	double lambda(0.1);
+-	double R_rot(1.);
+-	double V_rot(100);
++	long double R_0(10);
++	long double V_0(1000);
++	long double lambda(0.1);
++	long double R_rot(1.);
++	long double V_rot(100);
+ 	
+ 
+ 	SphericalAdvectionShock A(origin, R_0, V_0, lambda);
+@@ -144,7 +144,7 @@
+ 	Vector3d Pos(2, 0, 0);
+ 	Vector3d a = A.getField(Pos);
+ 	Vector3d a0 = a.getUnitVector();
+-	double d = A.getDivergence(Pos);
++	long double d = A.getDivergence(Pos);
+ 
+ 	EXPECT_DOUBLE_EQ(a0.x, 1.);
+ 	EXPECT_DOUBLE_EQ(a0.y, 0.);
+@@ -169,12 +169,12 @@
+ 
+ TEST(testOneDimensionalTimeDependentShock, SimpleTest) {
+ 
+-    double V_sh(1);
+-    double V_1(3./4.);
+-    double V_0(0.);
+-    double L_sh(.01);
+-    double X_sh0(0);
+-    double T_sh0(0);
++    long double V_sh(1);
++    long double V_1(3./4.);
++    long double V_0(0.);
++    long double L_sh(.01);
++    long double X_sh0(0);
++    long double T_sh0(0);
+ 
+     OneDimensionalTimeDependentShock A(V_sh, V_1, V_0, L_sh);
+ 
+@@ -191,7 +191,7 @@
+     EXPECT_DOUBLE_EQ(A.getDivergence(Vector3d(1,0,0)), 0.);
+ 
+     // Shock position at t=1
+-    double xsh = A.getShockPosition(10.);
++    long double xsh = A.getShockPosition(10.);
+     EXPECT_DOUBLE_EQ(xsh, V_sh * 10.);
+ 
+     // Preshock and postshock speeds:
+@@ -202,9 +202,9 @@
+ 
+ TEST(testSedovTaylorBlastWave, SimpleTest) {
+ 
+-    double E0(1);
+-    double rho0(1);
+-    double L_sh(0.01);
++    long double E0(1);
++    long double rho0(1);
++    long double L_sh(0.01);
+ 
+     SedovTaylorBlastWave A(E0, rho0, L_sh);
+ 
+@@ -218,11 +218,11 @@
+     EXPECT_DOUBLE_EQ(A.getDivergence(Vector3d(1,0,0)), 0.);
+ 
+     // Shock position at t=1
+-    double R = A.getShockRadius(1.);
++    long double R = A.getShockRadius(1.);
+     EXPECT_DOUBLE_EQ(R, pow(E0 / rho0, 1./5.));
+ 
+     // Shock speed at t=1
+-    double V = A.getShockSpeed(1.);
++    long double V = A.getShockSpeed(1.);
+     EXPECT_DOUBLE_EQ(V, 2. / 5. * pow(E0 / rho0, 1. / 5.));
+ 
+     // Check field 
+--- a/test/testBreakCondition.cpp
++++ b/test/testBreakCondition.cpp
+@@ -324,7 +324,7 @@
+ 
+ TEST(ObserverFeature, TimeEvolutionArray) {
+   // here it should be tested if the observer can be constructed with an array
+-  std::vector<double> times = {1, 2, 3}; 
++  std::vector<long double> times = {1, 2, 3}; 
+   ObserverTimeEvolution obs(times);
+   EXPECT_FALSE(obs.empty());
+   EXPECT_TRUE(times == obs.getTimes());  // element wise comparison
+@@ -416,7 +416,7 @@
+ TEST(ReflectiveShell, inside) {
+ 	// Tests if the reflective boundaries place the particle back inside the shell
+ 	Vector3d center(0, 0, 0);
+-	double radius = 100;
++	long double radius = 100;
+ 	ReflectiveShell shell(center, radius);
+ 
+ 	Candidate c;
+--- a/test/testCandidateSplitting.cpp
++++ b/test/testCandidateSplitting.cpp
+@@ -12,12 +12,12 @@
+ TEST(testCandidateSplitting, SimpleTest) {
+ 	int nSplit = 2;
+ 	int nBins = 4;
+-	double minWeight = pow(1. / nSplit, 2);
+-	double Emin = 1; // dimensionless for testing
+-	double Emax = 10; 	
++	long double minWeight = pow(1. / nSplit, 2);
++	long double Emin = 1; // dimensionless for testing
++	long double Emax = 10; 	
+ 
+ 	CandidateSplitting split_lin(nSplit, Emin, Emax, nBins, minWeight);
+-	double dE = (Emax - Emin) / nBins;
++	long double dE = (Emax - Emin) / nBins;
+ 	EXPECT_DOUBLE_EQ(split_lin.getEnergyBins()[0], Emin);
+ 	EXPECT_DOUBLE_EQ(split_lin.getEnergyBins()[1], Emin + dE);
+ 
+@@ -25,13 +25,13 @@
+ 	EXPECT_DOUBLE_EQ(split_lin.getMinimalWeight(), minWeight);
+ 
+ 	CandidateSplitting split_log(nSplit, Emin, Emax, nBins, minWeight, true);
+-	double dE_log = pow(Emax / Emin, 1. / (nBins - 1.0));
++	long double dE_log = pow(Emax / Emin, 1. / (nBins - 1.0));
+ 	EXPECT_DOUBLE_EQ(split_log.getEnergyBins()[0], Emin);
+ 	EXPECT_DOUBLE_EQ(split_log.getEnergyBins()[1], Emin * dE_log);
+ 
+-	double spectralIndex = -2.;
++	long double spectralIndex = -2.;
+ 	CandidateSplitting split_dsa(spectralIndex, Emin, nBins);
+-	double dE_dsa = pow(1. / 2, 1. / (spectralIndex + 1));
++	long double dE_dsa = pow(1. / 2, 1. / (spectralIndex + 1));
+ 	EXPECT_DOUBLE_EQ(split_dsa.getEnergyBins()[0], Emin * dE_dsa);
+ 	EXPECT_DOUBLE_EQ(split_dsa.getEnergyBins()[nBins - 1], Emin * pow(dE_dsa, nBins));
+ }
+@@ -40,14 +40,14 @@
+ TEST(testCandidateSplitting, CheckSplits) {
+ 	int nSplit = 2;
+ 	int nBins = 3;
+-	double Emin = 1; // dimensionless for testing
+-	double Emax = 10;
+-	double minWeight = pow(1. / nSplit, 4);
++	long double Emin = 1; // dimensionless for testing
++	long double Emax = 10;
++	long double minWeight = pow(1. / nSplit, 4);
+ 
+ 	CandidateSplitting splitting(nSplit, Emin, Emax, nBins, minWeight);
+ 	Candidate c(nucleusId(1,1),0.5);
+-	double weight = 1.0;
+-	double serial = c.getSerialNumber();
++	long double weight = 1.0;
++	long double serial = c.getSerialNumber();
+ 	
+ 	splitting.process(&c); // no split
+ 	EXPECT_DOUBLE_EQ(c.getWeight(), weight);
+--- a/test/testCore.cpp
++++ b/test/testCore.cpp
+@@ -288,7 +288,7 @@
+ 
+ TEST(common, interpolate) {
+ 	// create vectors x = (0, 0.02, ... 2) and y = 2x + 3 = (3, ... 7)
+-	std::vector<double> xD(101), yD(101);
++	std::vector<long double> xD(101), yD(101);
+ 	for (int i = 0; i <= 100; i++) {
+ 		xD[i] = i * 0.02;
+ 		yD[i] = 2 * xD[i] + 3;
+@@ -296,7 +296,7 @@
+ 
+ 	// interpolating tabulated values of a linear function should produce exact results
+ 	Random &R = Random::instance();
+-	double x, ytrue, yinterp;
++	long double x, ytrue, yinterp;
+ 	for (int i = 0; i < 10000; i++) {
+ 		x = R.rand() * 2; // random value between 0 and 2
+ 		ytrue = 2 * x + 3;
+@@ -324,13 +324,13 @@
+ }
+ 
+ TEST(common, interpolateEquidistant) {
+-	std::vector<double> yD(100);
++	std::vector<long double> yD(100);
+ 	for (int i = 0; i < 100; i++) {
+ 		yD[i] = pow(1 + i * 2. / 99., 2);
+ 	}
+ 
+ 	// interpolated value should be close to computed
+-	double y = interpolateEquidistant(1.5001, 1, 3, yD);
++	long double y = interpolateEquidistant(1.5001, 1, 3, yD);
+ 	EXPECT_NEAR(pow(1.5001, 2), y, 1e-4);
+ 
+ 	// value out of range, return lower bound
+@@ -348,8 +348,8 @@
+ }
+ 
+ TEST(common, gaussInt) {
+-	EXPECT_NEAR(gaussInt(([](double x){ return x*x; }), 0, 10), 1000/3., 1e-4);
+-	EXPECT_NEAR(gaussInt(([](double x){ return sin(x)*sin(x); }), 0, M_PI), M_PI/2., 1e-4);
++	EXPECT_NEAR(gaussInt(([](long double x){ return x*x; }), 0, 10), 1000/3., 1e-4);
++	EXPECT_NEAR(gaussInt(([](long double x){ return sin(x)*sin(x); }), 0, M_PI), M_PI/2., 1e-4);
+ }
+ 
+ TEST(Random, seed) {
+@@ -357,13 +357,13 @@
+ 	Random &b = Random::instance();
+ 
+ 	a.seed(42);
+-	double r1 = a.rand();
++	long double r1 = a.rand();
+ 
+ 	a.seed(42);
+-	double r2 = a.rand();
++	long double r2 = a.rand();
+ 
+ 	a.seed(42);
+-	double r3 = b.rand();
++	long double r3 = b.rand();
+ 
+ 	// seeding should give same random numbers
+ 	EXPECT_EQ(r1, r2);
+@@ -377,7 +377,7 @@
+ 	std::vector<uint32_t> bigSeed;
+ 
+ 	const size_t nComp = 42;
+-	double values[nComp];
++	long double values[nComp];
+ 	for (size_t i = 0; i < nComp; i++)
+ 	{
+ 		values[i] = a.rand();
+@@ -435,7 +435,7 @@
+ 	b.seed(&bigSeed[0], bigSeed.size());
+ 
+ 	const size_t nComp = 42;
+-	double values[nComp];
++	long double values[nComp];
+ 	for (size_t i = 0; i < nComp; i++)
+ 	{
+ 		EXPECT_EQ(a.rand(), b.rand());
+@@ -474,7 +474,7 @@
+ 	// Test correct determination of lower and upper neighbor
+ 	// reflective indices for n=8 should repeat like ...67765432100123456776...
+ 	int lo, hi; 
+-	double res;
++	long double res;
+ 
+ 	reflectiveClamp(23.12, 8, lo, hi, res);
+ 	EXPECT_EQ(7, lo);
+@@ -511,7 +511,7 @@
+ 	size_t Nx = 5;
+ 	size_t Ny = 8;
+ 	size_t Nz = 10;
+-	double spacing = 2.0;
++	long double spacing = 2.0;
+ 	Vector3d origin(1., 2., 3.);
+ 
+ 	Grid1f grid(origin, Nx, Ny, Nz, spacing);
+@@ -624,7 +624,7 @@
+ 	//Test if grid is set to zero outside of volume for clipVolume=true
+ 	EXPECT_NE(0, grid.interpolate(Vector3d(0, 0, 12)));
+ 	grid.setClipVolume(true);
+-	double b = grid.interpolate(Vector3d(0, 0, 12));
++	long double b = grid.interpolate(Vector3d(0, 0, 12));
+ 	EXPECT_FLOAT_EQ(0, b);
+ }
+ 
+@@ -632,7 +632,7 @@
+ 	// Check volume clipping for gridproperties constructor
+ 	size_t N = 2;
+ 	Vector3d origin = Vector3d(0.);
+-	double spacing = 2;
++	long double spacing = 2;
+ 	GridProperties properties(origin, N, spacing);
+ 	Grid1f grid(properties);
+ 	grid.get(0, 0, 0) = 1;
+@@ -647,13 +647,13 @@
+ 	//Test if grid is set to zero outside of volume for clipVolume=true
+ 	EXPECT_NE(0, grid.interpolate(Vector3d(0, 0, 12)));
+ 	grid.setClipVolume(true);
+-	double b = grid.interpolate(Vector3d(0, 0, 10));
++	long double b = grid.interpolate(Vector3d(0, 0, 10));
+ 	EXPECT_FLOAT_EQ(0, b);
+ }
+ 
+ TEST(Grid3f, Interpolation) {
+ 	// Explicitly test trilinear and tricubic interpolation
+-	double spacing = 2.793;
++	long double spacing = 2.793;
+ 	int n = 3;
+ 	Grid3f grid(Vector3d(0.), n, n, n, spacing);
+ 	grid.get(0, 0, 1) = Vector3f(1.7, 0., 0.); // set one value
+@@ -717,8 +717,8 @@
+ TEST(Grid3f, Periodicity) {
+ 	// Test for periodic boundaries: grid(x+a*n) = grid(x)
+ 	size_t n = 3;
+-	double spacing = 3;
+-	double size = n * spacing;
++	long double spacing = 3;
++	long double size = n * spacing;
+ 	Grid3f grid(Vector3d(0.), n, spacing);
+ 	for (int ix = 0; ix < 3; ix++)
+ 		for (int iy = 0; iy < 3; iy++)
+@@ -793,8 +793,8 @@
+ TEST(Grid3f, Reflectivity) {
+ 	// Test for reflective boundaries: grid(pos) = grid(x+a) = grid(-x-a)
+ 	size_t n = 3;
+-	double spacing = 3;
+-	double size = n * spacing;
++	long double spacing = 3;
++	long double size = n * spacing;
+ 	Grid3f grid(Vector3d(0.), n, spacing);
+ 	grid.setReflective(true); //set reflective boundary
+ 	for (int ix = 0; ix < 3; ix++)
+@@ -1065,7 +1065,7 @@
+ TEST(EmissionMap, functions) {
+ 
+ 	EmissionMap em(360, 180, 100, 1 * EeV, 100 * EeV);
+-	double e = em.energyFromBin(50);
++	long double e = em.energyFromBin(50);
+ 	size_t b = em.binFromEnergy(50 * EeV);
+ 
+ 	Vector3d d(1.0, 0.0, 0.0);
+@@ -1101,9 +1101,9 @@
+ }
+ 
+ TEST(Variant, copyToBuffer) {
+-	double a = 23.42;
++	long double a = 23.42;
+ 	Variant v(a);
+-	double b;
++	long double b;
+ 	v.copyToBuffer(&b);
+ 	EXPECT_EQ(a, b);
+ }
+@@ -1138,20 +1138,20 @@
+ 	}
+ 
+ 	{
+-		std::complex<double> a1(1, 1);
+-		std::complex<double> a2(2, 0);
+-		Vector3<std::complex<double>> a(a1, a1, a2);
++		std::complex<long double> a1(1, 1);
++		std::complex<long double> a2(2, 0);
++		Vector3<std::complex<long double>> a(a1, a1, a2);
+ 		Variant v = Variant::fromVector3c(a);
+-		Vector3<std::complex<double>> u = v.asVector3c();
++		Vector3<std::complex<long double>> u = v.asVector3c();
+ 		EXPECT_EQ(a1, u.getX());
+ 		EXPECT_EQ(a1, u.getY());
+ 		EXPECT_EQ(a2, u.getZ());
+ 	}
+ 
+ 	{
+-		std::complex<double> a(1, 2);
++		std::complex<long double> a(1, 2);
+ 		Variant v = Variant::fromComplexDouble(a);
+-		std::complex<double> u = v.asComplexDouble();
++		std::complex<long double> u = v.asComplexDouble();
+ 		EXPECT_EQ(u.real(), 1);
+ 		EXPECT_EQ(u.imag(), 2);
+ 	}
+--- a/test/testDensity.cpp
++++ b/test/testDensity.cpp
+@@ -123,7 +123,7 @@
+ 	EXPECT_NEAR(n.getH2Density(p),0,1);
+ 
+ 	//testing total Density
+-	EXPECT_NEAR(n.getDensity(p),914,2); //double uncertaincy for both type á 1cm^-3
++	EXPECT_NEAR(n.getDensity(p),914,2); //long double uncertaincy for both type á 1cm^-3
+ 	EXPECT_NEAR(n.getNucleonDensity(p),914,2);	// 914 + 0*2	factor 2 for molecular hydrogen
+ 
+ 	//second position for testing density
+@@ -192,7 +192,7 @@
+ 	EXPECT_NEAR(n.getH2Density(p),35484825,1);
+ 	EXPECT_NEAR(n.getHIIDensity(p),6243793,1);
+ 	EXPECT_NEAR(n.getDensity(p),47966341,1);
+-	EXPECT_NEAR(n.getNucleonDensity(p),83451166,2);		//factor 2 in molecular hydrogen; double uncertaincy
++	EXPECT_NEAR(n.getNucleonDensity(p),83451166,2);		//factor 2 in molecular hydrogen; long double uncertaincy
+ 
+ 	Vector3d p2(-500*pc,-900*pc,35*pc);	//testing position in region of the DISK
+ 	EXPECT_NEAR(n.getHIIDensity(p2),48190,1);
+@@ -263,7 +263,7 @@
+ 	size_t Nx = 5;
+ 	size_t Ny = 8;
+ 	size_t Nz = 10;
+-	double spacing = 2.0;
++	long double spacing = 2.0;
+ 	Vector3d origin(1., 2., 3.);
+ 
+ 	ref_ptr<Grid1f> grid = new Grid1f(origin, Nx, Ny, Nz, spacing);
+@@ -277,12 +277,12 @@
+ 
+ 	// a point in the region where values are defined for the grid.
+ 	Vector3d position = origin + Vector3d(2.2, 2.8, 4.1) * spacing; 
+-	double valueFromGrid =  grid->interpolate(position);
+-	double nHI = dens.getHIDensity(position);
+-	double nHII = dens.getHIIDensity(position);
+-	double nH2 = dens.getH2Density(position);
+-	double nNucleon = dens.getNucleonDensity(position);
+-	double nTotal = dens.getDensity(position);
++	long double valueFromGrid =  grid->interpolate(position);
++	long double nHI = dens.getHIDensity(position);
++	long double nHII = dens.getHIIDensity(position);
++	long double nH2 = dens.getH2Density(position);
++	long double nNucleon = dens.getNucleonDensity(position);
++	long double nTotal = dens.getDensity(position);
+ 
+ 	// Check for values
+ 	EXPECT_DOUBLE_EQ(valueFromGrid, nHI);
+--- a/test/testFunctionalGroups.cpp
++++ b/test/testFunctionalGroups.cpp
+@@ -8,8 +8,8 @@
+  * r_g = R / (B*c) = 1 EV / (1 nG * c) \approx 1.08*Mpc
+  */
+ TEST(testFunctionalGroups, gyroradius) {
+-	double energy = 1*EeV;
+-	double field = 1*nG;
++	long double energy = 1*EeV;
++	long double field = 1*nG;
+ 
+ 	ParticleState p;
+ 	p.setId(nucleusId(1, 1));
+@@ -24,7 +24,7 @@
+ 	ref_ptr<ModuleList> sim = new ModuleList();
+ 
+ 	Vector3d pos;
+-	double max_y = 0;
++	long double max_y = 0;
+ 
+ 	sim->add(propa);
+ 	sim->add(new MaximumTrajectoryLength(10*Mpc));
+--- a/test/testInteraction.cpp
++++ b/test/testInteraction.cpp
+@@ -53,7 +53,7 @@
+ 	ref_ptr<PhotonField> cmb = new CMB();
+ 	ElectronPairProduction epp1(cmb);
+ 	for (int i = 0; i < 80; i++) {
+-		double E = pow(10, 15 + i * 0.1) * eV;
++		long double E = pow(10, 15 + i * 0.1) * eV;
+ 		c.current.setEnergy(E);
+ 		epp1.process(&c);
+ 		EXPECT_LE(c.current.getEnergy(), E);
+@@ -62,7 +62,7 @@
+ 	ref_ptr<PhotonField> irb = new IRB_Kneiske04();
+ 	ElectronPairProduction epp2(irb);
+ 	for (int i = 0; i < 80; i++) {
+-		double E = pow(10, 15 + i * 0.1) * eV;
++		long double E = pow(10, 15 + i * 0.1) * eV;
+ 		c.current.setEnergy(E);
+ 		epp2.process(&c);
+ 		EXPECT_LE(c.current.getEnergy(), E);
+@@ -89,12 +89,12 @@
+ 
+ TEST(ElectronPairProduction, valuesCMB) {
+ 	// Test if energy loss corresponds to the data table.
+-	std::vector<double> x;
+-	std::vector<double> y;
++	std::vector<long double> x;
++	std::vector<long double> y;
+ 	std::ifstream infile(getDataPath("pair_CMB.txt").c_str());
+ 	while (infile.good()) {
+ 		if (infile.peek() != '#') {
+-			double a, b;
++			long double a, b;
+ 			infile >> a >> b;
+ 			if (infile) {
+ 				x.push_back(a * eV);
+@@ -114,8 +114,8 @@
+ 	for (int i = 0; i < x.size(); i++) {
+ 		c.current.setEnergy(x[i]);
+ 		epp.process(&c);
+-		double dE = x[i] - c.current.getEnergy();
+-		double dE_table = y[i] * 1 * Mpc;
++		long double dE = x[i] - c.current.getEnergy();
++		long double dE_table = y[i] * 1 * Mpc;
+ 		EXPECT_NEAR(dE_table, dE, 1e-12);
+ 	}
+ }
+@@ -146,12 +146,12 @@
+ 
+ TEST(ElectronPairProduction, valuesIRB) {
+ 	// Test if energy loss corresponds to the data table.
+-	std::vector<double> x;
+-	std::vector<double> y;
++	std::vector<long double> x;
++	std::vector<long double> y;
+ 	std::ifstream infile(getDataPath("pairIRB.txt").c_str());
+ 	while (infile.good()) {
+ 		if (infile.peek() != '#') {
+-			double a, b;
++			long double a, b;
+ 			infile >> a >> b;
+ 			if (infile) {
+ 				x.push_back(a * eV);
+@@ -171,8 +171,8 @@
+ 	for (int i = 0; i < x.size(); i++) {
+ 		c.current.setEnergy(x[i]);
+ 		epp.process(&c);
+-		double dE = x[i] - c.current.getEnergy();
+-		double dE_table = y[i] * 1 * Mpc;
++		long double dE = x[i] - c.current.getEnergy();
++		long double dE_table = y[i] * 1 * Mpc;
+ 		EXPECT_NEAR(dE, dE_table, 1e-12);
+ 	}
+ }
+@@ -184,7 +184,7 @@
+ 	NuclearDecay d(true, true);
+ 	Candidate c(nucleusId(44, 21), 1E18 * eV);
+ 	c.setCurrentStep(100 * Mpc);
+-	double gamma = c.current.getLorentzFactor();
++	long double gamma = c.current.getLorentzFactor();
+ 	d.process(&c);
+ 	
+ 	// expected decay product: 44Ca
+@@ -237,9 +237,9 @@
+ 	// Test if next step is limited in case of a neutron.
+ 	NuclearDecay decay;
+ 	Candidate c(nucleusId(1, 0), 10 * EeV);
+-	c.setNextStep(std::numeric_limits<double>::max());
++	c.setNextStep(std::numeric_limits<long double>::max());
+ 	decay.process(&c);
+-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
++	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
+ }
+ 
+ TEST(NuclearDecay, allChannelsWorking) {
+@@ -299,7 +299,7 @@
+ 	// Test if nothing happens to an electron
+ 	NuclearDecay decay;
+ 	Candidate c(11, 10 * EeV);
+-	c.setNextStep(std::numeric_limits<double>::max());
++	c.setNextStep(std::numeric_limits<long double>::max());
+ 	decay.process(&c);
+ 	EXPECT_EQ(11, c.current.getId());
+ 	EXPECT_EQ(10 * EeV, c.current.getEnergy());
+@@ -367,7 +367,7 @@
+ 	EXPECT_TRUE(c.secondaries.size() > 0);
+ 	// secondaries produced
+ 
+-	double E = c.current.getEnergy();
++	long double E = c.current.getEnergy();
+ 	id = c.current.getId();
+ 	int A = massNumber(id);
+ 	int Z = chargeNumber(id);
+@@ -404,7 +404,7 @@
+ 	// expect secondaries produced
+ 	EXPECT_TRUE(c.secondaries.size() > 0);
+ 
+-	double E = c.current.getEnergy();
++	long double E = c.current.getEnergy();
+ 	id = c.current.getId();
+ 	int A = massNumber(id);
+ 	int Z = chargeNumber(id);
+@@ -444,11 +444,11 @@
+ 	ref_ptr<PhotonField> cmb = new CMB();
+ 	PhotoDisintegration pd(cmb);
+ 	Candidate c;
+-	c.setNextStep(std::numeric_limits<double>::max());
++	c.setNextStep(std::numeric_limits<long double>::max());
+ 	c.current.setId(nucleusId(4, 2));
+ 	c.current.setEnergy(200 * EeV);
+ 	pd.process(&c);
+-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
++	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
+ }
+ 
+ TEST(PhotoDisintegration, allIsotopes) {
+@@ -535,7 +535,7 @@
+ 	for (int i = 0; i < c.secondaries.size(); i++) {
+ 		int id = (*c.secondaries[i]).current.getId();
+ 		EXPECT_EQ(id, 22);
+-		double energy = (*c.secondaries[i]).current.getEnergy();
++		long double energy = (*c.secondaries[i]).current.getEnergy();
+ 		EXPECT_GT(energy, 0);
+ 		EXPECT_LT(energy, 200 * EeV);
+ 	}
+@@ -623,9 +623,9 @@
+ 	ref_ptr<PhotonField> cmb = new CMB();
+ 	PhotoPionProduction ppp(cmb);
+ 	Candidate c(nucleusId(1, 1), 200 * EeV);
+-	c.setNextStep(std::numeric_limits<double>::max());
++	c.setNextStep(std::numeric_limits<long double>::max());
+ 	ppp.process(&c);
+-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
++	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
+ }
+ 
+ TEST(PhotoPionProduction, secondaries) {
+@@ -645,14 +645,14 @@
+ 	// by testing the calculated pEpsMax for CMB(), also indirectly
+ 	// testing epsMinInteraction and logSampling (default).
+ 	ref_ptr<PhotonField> cmb = new CMB(); //create CMB instance
+-	double energy = 1.e10; //1e10 GeV
++	long double energy = 1.e10; //1e10 GeV
+ 	bool onProton = true; //proton
+-	double z = 0; //no redshift
++	long double z = 0; //no redshift
+ 	PhotoPionProduction ppp(cmb, true, true, true);
+-	double correctionFactor = ppp.getCorrectionFactor(); //get current correctionFactor
+-	double epsMin = std::max(cmb -> getMinimumPhotonEnergy(z) / eV, 0.00710614); // 0.00710614 = epsMinInteraction(onProton,energy)
+-	double epsMax = cmb -> getMaximumPhotonEnergy(z) / eV;
+-	double pEpsMax = ppp.probEpsMax(onProton, energy, z, epsMin, epsMax) / correctionFactor;
++	long double correctionFactor = ppp.getCorrectionFactor(); //get current correctionFactor
++	long double epsMin = std::max(cmb -> getMinimumPhotonEnergy(z) / eV, 0.00710614); // 0.00710614 = epsMinInteraction(onProton,energy)
++	long double epsMax = cmb -> getMaximumPhotonEnergy(z) / eV;
++	long double pEpsMax = ppp.probEpsMax(onProton, energy, z, epsMin, epsMax) / correctionFactor;
+ 	EXPECT_DOUBLE_EQ(pEpsMax,132673934934.922);
+ }
+ 
+@@ -737,9 +737,9 @@
+ 	ref_ptr<PhotonField> cmb = new CMB();
+ 	EMPairProduction m(cmb);
+ 	Candidate c(22, 1E17 * eV);
+-	c.setNextStep(std::numeric_limits<double>::max());
++	c.setNextStep(std::numeric_limits<long double>::max());
+ 	m.process(&c);
+-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
++	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
+ }
+ 
+ TEST(EMPairProduction, secondaries) {
+@@ -760,7 +760,7 @@
+ 	for (int f = 0; f < fields.size(); f++) {
+ 		m.setPhotonField(fields[f]);
+ 		for (int i = 0; i < 140; i++) { // loop over energies Ep = (1e10 - 1e23) eV
+-			double Ep = pow(10, 9.05 + 0.1 * i) * eV;
++			long double Ep = pow(10, 9.05 + 0.1 * i) * eV;
+ 			Candidate c(22, Ep);
+ 			c.setCurrentStep(1e10 * Mpc);
+ 
+@@ -774,7 +774,7 @@
+ 			EXPECT_EQ(c.secondaries.size(), 2);
+ 
+ 			// expect electron / positron with energies 0 < E < Ephoton
+-			double Etot = 0;
++			long double Etot = 0;
+ 			for (int j = 0; j < c.secondaries.size(); j++) {
+ 				Candidate s = *c.secondaries[j];
+ 				EXPECT_EQ(abs(s.current.getId()), 11);
+@@ -842,9 +842,9 @@
+ 	ref_ptr<PhotonField> cmb = new CMB();
+ 	EMDoublePairProduction m(cmb);
+ 	Candidate c(22, 1E17 * eV);
+-	c.setNextStep(std::numeric_limits<double>::max());
++	c.setNextStep(std::numeric_limits<long double>::max());
+ 	m.process(&c);
+-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
++	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
+ }
+ 
+ TEST(EMDoublePairProduction, secondaries) {
+@@ -867,7 +867,7 @@
+ 		
+ 		// loop over energies Ep = (1e9 - 1e23) eV
+ 		for (int i = 0; i < 140; i++) {
+-			double Ep = pow(10, 9.05 + 0.1 * i) * eV;
++			long double Ep = pow(10, 9.05 + 0.1 * i) * eV;
+ 			Candidate c(22, Ep);
+ 			c.setCurrentStep(1e4 * Mpc); // use lower value so that the test can run faster
+ 			m.process(&c);
+@@ -880,7 +880,7 @@
+ 			EXPECT_EQ(c.secondaries.size(), 2);
+ 
+ 			// expect electron / positron with energies 0 < E < Ephoton
+-			double Etot = 0;
++			long double Etot = 0;
+ 			for (int j = 0; j < c.secondaries.size(); j++) {
+ 				Candidate s = *c.secondaries[j];
+ 				EXPECT_EQ(abs(s.current.getId()), 11);
+@@ -948,9 +948,9 @@
+ 	ref_ptr<PhotonField> cmb = new CMB();
+ 	EMTripletPairProduction m(cmb);
+ 	Candidate c(11, 1E17 * eV);
+-	c.setNextStep(std::numeric_limits<double>::max());
++	c.setNextStep(std::numeric_limits<long double>::max());
+ 	m.process(&c);
+-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
++	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
+ }
+ 
+ TEST(EMTripletPairProduction, secondaries) {
+@@ -974,7 +974,7 @@
+ 		// loop over energies Ep = (1e9 - 1e23) eV
+ 		for (int i = 0; i < 140; i++) {
+ 
+-			double Ep = pow(10, 9.05 + 0.1 * i) * eV;
++			long double Ep = pow(10, 9.05 + 0.1 * i) * eV;
+ 			Candidate c(11, Ep);
+ 			c.setCurrentStep(1e4 * Mpc); // use lower value so that the test can run faster
+ 			m.process(&c);
+@@ -985,7 +985,7 @@
+ 
+ 			// expect positive energy of primary electron
+ 			EXPECT_GT(c.current.getEnergy(), 0);
+-			double Etot = c.current.getEnergy();
++			long double Etot = c.current.getEnergy();
+ 
+ 			// expect electron / positron with energies 0 < E < Ephoton
+ 			for (int j = 0; j < c.secondaries.size(); j++) {
+@@ -1055,9 +1055,9 @@
+ 	ref_ptr<PhotonField> cmb = new CMB();
+ 	EMInverseComptonScattering m(cmb);
+ 	Candidate c(11, 1E17 * eV);
+-	c.setNextStep(std::numeric_limits<double>::max());
++	c.setNextStep(std::numeric_limits<long double>::max());
+ 	m.process(&c);
+-	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
++	EXPECT_LT(c.getNextStep(), std::numeric_limits<long double>::max());
+ }
+ 
+ TEST(EMInverseComptonScattering, secondaries) {
+@@ -1080,7 +1080,7 @@
+ 		
+ 		// loop over energies Ep = (1e9 - 1e23) eV
+ 		for (int i = 0; i < 140; i++) {
+-			double Ep = pow(10, 9.05 + 0.1 * i) * eV;
++			long double Ep = pow(10, 9.05 + 0.1 * i) * eV;
+ 			Candidate c(11, Ep);
+ 			c.setCurrentStep(1e3 * Mpc); // use lower value so that the test can run faster
+ 			m.process(&c);
+@@ -1099,7 +1099,7 @@
+ 			EXPECT_TRUE(s.current.getEnergy() < Ep);
+ 
+ 
+-			double Etot = c.current.getEnergy();
++			long double Etot = c.current.getEnergy();
+ 			for (int j = 0; j < c.secondaries.size(); j++) {
+ 				s = *c.secondaries[j];
+ 				Etot += s.current.getEnergy();
+@@ -1158,10 +1158,10 @@
+ 	EXPECT_EQ(sync.getSecondaryThreshold(), 1 * MeV);
+ 
+ 	// init with custom values 
+-	double b = 1 * muG; 
+-	double thinning = 0.23;
++	long double b = 1 * muG; 
++	long double thinning = 0.23;
+ 	int samples = 4; 
+-	double limit = 0.123;
++	long double limit = 0.123;
+ 	SynchrotronRadiation sync2(b, true, thinning, samples, limit);
+ 
+ 	EXPECT_EQ(sync2.getBrms(), b);
+@@ -1190,9 +1190,9 @@
+ 	EXPECT_EQ(fieldAtPosition.getR(), b.getR());
+ 
+ 	// init with custom values 
+-	double thinning = 0.23;
++	long double thinning = 0.23;
+ 	int samples = 4; 
+-	double limit = 0.123;
++	long double limit = 0.123;
+ 	SynchrotronRadiation sync2(field, true, thinning, samples, limit);
+ 
+ 	EXPECT_EQ(sync2.getBrms(), 0);
+@@ -1240,15 +1240,15 @@
+ }
+ 
+ TEST(SynchrotronRadiation, energyLoss) {
+-	double brms = 1 * muG; 
+-	double step = 1 * kpc; 
++	long double brms = 1 * muG; 
++	long double step = 1 * kpc; 
+ 	SynchrotronRadiation sync(brms, false);
+ 
+-	double dE, lf, Rg, dEdx;
++	long double dE, lf, Rg, dEdx;
+ 	Candidate c(11); 
+ 	c.setCurrentStep(step);
+ 	c.setNextStep(step);
+-	double charge = eplus;
++	long double charge = eplus;
+ 
+ 	// 1 GeV 
+ 	c.current.setEnergy(1 * GeV);
+@@ -1288,24 +1288,24 @@
+ }
+ 
+ TEST(SynchrotronRadiation, PhotonEnergy) {
+-	double brms = 1 * muG; 
++	long double brms = 1 * muG; 
+ 	SynchrotronRadiation sync(brms, true);
+ 	sync.setSecondaryThreshold(0.); // allow all secondaries for testing
+ 
+-	double E = 1 * TeV;
++	long double E = 1 * TeV;
+ 	Candidate c(11, E);
+ 	c.setCurrentStep(10 * pc); 
+ 	c.setNextStep(10 * pc);
+ 	
+-	double lf = c.current.getLorentzFactor();
+-	double Rg = E / eplus / c_light / (brms * sqrt(2. / 3) ); // factor 2/3 for avg magnetic field direction. 
+-	double Ecrit = 3. / 4 * h_planck / M_PI * c_light * pow(lf, 3) / Rg;
++	long double lf = c.current.getLorentzFactor();
++	long double Rg = E / eplus / c_light / (brms * sqrt(2. / 3) ); // factor 2/3 for avg magnetic field direction. 
++	long double Ecrit = 3. / 4 * h_planck / M_PI * c_light * pow(lf, 3) / Rg;
+ 
+ 	sync.process(&c);
+ 	EXPECT_TRUE(c.secondaries.size() > 0);	// must have secondaries
+ 
+ 	// check avg energy of the secondary photons 
+-	double Esec = 0; 
++	long double Esec = 0; 
+ 	for (size_t i = 0; i < c.secondaries.size(); i++) {
+ 		Esec += c.secondaries[i] -> current.getEnergy();
+ 	}
+--- a/test/testMagneticField.cpp
++++ b/test/testMagneticField.cpp
+@@ -59,8 +59,8 @@
+ TEST(testMagneticFieldEvolution, SimpleTest) {
+ 	// Test if this decorator scales the underlying field as (1+z)^m
+ 	ref_ptr<UniformMagneticField> B = new UniformMagneticField(Vector3d(1,0,0));
+-	double z = 1.2;
+-	double m = 3;
++	long double z = 1.2;
++	long double m = 3;
+ 	MagneticFieldEvolution Bz(B, m);
+ 
+ 	// scaled field
+@@ -319,7 +319,7 @@
+   const std::vector<std::vector<Vector3d>> referenceValues =
+     getUF23ReferenceValues();
+ 
+-  const double precision = 1e-6;
++  const long double precision = 1e-6;
+ 
+   for (unsigned int i = 0; i < models.size(); ++i) {
+     const auto& model = models[i];
+--- a/test/testMagneticLens.cpp
++++ b/test/testMagneticLens.cpp
+@@ -32,7 +32,7 @@
+ 	// Map any direction (p,t) to (p, -t)
+ 	for (int i=0;i<P.nPix();i++)
+ 	{
+-		double theta, phi;
++		long double theta, phi;
+ 		P.pix2Direction(i, phi, theta);
+ 		theta*= -1;
+ 		int j = P.direction2Pix(phi, theta);
+@@ -43,9 +43,9 @@
+ 
+ 	for (int i=0; i < P.nPix(); i++)
+ 	{
+-		double theta, phi;
++		long double theta, phi;
+ 		P.pix2Direction(i, phi, theta);
+-		double theta0 = theta;
++		long double theta0 = theta;
+ 
+ 		// No CR is allowed to be lost in this lens
+ 		EXPECT_TRUE(magneticLens.transformCosmicRay(20 * EeV, phi, theta));
+@@ -95,7 +95,7 @@
+ 	M.resize(P.nPix(), P.nPix());
+ 	M.reserve(P.nPix());
+ 	magneticLens.setLensPart(M,10. * EeV, 100. * EeV);
+-	double theta = 0, phi = 0;
++	long double theta = 0, phi = 0;
+ 	EXPECT_FALSE(magneticLens.transformCosmicRay(1. * EeV, phi, theta));
+ }
+ 
+@@ -106,7 +106,7 @@
+ 	Pixelization P(6);
+ 	for (int idx =0; idx < P.nPix(); idx++)
+ 	{
+-		double ang = P.angularDistance(idx,idx);
++		long double ang = P.angularDistance(idx,idx);
+ 		EXPECT_TRUE(ang == ang);
+ 	}
+ }
+@@ -120,7 +120,7 @@
+   EXPECT_EQ(pids.size(), 1);
+   EXPECT_EQ(pids[0], 1000010010);
+ 
+-  std::vector<double> energies = maps.getEnergies(1000010010);
++  std::vector<long double> energies = maps.getEnergies(1000010010);
+   EXPECT_EQ(energies.size(), 1);
+ }
+ 
+@@ -128,9 +128,9 @@
+ {
+   ParticleMapsContainer maps(0.002);
+   maps.addParticle(1000010010, 1 * EeV, 0 , 0 );
+-  std::vector<double> energies;
+-  std::vector<double> lons;
+-  std::vector<double> lats;
++  std::vector<long double> energies;
++  std::vector<long double> lons;
++  std::vector<long double> lats;
+   std::vector<int> particleIds;
+ 
+   size_t N = 420;
+@@ -154,12 +154,12 @@
+ TEST(Pixelization, randomDirectionInPixel)
+ {
+   Pixelization p(6);
+-  const double long0 = -35./180 * M_PI;
+-  const double lat0 =  12.08/180 * M_PI;
++  const long double long0 = -35./180 * M_PI;
++  const long double lat0 =  12.08/180 * M_PI;
+ 
+   int pix = p.direction2Pix(long0, lat0);
+ 
+-  double rlon, rlat;
++  long double rlon, rlat;
+   p.getRandomDirectionInPixel(pix, rlon, rlat);
+ 
+   // new direction should be inside the pixel
+--- a/test/testPropagation.cpp
++++ b/test/testPropagation.cpp
+@@ -13,8 +13,8 @@
+ namespace crpropa {
+ 
+ TEST(testSimplePropagation, step) {
+-	double minStep = 20;
+-	double maxStep = 100;
++	long double minStep = 20;
++	long double maxStep = 100;
+ 	SimplePropagation propa(minStep, maxStep);
+ 
+ 	ParticleState p;
+@@ -40,7 +40,7 @@
+ TEST(testPropagationCK, zeroField) {
+ 	PropagationCK propa(new UniformMagneticField(Vector3d(0, 0, 0)));
+ 
+-	double minStep = 0.1 * kpc;
++	long double minStep = 0.1 * kpc;
+ 	propa.setMinimumStep(minStep);
+ 
+ 	ParticleState p;
+@@ -85,9 +85,9 @@
+ 	// Test construction and parameters
+ 	ref_ptr<MagneticField> bField = new UniformMagneticField(Vector3d(0, 0, 1 * nG));
+ 
+-	double minStep = 1.;
+-	double maxStep = 100.;
+-	double tolerance = 0.01;
++	long double minStep = 1.;
++	long double maxStep = 100.;
++	long double tolerance = 0.01;
+ 
+ 	PropagationCK propa(bField, tolerance, minStep, maxStep);
+ 
+@@ -122,8 +122,8 @@
+ TEST(testPropagationCK, reduceStep) {
+ 	PropagationCK propa(new UniformMagneticField(Vector3d(0, 0, 100 * nG)));
+ 
+-	double minStep = 0.1 * kpc;
+-	double maxStep = 1 * Gpc;
++	long double minStep = 0.1 * kpc;
++	long double maxStep = 1 * Gpc;
+ 	propa.setMinimumStep(minStep);
+ 	propa.setMaximumStep(maxStep);
+ 	// small tolerance leads to large values of r
+@@ -150,8 +150,8 @@
+ TEST(testPropagationCK, increaseStep) {
+ 	PropagationCK propa(new UniformMagneticField(Vector3d(0, 0, 1 * nG)));
+ 
+-	double minStep = 0.001 * pc;
+-	double maxStep = 3.125 * pc;
++	long double minStep = 0.001 * pc;
++	long double maxStep = 3.125 * pc;
+ 	propa.setMinimumStep(minStep);
+ 	propa.setMaximumStep(maxStep);
+ 	// large tolerance leads to small values of r. Consequently, the step size can be increased.
+@@ -178,7 +178,7 @@
+ TEST(testPropagationCK, proton) {
+ 	PropagationCK propa(new UniformMagneticField(Vector3d(0, 0, 1 * nG)));
+ 
+-	double minStep = 0.1 * kpc;
++	long double minStep = 0.1 * kpc;
+ 	propa.setMinimumStep(minStep);
+ 
+ 	ParticleState p;
+@@ -200,7 +200,7 @@
+ TEST(testPropagationCK, gyration) {
+ 	PropagationCK propa(new UniformMagneticField(Vector3d(0, 0, 1 * nG)));
+ 
+-	double step = 10. * Mpc;  // gyroradius is 108.1 Mpc
++	long double step = 10. * Mpc;  // gyroradius is 108.1 Mpc
+ 	propa.setMaximumStep(step);
+ 	propa.setMinimumStep(step);
+ 
+@@ -214,15 +214,15 @@
+ 	c.setNextStep(0);
+ 	propa.process(&c);
+ 
+-	double dirX = c.current.getDirection().x;
+-	double dirY = c.current.getDirection().y;
+-	double dirZ = c.current.getDirection().z;
+-	double posZ = c.current.getPosition().z;
++	long double dirX = c.current.getDirection().x;
++	long double dirY = c.current.getDirection().y;
++	long double dirZ = c.current.getDirection().z;
++	long double posZ = c.current.getPosition().z;
+ 
+ 	// Test if the analytical solution is achieved for the components of the momentum with the CK method as expected in
+ 	// the background magnetic field.
+-	double precision = 1e-7;
+-	double expected = 2 / 3.;
++	long double precision = 1e-7;
++	long double expected = 2 / 3.;
+ 	EXPECT_NEAR(expected, dirX * dirX + dirY * dirY, expected * precision);  // constant momentum in the plane perpendicular to background magnetic field field
+ 	expected = 1 / 3.;
+ 	EXPECT_NEAR(expected, dirZ * dirZ, expected * precision);  // constant momentum parallel to the background magnetic field
+@@ -273,7 +273,7 @@
+ TEST(testPropagationBP, zeroField) {
+ 	PropagationBP propa(new UniformMagneticField(Vector3d(0, 0, 0)), 1 * kpc);
+ 
+-	double minStep = 0.1 * kpc;
++	long double minStep = 0.1 * kpc;
+ 	propa.setMinimumStep(minStep);
+ 	propa.setTolerance(0.42);
+ 
+@@ -320,9 +320,9 @@
+ 	// Test construction and parameters
+ 	ref_ptr<MagneticField> bField = new UniformMagneticField(Vector3d(0, 0, 1 * nG));
+ 
+-	double minStep = 1.;
+-	double maxStep = 100.;
+-	double tolerance = 0.01;
++	long double minStep = 1.;
++	long double maxStep = 100.;
++	long double tolerance = 0.01;
+ 
+ 	PropagationBP propa(bField, tolerance, minStep, maxStep);
+ 
+@@ -362,8 +362,8 @@
+ TEST(testPropagationBP, reduceStep) {
+ 	PropagationBP propa(new UniformMagneticField(Vector3d(0, 0, 100 * nG)), 1 * kpc);
+ 
+-	double minStep = 0.1 * kpc;
+-	double maxStep = 1 * Gpc;
++	long double minStep = 0.1 * kpc;
++	long double maxStep = 1 * Gpc;
+ 	propa.setMinimumStep(minStep);
+ 	propa.setMaximumStep(maxStep);
+ 	// small tolerance leads to large values of r
+@@ -390,8 +390,8 @@
+ TEST(testPropagationBP, increaseStep) {
+ 	PropagationBP propa(new UniformMagneticField(Vector3d(0, 0, 1 * nG)), 1 * kpc);
+ 
+-	double minStep = 0.001 * pc;
+-	double maxStep = 3.125 * pc;
++	long double minStep = 0.001 * pc;
++	long double maxStep = 3.125 * pc;
+ 	propa.setMinimumStep(minStep);
+ 	propa.setMaximumStep(maxStep);
+ 	// large tolerance leads to small values of r. Consequently, the step size can be increased.
+@@ -418,7 +418,7 @@
+ TEST(testPropagationBP, proton) {
+ 	PropagationBP propa(new UniformMagneticField(Vector3d(0, 0, 1 * nG)));
+ 
+-	double step = 0.01 * kpc;
++	long double step = 0.01 * kpc;
+ 	propa.setMinimumStep(step);
+ 	propa.setMaximumStep(10*step);
+ 	propa.setTolerance(0.00001);
+@@ -442,7 +442,7 @@
+ TEST(testPropagationBP, gyration) {
+ 	PropagationBP propa(new UniformMagneticField(Vector3d(0, 0, 1 * nG)));
+ 
+-	double step = 10. * Mpc;  // gyroradius is 108.1 Mpc
++	long double step = 10. * Mpc;  // gyroradius is 108.1 Mpc
+ 	propa.setMaximumStep(step);
+ 	propa.setMinimumStep(step);
+ 
+@@ -456,10 +456,10 @@
+ 	c.setNextStep(0);
+ 	propa.process(&c);
+ 
+-	double dirX = c.current.getDirection().x;
+-	double dirY = c.current.getDirection().y;
+-	double dirZ = c.current.getDirection().z;
+-	double posZ = c.current.getPosition().z;
++	long double dirX = c.current.getDirection().x;
++	long double dirY = c.current.getDirection().y;
++	long double dirZ = c.current.getDirection().z;
++	long double posZ = c.current.getPosition().z;
+ 
+ 	// Test if the analytical solution is achieved for the components of the momentum with the Boris push as expected in
+ 	// the background magnetic field.
+@@ -487,7 +487,7 @@
+ // Test the that the optimization for fixed step sizes works
+ TEST(testPropagationBP, fixedStepOptimization) {
+ 	// particle 1 with fixed step sizes
+-	double fixed_step = pc;
++	long double fixed_step = pc;
+ 	PropagationBP propa1(new PlaneWaveTurbulence(TurbulenceSpectrum(gauss, pc, 100*pc), 10, 1), fixed_step);
+ 	ParticleState p1;
+ 	p1.setId(nucleusId(1, 1));
+@@ -503,7 +503,7 @@
+ 
+ 	// particle 2 with different min and max steps. The tolerance is chosen such that particle 2 will be
+ 	// propagated with the same step as particle 1, however not using the optimization for fixed step sizes
+-	double tolerance = 1;
++	long double tolerance = 1;
+ 	PropagationBP propa2(new PlaneWaveTurbulence(TurbulenceSpectrum(gauss, pc, 100*pc), 10, 1), tolerance, fixed_step, 1.1*fixed_step);
+ 	ParticleState p2;
+ 	p2.setId(nucleusId(1, 1));
+--- a/test/testSource.cpp
++++ b/test/testSource.cpp
+@@ -35,25 +35,25 @@
+ 
+ TEST(SourceUniformSphere, simpleTest) {
+ 	Vector3d center(0, 0, 0);
+-	double radius = 110;
++	long double radius = 110;
+ 	SourceUniformSphere source(center, radius);
+ 	ParticleState ps;
+ 	source.prepareParticle(ps);
+-	double distance = ps.getPosition().getDistanceTo(center);
++	long double distance = ps.getPosition().getDistanceTo(center);
+ 	EXPECT_GE(radius, distance);
+ }
+ 
+ TEST(SourceUniformHollowSphere, simpleTest) {
+ 	Vector3d center(0, 0, 0);
+-	double radius_inner = 50;
+-	double radius_outer = 110;
++	long double radius_inner = 50;
++	long double radius_outer = 110;
+ 	SourceUniformHollowSphere source(center,
+ 			radius_inner,
+ 			radius_outer);
+ 	for (int i=0; i < 100; ++i) {
+ 		ParticleState ps;
+ 		source.prepareParticle(ps);
+-		double distance = ps.getPosition().getDistanceTo(center);
++		long double distance = ps.getPosition().getDistanceTo(center);
+ 		EXPECT_GE(radius_outer, distance);
+ 		EXPECT_LE(radius_inner, distance);
+ 	}
+@@ -76,32 +76,32 @@
+ 
+ TEST(SourceUniformCylinder, simpleTest) {
+ 	Vector3d center(0, 0, 0);
+-	double radius = 15;
+-	double height = 2;
++	long double radius = 15;
++	long double height = 2;
+ 	SourceUniformCylinder cylinder(center, height, radius);
+ 	ParticleState ps;
+ 	cylinder.prepareParticle(ps);
+ 	Vector3d pos = ps.getPosition();
+-	double R2 = pos.x*pos.x+pos.y*pos.y;
+-	double H = pow(pos.z*pos.z, 0.5);
++	long double R2 = pos.x*pos.x+pos.y*pos.y;
++	long double H = pow(pos.z*pos.z, 0.5);
+ 	EXPECT_GE(radius*radius, R2);
+ 	EXPECT_GE(height/2., H);
+ }
+ 
+ TEST(SourceSNRDistribution, simpleTest) {
+-	double R_earth = 8.5*kpc;
+-	double alpha = 2.0;
+-	double beta = 3.53;
+-	double Z_G = 0.3*kpc;
++	long double R_earth = 8.5*kpc;
++	long double alpha = 2.0;
++	long double beta = 3.53;
++	long double Z_G = 0.3*kpc;
+ 	SourceSNRDistribution snr(R_earth,alpha, beta, Z_G);
+ 	ParticleState ps;
+ 	snr.prepareParticle(ps);
+ 	Vector3d pos = ps.getPosition();
+-	double R2 = pos.x*pos.x+pos.y*pos.y;
++	long double R2 = pos.x*pos.x+pos.y*pos.y;
+ 	EXPECT_GE(20*kpc*20*kpc, R2); // radius must be smaller than 20 kpc
+ 	
+-	double R2_mean = 0.;
+-	double Z_mean = 0.;
++	long double R2_mean = 0.;
++	long double Z_mean = 0.;
+ 	for (size_t i=0; i<100000; i++) {
+ 		snr.prepareParticle(ps);
+ 		Vector3d pos = ps.getPosition();
+@@ -118,7 +118,7 @@
+ 	// Create a grid with 10^3 cells ranging from (0, 0, 0) to (10, 10, 10)
+ 	Vector3d origin(0, 0, 0);
+ 	int cells = 10;
+-	double spacing = 1;
++	long double spacing = 1;
+ 	auto grid = new Grid1f(origin, cells, spacing);
+ 	for (int ix = 0; ix < cells; ix++)
+ 		for (int iy = 0; iy < cells; iy++)
+@@ -144,7 +144,7 @@
+ 	// Create a grid with 2^3 cells ranging from (0, 0, 0) to (4, 4, 4)
+ 	Vector3d origin(0, 0, 0);
+ 	int cells = 2;
+-	double spacing = 2;
++	long double spacing = 2;
+ 	auto grid = new Grid1f(origin, cells, spacing);
+ 	
+ 	// set all but one cells to 0
+@@ -184,7 +184,7 @@
+ 	// Create a grid with 10 cells ranging from 0 to 10
+ 	Vector3d origin(0, 0, 0);
+ 	int nCells = 10;
+-	double spacing = 1.;
++	long double spacing = 1.;
+ 	auto grid = new Grid1f(origin, nCells, 1, 1, spacing);
+ 
+ 	// set some values
+@@ -206,7 +206,7 @@
+ 	// Test if the only allowed cells is repeatedly selected
+ 	Vector3d origin(0, 0, 0);
+ 	int nCells = 10;
+-	double spacing = 1.;
++	long double spacing = 1.;
+ 	auto grid = new Grid1f(origin, nCells, 1, 1, spacing);
+ 
+ 	// set some values
+@@ -228,9 +228,9 @@
+ }
+ 
+ TEST(SourcePowerLawSpectrum, simpleTest) {
+-	double Emin = 4 * EeV;
+-	double Emax = 200 * EeV;
+-	double index = -2.7;
++	long double Emin = 4 * EeV;
++	long double Emax = 200 * EeV;
++	long double index = -2.7;
+ 	SourcePowerLawSpectrum spectrum(Emin, Emax, index);
+ 	ParticleState ps;
+ 	spectrum.prepareParticle(ps);
+@@ -241,9 +241,9 @@
+ }
+ 
+ TEST(SourceComposition, simpleTest) {
+-	double Emin = 10;
+-	double Rmax = 100;
+-	double index = -1;
++	long double Emin = 10;
++	long double Rmax = 100;
++	long double index = -1;
+ 	SourceComposition source(Emin, Rmax, index);
+ 	source.add(nucleusId(6, 3), 1);
+ 	ParticleState p;
+@@ -255,14 +255,14 @@
+ 
+ TEST(SourceDirectedEmission, simpleTest) {
+ 	Vector3d mu(1., 0., 0.);
+-	double kappa = 1000.;
++	long double kappa = 1000.;
+ 	SourceDirectedEmission source(mu, kappa);
+ 	Candidate c;
+ 	Vector3d meanDir(0., 0., 0.);
+ 	for (size_t i = 0; i < 1000; i++) {
+ 		source.prepareCandidate(c);
+ 		meanDir += c.source.getDirection();
+-		double w = c.getWeight();
++		long double w = c.getWeight();
+ 		EXPECT_GE(w, 0.);
+ 	}
+ 	meanDir /= 1000.;
+@@ -273,20 +273,20 @@
+ 
+ TEST(SourceEmissionCone, simpleTest) {
+ 	Vector3d direction(42., 0., 0.);
+-	double aperture = 1/42.;
++	long double aperture = 1/42.;
+ 	
+ 	SourceEmissionCone source(direction, aperture);
+ 	
+ 	ParticleState p;
+ 	source.prepareParticle(p);
+-	double angle = direction.getAngleTo(p.getDirection());
++	long double angle = direction.getAngleTo(p.getDirection());
+ 	EXPECT_LE(angle, aperture);
+ }
+ 
+ #ifdef CRPROPA_HAVE_MUPARSER
+ TEST(SourceGenericComposition, simpleTest) {
+-	double Emin = 10;
+-	double Emax = 100;
++	long double Emin = 10;
++	long double Emax = 100;
+ 	SourceGenericComposition source(Emin, Emax, "E^-2");
+ 	int id1 = nucleusId(6, 3);
+ 	int id2 = nucleusId(12, 6);
+@@ -302,7 +302,7 @@
+ 			id1Count++;
+ 		if (p.getId() == id2)
+ 			id2Count++;
+-		double e = p.getEnergy();
++		long double e = p.getEnergy();
+ 		if ( (e >= Emin) && (e < 20))
+ 			ElowCount++;
+ 		if ( (e >= 20) && (e <= Emax))
+@@ -325,8 +325,8 @@
+ TEST(SourceRedshiftEvolution, testInRange) {
+ 	Candidate c;
+ 
+-	double zmin = 0.5;
+-	double zmax = 2.5;
++	long double zmin = 0.5;
++	long double zmax = 2.5;
+ 
+ 	// general case: m
+ 	SourceRedshiftEvolution source1(3.2, zmin, zmax);
+@@ -416,7 +416,7 @@
+ 	source2->add(new SourceEnergy(0));
+ 	sourceList.add(source2, 20);
+ 
+-	double meanE = 0;
++	long double meanE = 0;
+ 	for (int i = 0; i < 1000; i++) {
+ 		ref_ptr<Candidate> c = sourceList.getCandidate();
+ 		meanE += c->created.getEnergy();
+--- a/test/testTurbulentField.cpp
++++ b/test/testTurbulentField.cpp
+@@ -15,12 +15,12 @@
+ 
+ //check problems brought up in https://github.com/CRPropa/CRPropa3/issues/322
+ TEST(testTurbulenceSpectrum, constructor) {
+-	double sIndex = 5./3.;
+-	double qIndex = 4.;
+-	double bendOver = 1.;
+-	double lMin = 1.; 
+-	double lMax = 10.; 
+-	double brms = 1*muG;
++	long double sIndex = 5./3.;
++	long double qIndex = 4.;
++	long double bendOver = 1.;
++	long double lMin = 1.; 
++	long double lMax = 10.; 
++	long double brms = 1*muG;
+ 	auto spectrum = TurbulenceSpectrum(brms, lMin, lMax);
+ 	EXPECT_DOUBLE_EQ(spectrum.getBrms(), brms);
+ 	EXPECT_DOUBLE_EQ(spectrum.getLmin(), lMin);
+@@ -31,9 +31,9 @@
+ }
+ 
+ TEST(testTurbulenceSpectrum, correlationLength) {
+-	double lMin = 0.00001; // not used for Lc
+-	double lMax = 9999999; // not used for Lc
+-	double lBo = 100;
++	long double lMin = 0.00001; // not used for Lc
++	long double lMax = 9999999; // not used for Lc
++	long double lBo = 100;
+ 	auto spectrum = TurbulenceSpectrum(1*muG, lMin, lMax, lBo);
+ 	auto Lc = spectrum.getCorrelationLength();
+     EXPECT_NEAR(Lc, 0.498*lBo, 0.001*lBo);
+@@ -42,9 +42,9 @@
+ #ifdef CRPROPA_HAVE_FFTW3F
+ 
+ TEST(testSimpleGridTurbulence, oldFunctionForCrrelationLength) { //TODO: remove in future
+-	double lMin = 1*kpc;
+-	double lMax = 1*Gpc;
+-	double alpha = -11/3.;
++	long double lMin = 1*kpc;
++	long double lMax = 1*Gpc;
++	long double alpha = -11/3.;
+ 	auto Lc = turbulentCorrelationLength(lMin, lMax, alpha);
+     EXPECT_NEAR(Lc, lMax/5, 1*Mpc);
+ }
+@@ -52,17 +52,17 @@
+ TEST(testVectorFieldGrid, Turbulence_bmean_brms) {
+ 	// Test for zero mean: <B> = 0
+ 	size_t n = 64;
+-	double spacing = 10 * Mpc / n;
+-	double Brms = 1;
+-	double lMin = 2 * spacing;
+-	double lMax = 8 * spacing;
++	long double spacing = 10 * Mpc / n;
++	long double Brms = 1;
++	long double lMin = 2 * spacing;
++	long double lMax = 8 * spacing;
+ 
+ 	auto spectrum = SimpleTurbulenceSpectrum(Brms, lMin, lMax);
+ 	auto gp = GridProperties(Vector3d(0, 0, 0), n, spacing);
+     auto tf = SimpleGridTurbulence(spectrum, gp);
+ 	auto grid = tf.getGrid();
+ 
+-	double precision = 1e-7;
++	long double precision = 1e-7;
+ 	Vector3f bMean = meanFieldVector(grid);
+ 	EXPECT_NEAR(0, bMean.x, precision);
+ 	EXPECT_NEAR(0, bMean.y, precision);
+@@ -73,10 +73,10 @@
+ TEST(testVectorFieldGrid, Turbulence_seed) {
+ 	// Test if seeding produces 2 identical fields
+ 	size_t n = 64;
+-	double spacing = 1 * Mpc;
+-	double Brms = 1;
+-	double lMin = 2 * spacing;
+-	double lMax = 8 * spacing;
++	long double spacing = 1 * Mpc;
++	long double Brms = 1;
++	long double lMin = 2 * spacing;
++	long double lMax = 8 * spacing;
+ 	int seed = 753;
+ 	
+ 	auto spectrum = SimpleTurbulenceSpectrum(Brms, lMin, lMax);
+@@ -95,8 +95,8 @@
+ TEST(testVectorFieldGrid, turbulence_Exceptions) {
+ 	// Test exceptions
+ 	size_t n = 64;
+-	double spacing = 10 * Mpc / n;
+-	double brms = 1;
++	long double spacing = 10 * Mpc / n;
++	long double brms = 1;
+ 	ref_ptr<Grid3f> grid = new Grid3f(Vector3d(0, 0, 0), n, spacing);
+ 
+ 	// should be fine
+@@ -116,11 +116,11 @@
+ TEST(testGridTurbulence, Turbulence_seed) {
+ 	// Test if seeding produces 2 identical fields
+ 	size_t n = 64;
+-	double spacing = 1 * Mpc;
+-	double Brms = 1;
+-	double lMin = 2 * spacing;
+-	double lMax = 8 * spacing;
+-	double lBo = lMax/6;
++	long double spacing = 1 * Mpc;
++	long double Brms = 1;
++	long double lMin = 2 * spacing;
++	long double lMax = 8 * spacing;
++	long double lBo = lMax/6;
+ 	int seed = 137;
+ 	
+ 	auto spectrum = TurbulenceSpectrum(Brms, lMin, lMax, lBo);
+--- a/test/testVector3.cpp
++++ b/test/testVector3.cpp
+@@ -35,15 +35,15 @@
+ TEST(Vector3, mod) {
+ 	Vector3d v(10.1, 10.2, 10.3);
+ 	v %= 10.2;
+-	EXPECT_NEAR(v.x, 10.1, 1e-10); // mod doesn't preserve double precision
++	EXPECT_NEAR(v.x, 10.1, 1e-10); // mod doesn't preserve long double precision
+ 	EXPECT_NEAR(v.y, 0, 1e-10);
+ 	EXPECT_NEAR(v.z, 0.1, 1e-10);
+ }
+ 
+ TEST(Vector3, dot) {
+-	double a = Vector3d(1, 0, 0).dot(Vector3d(0, 1, 0));
++	long double a = Vector3d(1, 0, 0).dot(Vector3d(0, 1, 0));
+ 	EXPECT_DOUBLE_EQ(a, 0);
+-	double b = Vector3d(-1, 10, 2).dot(Vector3d(5, 1, -3));
++	long double b = Vector3d(-1, 10, 2).dot(Vector3d(5, 1, -3));
+ 	EXPECT_DOUBLE_EQ(b, -1);
+ }
+ 
+@@ -54,10 +54,10 @@
+ 
+ TEST(Vector3, angle) {
+ 	// 45 degrees
+-	double a = Vector3d(1, 1, 0).getAngleTo(Vector3d(1, 0, 0));
++	long double a = Vector3d(1, 1, 0).getAngleTo(Vector3d(1, 0, 0));
+ 	EXPECT_DOUBLE_EQ(a, 45 * M_PI / 180);
+ 	// perpendicular vectors
+-	double b = Vector3d(0, 0, 1).getAngleTo(Vector3d(0, 0, 1));
++	long double b = Vector3d(0, 0, 1).getAngleTo(Vector3d(0, 0, 1));
+ 	EXPECT_DOUBLE_EQ(b, 0);
+ }
+ 
+@@ -67,8 +67,8 @@
+ 	Vector3d et = v.getUnitVectorTheta();
+ 	Vector3d ep = v.getUnitVectorPhi();
+ 
+-	// trigonometrical functions don't preserve double precision
+-	double eps = 1e-16;
++	// trigonometrical functions don't preserve long double precision
++	long double eps = 1e-16;
+ 	EXPECT_NEAR(er.x, 1, eps);
+ 	EXPECT_NEAR(er.y, 0, eps);
+ 	EXPECT_NEAR(er.z, 0, eps);
+@@ -89,7 +89,7 @@
+ }
+ 
+ TEST(Vector3, distance) {
+-	double a = Vector3d(10, 0, 10).getDistanceTo(Vector3d(10, 0, 0));
++	long double a = Vector3d(10, 0, 10).getDistanceTo(Vector3d(10, 0, 0));
+ 	EXPECT_DOUBLE_EQ(a, 10);
+ }
+ 

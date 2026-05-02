@@ -79,7 +79,7 @@ herr_t HDF5Output::insertStringAttribute(const std::string &key, const std::stri
 	return status;
 }
 
-herr_t HDF5Output::insertDoubleAttribute(const std::string &key, const double &value){
+herr_t HDF5Output::insertDoubleAttribute(const std::string &key, const long double &value){
 	hid_t   type, attr_space, version_attr;
 	hsize_t dims = 0;
 	herr_t  status;

@@ -5,8 +5,8 @@
 #include <vector>
 
 namespace crpropa {
-	void PropagationBP::tryStep(const Y &y, Y &out, Y &error, double h,
-			ParticleState &particle, double z, double q, double m) const {
+	void PropagationBP::tryStep(const Y &y, Y &out, Y &error, long double h,
+			ParticleState &particle, long double z, long double q, long double m) const {
 		out = dY(y.x, y.u, h, z, q, m);  // 1 step with h
 
 		Y outHelp = dY(y.x, y.u, h/2, z, q, m);  // 2 steps with h/2
@@ -16,8 +16,8 @@ namespace crpropa {
 	}
 
 
-	PropagationBP::Y PropagationBP::dY(Vector3d pos, Vector3d dir, double step,
-			double z, double q, double m) const {
+	PropagationBP::Y PropagationBP::dY(Vector3d pos, Vector3d dir, long double step,
+			long double z, long double q, long double m) const {
 		// half leap frog step in the position
 		pos += dir * step / 2.;
 
@@ -40,7 +40,7 @@ namespace crpropa {
 
 
 	// with a fixed step size
-	PropagationBP::PropagationBP(ref_ptr<MagneticField> field, double fixedStep) :
+	PropagationBP::PropagationBP(ref_ptr<MagneticField> field, long double fixedStep) :
 			minStep(0) {
 		setField(field);
 		setTolerance(0.42);
@@ -50,7 +50,7 @@ namespace crpropa {
 
 
 	// with adaptive step size
-	PropagationBP::PropagationBP(ref_ptr<MagneticField> field, double tolerance, double minStep, double maxStep) :
+	PropagationBP::PropagationBP(ref_ptr<MagneticField> field, long double tolerance, long double minStep, long double maxStep) :
 			minStep(0) {
 		setField(field);
 		setTolerance(tolerance);
@@ -67,8 +67,8 @@ namespace crpropa {
 		Y yIn(current.getPosition(), current.getDirection());
 
 		// calculate charge of particle
-		double q = current.getCharge();
-		double step = maxStep;
+		long double q = current.getCharge();
+		long double step = maxStep;
 
 		// rectilinear propagation for neutral particles
 		if (q == 0) {
@@ -80,9 +80,9 @@ namespace crpropa {
 		}
 
 		Y yOut, yErr;
-		double newStep = step;
-		double z = candidate->getRedshift();
-		double m = current.getEnergy()/(c_light * c_light);
+		long double newStep = step;
+		long double z = candidate->getRedshift();
+		long double m = current.getEnergy()/(c_light * c_light);
 
 		// if minStep is the same as maxStep the adaptive algorithm with its error
 		// estimation is not needed and the computation time can be saved:
@@ -91,7 +91,7 @@ namespace crpropa {
 		} else {
 			step = clip(candidate->getNextStep(), minStep, maxStep);
 			newStep = step;
-			double r = 42;  // arbitrary value
+			long double r = 42;  // arbitrary value
 
 			// try performing step until the target error (tolerance) or the minimum/maximum step size has been reached
 			while (true) {
@@ -134,7 +134,7 @@ namespace crpropa {
 	}
 
 
-	Vector3d PropagationBP::getFieldAtPosition(Vector3d pos, double z) const {
+	Vector3d PropagationBP::getFieldAtPosition(Vector3d pos, long double z) const {
 		Vector3d B(0, 0, 0);
 		try {
 			// check if field is valid and use the field vector at the
@@ -149,17 +149,17 @@ namespace crpropa {
 	}
 
 
-	double PropagationBP::errorEstimation(const Vector3d x1, const Vector3d x2, double step) const {
+	long double PropagationBP::errorEstimation(const Vector3d x1, const Vector3d x2, long double step) const {
 		// compare the position after one step with the position after two steps with step/2.
 		Vector3d diff = (x1 - x2);
 
-		double S = diff.getR() / (step * (1 - 1/4.) );	// 1/4 = (1/2)²  number of steps for x1 divided by number of steps for x2 to the power of p (order)
+		long double S = diff.getR() / (step * (1 - 1/4.) );	// 1/4 = (1/2)²  number of steps for x1 divided by number of steps for x2 to the power of p (order)
 
 		return S;
 	}
 
 
-	void PropagationBP::setTolerance(double tol) {
+	void PropagationBP::setTolerance(long double tol) {
 		if ((tol > 1) or (tol < 0))
 			throw std::runtime_error(
 					"PropagationBP: target error not in range 0-1");
@@ -167,7 +167,7 @@ namespace crpropa {
 	}
 
 
-	void PropagationBP::setMinimumStep(double min) {
+	void PropagationBP::setMinimumStep(long double min) {
 		if (min < 0)
 			throw std::runtime_error("PropagationBP: minStep < 0 ");
 		if (min > maxStep)
@@ -176,24 +176,24 @@ namespace crpropa {
 	}
 
 
-	void PropagationBP::setMaximumStep(double max) {
+	void PropagationBP::setMaximumStep(long double max) {
 		if (max < minStep)
 			throw std::runtime_error("PropagationBP: maxStep < minStep");
 		maxStep = max;
 	}
 
 
-	double PropagationBP::getTolerance() const {
+	long double PropagationBP::getTolerance() const {
 		return tolerance;
 	}
 
 
-	double PropagationBP::getMinimumStep() const {
+	long double PropagationBP::getMinimumStep() const {
 		return minStep;
 	}
 
 
-	double PropagationBP::getMaximumStep() const {
+	long double PropagationBP::getMaximumStep() const {
 		return maxStep;
 	}
 

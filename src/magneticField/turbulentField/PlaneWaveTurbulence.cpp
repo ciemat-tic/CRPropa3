@@ -66,7 +66,7 @@ namespace crpropa {
 #ifdef ENABLE_FAST_WAVES
 // see
 // https://stackoverflow.com/questions/49941645/get-sum-of-values-stored-in-m256d-with-sse-avx
-double hsum_double_avx(__m256d v) {
+long double hsum_double_avx(__m256d v) {
 	__m128d vlow = _mm256_castpd256_pd128(v);
 	__m128d vhigh = _mm256_extractf128_pd(v, 1); // high 128
 	vlow = _mm_add_pd(vlow, vhigh);              // reduce down to 128
@@ -100,25 +100,25 @@ PlaneWaveTurbulence::PlaneWaveTurbulence(const TurbulenceSpectrum &spectrum,
 	if (seed != 0)
 		random.seed(seed);
 
-	double kmax = 2 * M_PI / spectrum.getLmin();
-	double kmin = 2 * M_PI / spectrum.getLmax();
+	long double kmax = 2 * M_PI / spectrum.getLmin();
+	long double kmin = 2 * M_PI / spectrum.getLmax();
 
 	xi = std::vector<Vector3d>(Nm, Vector3d(0.));
 	kappa = std::vector<Vector3d>(Nm, Vector3d(0.));
-	phi = std::vector<double>(Nm, 0.);
-	costheta = std::vector<double>(Nm, 0.);
-	beta = std::vector<double>(Nm, 0.);
-	Ak = std::vector<double>(Nm, 0.);
-	k = std::vector<double>(Nm, 0.);
+	phi = std::vector<long double>(Nm, 0.);
+	costheta = std::vector<long double>(Nm, 0.);
+	beta = std::vector<long double>(Nm, 0.);
+	Ak = std::vector<long double>(Nm, 0.);
+	k = std::vector<long double>(Nm, 0.);
 
-	double delta = log10(kmax / kmin);
+	long double delta = log10(kmax / kmin);
 	for (int i = 0; i < Nm; i++) {
-		k[i] = pow(10, log10(kmin) + ((double)i) / ((double)(Nm - 1)) * delta);
+		k[i] = pow(10, log10(kmin) + ((long double)i) / ((long double)(Nm - 1)) * delta);
 	}
 
 	// * compute Ak *
 
-	double delta_k0 =
+	long double delta_k0 =
 	    (k[1] - k[0]) / k[1]; // multiply this by k[i] to get delta_k[i]
 	// Note: this is probably unnecessary since it's just a factor
 	// and will get normalized out anyways. It's not like this is
@@ -128,11 +128,11 @@ PlaneWaveTurbulence::PlaneWaveTurbulence(const TurbulenceSpectrum &spectrum,
 	// For this loop, the Ak array actually contains Gk*delta_k (ie
 	// non-normalized Ak^2). Normalization happens in a second loop,
 	// once the total is known.
-	double Ak2_sum = 0; // sum of Ak^2 over all k
+	long double Ak2_sum = 0; // sum of Ak^2 over all k
 	for (int i = 0; i < Nm; i++) {
-		double k = this->k[i];
-		double kHat = k * spectrum.getLbendover();
-		double Gk = spectrum.energySpectrum(k) * (1 + kHat * kHat);	// correct different implementation in TD 13 (eq. 5, missing + 1 in the denuminators exponent)
+		long double k = this->k[i];
+		long double kHat = k * spectrum.getLbendover();
+		long double Gk = spectrum.energySpectrum(k) * (1 + kHat * kHat);	// correct different implementation in TD 13 (eq. 5, missing + 1 in the denuminators exponent)
 		Ak[i] = Gk * delta_k0 * k;
 		Ak2_sum += Ak[i];
 
@@ -142,12 +142,12 @@ PlaneWaveTurbulence::PlaneWaveTurbulence(const TurbulenceSpectrum &spectrum,
 		// z is costheta, and r is sintheta. Our kappa is equivalent to
 		// the return value of randVector(); however, TD13 then reuse
 		// these values to generate a random vector perpendicular to kappa.
-		double phi = random.randUniform(-M_PI, M_PI);
-		double costheta = random.randUniform(-1., 1.);
-		double sintheta = sqrt(1 - costheta * costheta);
+		long double phi = random.randUniform(-M_PI, M_PI);
+		long double costheta = random.randUniform(-1., 1.);
+		long double sintheta = sqrt(1 - costheta * costheta);
 
-		double alpha = random.randUniform(0, 2 * M_PI);
-		double beta = random.randUniform(0, 2 * M_PI);
+		long double alpha = random.randUniform(0, 2 * M_PI);
+		long double beta = random.randUniform(0, 2 * M_PI);
 
 		Vector3d kappa =
 		    Vector3d(sintheta * cos(phi), sintheta * sin(phi), costheta);
@@ -181,9 +181,9 @@ PlaneWaveTurbulence::PlaneWaveTurbulence(const TurbulenceSpectrum &spectrum,
 	// * copy data into AVX-compatible arrays *
 	//
 	// AVX requires all data to be aligned to 256 bit, or 32 bytes, which is the
-	// same as 4 double precision floating point numbers. Since support for
+	// same as 4 long double precision floating point numbers. Since support for
 	// alignments this big seems to be somewhat tentative in C++ allocators,
-	// we're aligning them manually by allocating a normal double array, and
+	// we're aligning them manually by allocating a normal long double array, and
 	// then computing the offset to the first value with the correct alignment.
 	// This is a little bit of work, so instead of doing it separately for each
 	// of the individual data arrays, we're doing it once for one big array that
@@ -197,14 +197,14 @@ PlaneWaveTurbulence::PlaneWaveTurbulence(const TurbulenceSpectrum &spectrum,
 	// the result.
 
 	avx_Nm = ((Nm + 4 - 1) / 4) * 4; // round up to next larger multiple of 4:
-	                                 // align is 256 = 4 * sizeof(double) bit
-	avx_data = std::vector<double>(itotal * avx_Nm + 3, 0.);
+	                                 // align is 256 = 4 * sizeof(long double) bit
+	avx_data = std::vector<long double>(itotal * avx_Nm + 3, 0.);
 
 	// get the first 256-bit aligned element
-	size_t size = avx_data.size() * sizeof(double);
+	size_t size = avx_data.size() * sizeof(long double);
 	void *pointer = avx_data.data();
 	align_offset =
-	    (double *)std::align(32, 32, pointer, size) - avx_data.data();
+	    (long double *)std::align(32, 32, pointer, size) - avx_data.data();
 
 	// copy into the AVX arrays
 	for (int i = 0; i < Nm; i++) {
@@ -233,7 +233,7 @@ Vector3d PlaneWaveTurbulence::getField(const Vector3d &pos) const {
 #ifndef ENABLE_FAST_WAVES
 	Vector3d B(0.);
 	for (int i = 0; i < Nm; i++) {
-		double z_ = pos.dot(kappa[i]);
+		long double z_ = pos.dot(kappa[i]);
 		B += xi[i] * Ak[i] * cos(k[i] * z_ + beta[i]);
 	}
 	return B;
@@ -336,7 +336,7 @@ Vector3d PlaneWaveTurbulence::getField(const Vector3d &pos) const {
 		// We now want to check whether q (the index of our half-wave) is even
 		// or odd, since all of the odd-numbered half-waves are negative, so
 		// we'll have to flip the final result. On an int, this is as simple as
-		// checking the 0th bit. Idea: manipulate the double in such a way that
+		// checking the 0th bit. Idea: manipulate the long double in such a way that
 		// we can do this. So, we add 2^52, such that the last digit of the
 		// mantissa is actually in the ones' position. Since q may be negative,
 		// we'll also add 2^51 to make sure it's positive. Note that 2^51 is
@@ -344,13 +344,13 @@ Vector3d PlaneWaveTurbulence::getField(const Vector3d &pos) const {
 		// care about here.
 		//
 		// This is based on the int extraction process described here:
-		// https://stackoverflow.com/questions/41144668/how-to-efficiently-perform-double-int64-conversions-with-sse-avx/41223013
+		// https://stackoverflow.com/questions/41144668/how-to-efficiently-perform-long double-int64-conversions-with-sse-avx/41223013
 		//
 		// We assume -2^51 <= q < 2^51 for this, which is unproblematic, as
-		// double precision has decayed far enough at that point that the
+		// long double precision has decayed far enough at that point that the
 		// usefulness of the cosine becomes limited.
 		//
-		// Explanation: The mantissa of a double-precision float has 52 bits
+		// Explanation: The mantissa of a long double-precision float has 52 bits
 		// (excluding the implicit first bit, which is always one). If |q| >
 		// 2^51, this implicit first bit has a place value of at least 2^51,
 		// while the first stored bit of the mantissa has a place value of at
@@ -417,10 +417,10 @@ Vector3d PlaneWaveTurbulence::getField(const Vector3d &pos) const {
 		                  _mm256_set1_pd(-0.4934797516664651162e+1));
 		u = _mm256_add_pd(_mm256_mul_pd(u, s), _mm256_set1_pd(1.));
 
-		// Then, flip the sign of each double for which invert is not zero.
+		// Then, flip the sign of each long double for which invert is not zero.
 		// Since invert has only zero bits except for a possible one in bit 63,
 		// we can xor it onto our result to selectively invert the 63rd (sign)
-		// bit in each double where invert is set.
+		// bit in each long double where invert is set.
 		u = _mm256_xor_pd(u, invert);
 
 		// * end computation of cosine

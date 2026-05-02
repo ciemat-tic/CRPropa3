@@ -7,7 +7,7 @@ AdiabaticCooling::AdiabaticCooling(ref_ptr<AdvectionField> advectionField) :
 	setLimit(0.1);
 }
 
-AdiabaticCooling::AdiabaticCooling(ref_ptr<AdvectionField> advectionField, double limit) :
+AdiabaticCooling::AdiabaticCooling(ref_ptr<AdvectionField> advectionField, long double limit) :
 	advectionField(advectionField) {
 	setLimit(limit);
 }
@@ -15,10 +15,10 @@ AdiabaticCooling::AdiabaticCooling(ref_ptr<AdvectionField> advectionField, doubl
 void AdiabaticCooling::process(Candidate *c) const {
 
 	Vector3d pos = c->current.getPosition();
-	double E = c->current.getEnergy(); // Note we use E=p/c (relativistic limit)
-    double time = c->getTime();
+	long double E = c->current.getEnergy(); // Note we use E=p/c (relativistic limit)
+    long double time = c->getTime();
 	
-	double Div = 0.;	
+	long double Div = 0.;
 	try {
 		Div +=  advectionField->getDivergence(pos, time);
 	} 
@@ -27,11 +27,11 @@ void AdiabaticCooling::process(Candidate *c) const {
 				<< e.what();
 	}
 	
-	double dEdt = -E / 3. * Div; 	// cooling due to advection -p/3 * div(V_wind)
+	long double dEdt = -E / 3. * Div; 	// cooling due to advection -p/3 * div(V_wind)
 					// (see e.g. Kopp et al. Computer Physics Communication 183
 					// (2012) 530-542)
-	double dt = c->getCurrentStep() / c_light;
-	double dE = dEdt * dt;
+	long double dt = c->getCurrentStep() / c_light;
+	long double dE = dEdt * dt;
 	
 	c->current.setEnergy(E + dE);
 	if (dEdt==0) {
@@ -40,11 +40,11 @@ void AdiabaticCooling::process(Candidate *c) const {
 	c->limitNextStep(limit * E / fabs(dEdt) *c_light);
 }
 
-void AdiabaticCooling::setLimit(double l) {
+void AdiabaticCooling::setLimit(long double l) {
 	limit = l;
 }
 
-double AdiabaticCooling::getLimit() const {
+long double AdiabaticCooling::getLimit() const {
 	return limit;
 }
 	

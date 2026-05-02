@@ -14,7 +14,7 @@ namespace crpropa {
 
 struct SophiaEventOutput {
 	int nParticles;
-	std::vector<double> energy;
+	std::vector<long double> energy;
 	std::vector<int> id;
 };
 
@@ -26,11 +26,11 @@ class PhotoPionProduction: public Module {
 
 protected:
 	ref_ptr<PhotonField> photonField;
-	std::vector<double> tabLorentz; ///< Lorentz factor of nucleus
-	std::vector<double> tabRedshifts;  ///< redshifts (optional for haveRedshiftDependence)
-	std::vector<double> tabProtonRate; ///< interaction rate in [1/m] for protons
-	std::vector<double> tabNeutronRate; ///< interaction rate in [1/m] for neutrons
-	double limit; ///< fraction of mean free path to limit the next step
+	std::vector<long double> tabLorentz; ///< Lorentz factor of nucleus
+	std::vector<long double> tabRedshifts;  ///< redshifts (optional for haveRedshiftDependence)
+	std::vector<long double> tabProtonRate; ///< interaction rate in [1/m] for protons
+	std::vector<long double> tabNeutronRate; ///< interaction rate in [1/m] for neutrons
+	long double limit; ///< fraction of mean free path to limit the next step
 	bool havePhotons;
 	bool haveNeutrinos;
 	bool haveElectrons;
@@ -41,57 +41,57 @@ protected:
 	// called by: sampleEps
 	// - input: s [GeV^2]
 	// - output: (s-p^2) * sigma_(nucleon/gamma) [GeV^2 * mubarn]
-	double functs(double s, bool onProton) const;
+	long double functs(long double s, bool onProton) const;
 
 	// called by: sampleEps, gaussInt
 	// - input: photon energy eps [eV], Ein [GeV]
 	// - output: probability to encounter photon of energy eps
-	double probEps(double eps, bool onProton, double Ein, double z) const;
+	long double probEps(long double eps, bool onProton, long double Ein, long double z) const;
 
 	/** called by: sampleEps
 	@param onProton	particle type: proton or neutron
 	@param Ein		energy of incoming nucleon
 	- output: labframe energy [eV] of least energetic photon where PPP can occur
 	 */
-	double epsMinInteraction(bool onProton, double Ein) const;
+	long double epsMinInteraction(bool onProton, long double Ein) const;
 
 	/** called by: probEps, epsMinInteraction
 	@param onProton	particle type: proton or neutron
 	@param Ein		energy of incoming nucleon
 	- output: hadron momentum [GeV/c]
 	 */
-	double momentum(bool onProton, double Ein) const;
+	long double momentum(bool onProton, long double Ein) const;
 	
 	// called by: functs
 	// - input: photon energy [eV]
 	// - output: crossection of nucleon-photon-interaction [mubarn]
-	double crossection(double eps, bool onProton) const;
+	long double crossection(long double eps, bool onProton) const;
 
 	// called by: crossection
 	// - input: photon energy [eV], threshold [eV], max [eV], unknown [no unit]
 	// - output: unknown [no unit]
-	double Pl(double eps, double xth, double xMax, double alpha) const;
+	long double Pl(long double eps, long double xth, long double xMax, long double alpha) const;
 
 	// called by: crossection
 	// - input: photon energy [eV], threshold [eV], unknown [eV]
 	// - output: unknown [no unit]
-	double Ef(double eps, double epsTh, double w) const;
+	long double Ef(long double eps, long double epsTh, long double w) const;
 
 	// called by: crossection
 	// - input: cross section [µbarn], width [GeV], mass [GeV/c^2], rest frame photon energy [GeV]
 	// - output: Breit-Wigner crossection of a resonance of width Gamma
-	double breitwigner(double sigma0, double gamma, double DMM, double epsPrime, bool onProton) const;
+	long double breitwigner(long double sigma0, long double gamma, long double DMM, long double epsPrime, bool onProton) const;
 
 	// called by: probEps, crossection, breitwigner, functs
 	// - input: is proton [bool]
 	// - output: mass [Gev/c^2]
-	double mass(bool onProton) const;
+	long double mass(bool onProton) const;
 
 	// - output: [GeV^2] head-on collision 
-	double sMin() const;
+	long double sMin() const;
 
 	bool sampleLog = true;
-	double correctionFactor = 1.6; // increeses the maximum of the propability function
+	long double correctionFactor = 1.6; // increeses the maximum of the propability function
 	
 
 public:
@@ -112,7 +112,7 @@ public:
 		bool neutrinos = false,
 		bool electrons = false,
 		bool antiNucleons = false,
-		double limit = 0.1,
+		long double limit = 0.1,
 		bool haveRedshiftDependence = false);
 
 	// set the target photon field
@@ -136,7 +136,7 @@ public:
 	/** Limit the propagation step to a fraction of the mean free path
 	 * @param limit fraction of the mean free path
 	 */	
-	void setLimit(double limit);
+	void setLimit(long double limit);
 
 	/** set a custom interaction tag to trace back this interaction
 	 * @param tag string that will be added to the candidate and output
@@ -151,14 +151,14 @@ public:
 	 * @param z 		redshift
 	 * @param onProton 	true for protons, false for neutrons
 	 */
-	double nucleonMFP(double gamma, double z, bool onProton) const;
+	long double nucleonMFP(long double gamma, long double z, bool onProton) const;
 
 	/** scaling factor for mean free path of the nucleus (converting the MFP of a single nucleon)
 	 * 
 	 * @param A		mass number of the nucleus
 	 * @param X 	charge number of the nucleus
 	 */
-	double nucleiModification(int A, int X) const;
+	long double nucleiModification(int A, int X) const;
 	void process(Candidate *candidate) const;
 	void performInteraction(Candidate *candidate, bool onProton) const;
 
@@ -169,7 +169,7 @@ public:
 	 @param gamma	Lorentz factor of particle
 	 @param z		redshift
 	 */
-	double lossLength(int id, double gamma, double z = 0);
+	long double lossLength(int id, long double gamma, long double z = 0);
 
 	/**
 	 Direct SOPHIA interface.
@@ -180,7 +180,7 @@ public:
 	 @param Ein			energy of nucleon
 	 @param eps			energy of target photon
 	 */
-	SophiaEventOutput sophiaEvent(bool onProton, double Ein, double eps) const;
+	SophiaEventOutput sophiaEvent(bool onProton, long double Ein, long double eps) const;
 
 	/**
 	 SOPHIA's photon sampling method. Returns energy [J] of a photon of the photon field.
@@ -188,7 +188,7 @@ public:
 	 @param E		energy of incoming nucleon [J]
 	 @param z		redshift of incoming nucleon
 	 */
-	double sampleEps(bool onProton, double E, double z) const;
+	long double sampleEps(bool onProton, long double E, long double z) const;
 	
 	/** called by: sampleEps
 	@param onProton	particle type: proton or neutron
@@ -198,7 +198,7 @@ public:
 	@param epsMax   maximum photon energy of field
 	- output: maximum probability of all photons in field
 	 */
-	double probEpsMax(bool onProton, double Ein, double z, double epsMin, double epsMax) const;
+	long double probEpsMax(bool onProton, long double Ein, long double z, long double epsMin, long double epsMax) const;
 	
 	// using log or lin spacing of photons in the range between epsMin and
 	// epsMax for computing the maximum probability of photons in field
@@ -207,7 +207,7 @@ public:
 	// given the discrete steps to compute the maximum interaction probability pEpsMax 
 	// of photons in field, the real pEpsMax may lie between the descrete tested photon energies.
 	// A correction factor can be set to increase pEpsMax by that factor
-	void setCorrectionFactor(double factor);
+	void setCorrectionFactor(long double factor);
 
 	/** get functions for the parameters of the class PhotoPionProduction, similar to the set functions */
 	ref_ptr<PhotonField> getPhotonField() const;
@@ -216,9 +216,9 @@ public:
 	bool getHaveElectrons() const;
 	bool getHaveAntiNucleons() const;
 	bool getHaveRedshiftDependence() const;
-	double getLimit() const;
+	long double getLimit() const;
 	bool getSampleLog() const;
-	double getCorrectionFactor() const;
+	long double getCorrectionFactor() const;
 	std::string getInteractionTag() const;
 };
 /** @}*/

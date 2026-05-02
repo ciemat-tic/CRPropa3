@@ -103,11 +103,11 @@ void JF12Field::randomTurbulent(int seed) {
 	useTurbulentField = true;
 	// turbulent field with Kolmogorov spectrum, B_rms = 1 (will be scaled) and Lc = 60 parsec, and 256 grid points.
 	// Note that the inertial range of the turbulence is less than 2 orders of magnitude.
-    const double lMin = 8 * parsec;
-    const double lMax = 272 * parsec;
-    const double Brms = 1;
-    const double spacing = 4 * parsec;
-    const double grid_n = 256;
+    const long double lMin = 8 * parsec;
+    const long double lMax = 272 * parsec;
+    const long double Brms = 1;
+    const long double spacing = 4 * parsec;
+    const long double grid_n = 256;
 
     auto spectrum = SimpleTurbulenceSpectrum(Brms, lMin, lMax);
     auto gp = GridProperties(Vector3d(0.), grid_n, spacing);
@@ -191,20 +191,20 @@ bool JF12Field::isUsingTurbulentField() {
 	return useTurbulentField;
 }
 
-double JF12Field::logisticFunction(const double& x, const double& x0, const double& w) const {
+long double JF12Field::logisticFunction(const long double& x, const long double& x0, const long double& w) const {
 	return 1. / (1. + exp(-2. * (fabs(x) - x0) / w));
 }
 
 Vector3d JF12Field::getRegularField(const Vector3d& pos) const {
 	Vector3d b(0.);
 
-	double d = pos.getR(); // distance to galactic center
+	long double d = pos.getR(); // distance to galactic center
 
 	if (d < 20 * kpc) {
-		double r = sqrt(pos.x * pos.x + pos.y * pos.y); // in-plane radius
-		double phi = pos.getPhi(); // azimuth
-		double sinPhi = sin(phi);
-		double cosPhi = cos(phi);
+		long double r = sqrt(pos.x * pos.x + pos.y * pos.y); // in-plane radius
+		long double phi = pos.getPhi(); // azimuth
+		long double sinPhi = sin(phi);
+		long double cosPhi = cos(phi);
 
 		b += getDiskField(r, pos.z, phi, sinPhi, cosPhi);
 		b += getToroidalHaloField(r, pos.z, sinPhi, cosPhi);
@@ -214,12 +214,12 @@ Vector3d JF12Field::getRegularField(const Vector3d& pos) const {
 	return b;
 }
 
-Vector3d JF12Field::getDiskField(const double& r, const double& z, const double& phi, const double& sinPhi, const double& cosPhi) const {
+Vector3d JF12Field::getDiskField(const long double& r, const long double& z, const long double& phi, const long double& sinPhi, const long double& cosPhi) const {
 	Vector3d b(0.);
 	if (useDiskField) {
-		double lfDisk = logisticFunction(z, hDisk, wDisk);
+		long double lfDisk = logisticFunction(z, hDisk, wDisk);
 		if (r > 3 * kpc) {
-			double bMag;
+			long double bMag;
 			if (r < 5 * kpc) {
 				// molecular ring
 				bMag = bRing * (5 * kpc / r) * (1 - lfDisk);
@@ -227,7 +227,7 @@ Vector3d JF12Field::getDiskField(const double& r, const double& z, const double&
 				b.y += bMag * cosPhi;
 			} else {
 				// spiral region
-				double r_negx = r * exp(-(phi - M_PI) / tan90MinusPitch);
+				long double r_negx = r * exp(-(phi - M_PI) / tan90MinusPitch);
 				if (r_negx > rArms[7])
 					r_negx = r * exp(-(phi + M_PI) / tan90MinusPitch);
 				if (r_negx > rArms[7])
@@ -246,13 +246,13 @@ Vector3d JF12Field::getDiskField(const double& r, const double& z, const double&
 	return b;
 }
 
-Vector3d JF12Field::getToroidalHaloField(const double& r, const double& z, const double& sinPhi, const double& cosPhi) const {
+Vector3d JF12Field::getToroidalHaloField(const long double& r, const long double& z, const long double& sinPhi, const long double& cosPhi) const {
 	Vector3d b(0.);
 
 	if (useToroidalHaloField && (r * r + z * z > 1 * kpc * kpc)){
 
-		double lfDisk = logisticFunction(z, hDisk, wDisk);
-		double bMagH = exp(-fabs(z) / z0) * lfDisk;
+		long double lfDisk = logisticFunction(z, hDisk, wDisk);
+		long double bMagH = exp(-fabs(z) / z0) * lfDisk;
 
 		if (z >= 0)
 			bMagH *= bNorth * (1 - logisticFunction(r, rNorth, wHalo));
@@ -264,19 +264,19 @@ Vector3d JF12Field::getToroidalHaloField(const double& r, const double& z, const
 	return b;
 }
 
-Vector3d JF12Field::getXField(const double& r, const double& z, const double& sinPhi, const double& cosPhi) const {
+Vector3d JF12Field::getXField(const long double& r, const long double& z, const long double& sinPhi, const long double& cosPhi) const {
 	Vector3d b(0.);
 
 	if (useXField && (r * r + z * z > 1 * kpc * kpc)){
-		double bMagX;
-		double sinThetaX, cosThetaX;
-		double rp;
-		double rc = rXc + fabs(z) / tanThetaX0;
+		long double bMagX;
+		long double sinThetaX, cosThetaX;
+		long double rp;
+		long double rc = rXc + fabs(z) / tanThetaX0;
 		if (r < rc) {
 			// varying elevation region
 			rp = r * rXc / rc;
 			bMagX = bX * exp(-1 * rp / rX) * pow(rXc / rc, 2.);
-			double thetaX = atan2(fabs(z), (r - rp));
+			long double thetaX = atan2(fabs(z), (r - rp));
 			if (z == 0)
 				thetaX = M_PI / 2.;
 			sinThetaX = sin(thetaX);
@@ -288,7 +288,7 @@ Vector3d JF12Field::getXField(const double& r, const double& z, const double& si
 			sinThetaX = sinThetaX0;
 			cosThetaX = cosThetaX0;
 		}
-		double zsign = z < 0 ? -1 : 1;
+		long double zsign = z < 0 ? -1 : 1;
 		b.x += zsign * bMagX * cosThetaX * cosPhi;
 		b.y += zsign * bMagX * cosThetaX * sinPhi;
 		b.z += bMagX * sinThetaX;
@@ -301,20 +301,20 @@ Vector3d JF12Field::getStriatedField(const Vector3d& pos) const {
 			* (1. + sqrtbeta * striatedGrid->closestValue(pos)));
 }
 
-double JF12Field::getTurbulentStrength(const Vector3d& pos) const {
+long double JF12Field::getTurbulentStrength(const Vector3d& pos) const {
 	if (pos.getR() > 20 * kpc)
 		return 0;
 
-	double r = sqrt(pos.x * pos.x + pos.y * pos.y); // in-plane radius
-	double phi = pos.getPhi(); // azimuth
+	long double r = sqrt(pos.x * pos.x + pos.y * pos.y); // in-plane radius
+	long double phi = pos.getPhi(); // azimuth
 
 	// disk
-	double bDisk = 0;
+	long double bDisk = 0;
 	if (r < 5 * kpc) {
 		bDisk = bDiskTurb5;
 	} else {
 		// spiral region
-		double r_negx = r * exp(-(phi - M_PI) / tan90MinusPitch);
+		long double r_negx = r * exp(-(phi - M_PI) / tan90MinusPitch);
 		if (r_negx > rArms[7])
 			r_negx = r * exp(-(phi + M_PI) / tan90MinusPitch);
 		if (r_negx > rArms[7])
@@ -329,7 +329,7 @@ double JF12Field::getTurbulentStrength(const Vector3d& pos) const {
 	bDisk *= exp(-0.5 * pow(pos.z / zDiskTurb, 2));
 
 	// halo
-	double bHalo = bHaloTurb * exp(-r / rHaloTurb)
+	long double bHalo = bHaloTurb * exp(-r / rHaloTurb)
 			* exp(-0.5 * pow(pos.z / zHaloTurb, 2));
 
 	// modulate turbulent field

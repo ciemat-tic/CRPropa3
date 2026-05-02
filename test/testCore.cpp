@@ -288,7 +288,7 @@ TEST(common, digit) {
 
 TEST(common, interpolate) {
 	// create vectors x = (0, 0.02, ... 2) and y = 2x + 3 = (3, ... 7)
-	std::vector<double> xD(101), yD(101);
+	std::vector<long double> xD(101), yD(101);
 	for (int i = 0; i <= 100; i++) {
 		xD[i] = i * 0.02;
 		yD[i] = 2 * xD[i] + 3;
@@ -296,7 +296,7 @@ TEST(common, interpolate) {
 
 	// interpolating tabulated values of a linear function should produce exact results
 	Random &R = Random::instance();
-	double x, ytrue, yinterp;
+	long double x, ytrue, yinterp;
 	for (int i = 0; i < 10000; i++) {
 		x = R.rand() * 2; // random value between 0 and 2
 		ytrue = 2 * x + 3;
@@ -324,13 +324,13 @@ TEST(common, interpolate) {
 }
 
 TEST(common, interpolateEquidistant) {
-	std::vector<double> yD(100);
+	std::vector<long double> yD(100);
 	for (int i = 0; i < 100; i++) {
 		yD[i] = pow(1 + i * 2. / 99., 2);
 	}
 
 	// interpolated value should be close to computed
-	double y = interpolateEquidistant(1.5001, 1, 3, yD);
+	long double y = interpolateEquidistant(1.5001, 1, 3, yD);
 	EXPECT_NEAR(pow(1.5001, 2), y, 1e-4);
 
 	// value out of range, return lower bound
@@ -348,8 +348,8 @@ TEST(common, pow_integer) {
 }
 
 TEST(common, gaussInt) {
-	EXPECT_NEAR(gaussInt(([](double x){ return x*x; }), 0, 10), 1000/3., 1e-4);
-	EXPECT_NEAR(gaussInt(([](double x){ return sin(x)*sin(x); }), 0, M_PI), M_PI/2., 1e-4);
+	EXPECT_NEAR(gaussInt(([](long double x){ return x*x; }), 0, 10), 1000/3., 1e-4);
+	EXPECT_NEAR(gaussInt(([](long double x){ return sin(x)*sin(x); }), 0, M_PI), M_PI/2., 1e-4);
 }
 
 TEST(Random, seed) {
@@ -357,13 +357,13 @@ TEST(Random, seed) {
 	Random &b = Random::instance();
 
 	a.seed(42);
-	double r1 = a.rand();
+	long double r1 = a.rand();
 
 	a.seed(42);
-	double r2 = a.rand();
+	long double r2 = a.rand();
 
 	a.seed(42);
-	double r3 = b.rand();
+	long double r3 = b.rand();
 
 	// seeding should give same random numbers
 	EXPECT_EQ(r1, r2);
@@ -377,7 +377,7 @@ TEST(Random, bigSeedStorage) {
 	std::vector<uint32_t> bigSeed;
 
 	const size_t nComp = 42;
-	double values[nComp];
+	long double values[nComp];
 	for (size_t i = 0; i < nComp; i++)
 	{
 		values[i] = a.rand();
@@ -435,7 +435,7 @@ TEST(Random, base64Seed) {
 	b.seed(&bigSeed[0], bigSeed.size());
 
 	const size_t nComp = 42;
-	double values[nComp];
+	long double values[nComp];
 	for (size_t i = 0; i < nComp; i++)
 	{
 		EXPECT_EQ(a.rand(), b.rand());
@@ -474,7 +474,7 @@ TEST(Grid, ReflectiveClamp) {
 	// Test correct determination of lower and upper neighbor
 	// reflective indices for n=8 should repeat like ...67765432100123456776...
 	int lo, hi; 
-	double res;
+	long double res;
 
 	reflectiveClamp(23.12, 8, lo, hi, res);
 	EXPECT_EQ(7, lo);
@@ -511,7 +511,7 @@ TEST(Grid1f, SimpleTest) {
 	size_t Nx = 5;
 	size_t Ny = 8;
 	size_t Nz = 10;
-	double spacing = 2.0;
+	long double spacing = 2.0;
 	Vector3d origin(1., 2., 3.);
 
 	Grid1f grid(origin, Nx, Ny, Nz, spacing);
@@ -624,7 +624,7 @@ TEST(Grid1f, ClosestValue) {
 	//Test if grid is set to zero outside of volume for clipVolume=true
 	EXPECT_NE(0, grid.interpolate(Vector3d(0, 0, 12)));
 	grid.setClipVolume(true);
-	double b = grid.interpolate(Vector3d(0, 0, 12));
+	long double b = grid.interpolate(Vector3d(0, 0, 12));
 	EXPECT_FLOAT_EQ(0, b);
 }
 
@@ -632,7 +632,7 @@ TEST(Grid1f, clipVolume) {
 	// Check volume clipping for gridproperties constructor
 	size_t N = 2;
 	Vector3d origin = Vector3d(0.);
-	double spacing = 2;
+	long double spacing = 2;
 	GridProperties properties(origin, N, spacing);
 	Grid1f grid(properties);
 	grid.get(0, 0, 0) = 1;
@@ -647,13 +647,13 @@ TEST(Grid1f, clipVolume) {
 	//Test if grid is set to zero outside of volume for clipVolume=true
 	EXPECT_NE(0, grid.interpolate(Vector3d(0, 0, 12)));
 	grid.setClipVolume(true);
-	double b = grid.interpolate(Vector3d(0, 0, 10));
+	long double b = grid.interpolate(Vector3d(0, 0, 10));
 	EXPECT_FLOAT_EQ(0, b);
 }
 
 TEST(Grid3f, Interpolation) {
 	// Explicitly test trilinear and tricubic interpolation
-	double spacing = 2.793;
+	long double spacing = 2.793;
 	int n = 3;
 	Grid3f grid(Vector3d(0.), n, n, n, spacing);
 	grid.get(0, 0, 1) = Vector3f(1.7, 0., 0.); // set one value
@@ -717,8 +717,8 @@ TEST(VectordGrid, Scale) {
 TEST(Grid3f, Periodicity) {
 	// Test for periodic boundaries: grid(x+a*n) = grid(x)
 	size_t n = 3;
-	double spacing = 3;
-	double size = n * spacing;
+	long double spacing = 3;
+	long double size = n * spacing;
 	Grid3f grid(Vector3d(0.), n, spacing);
 	for (int ix = 0; ix < 3; ix++)
 		for (int iy = 0; iy < 3; iy++)
@@ -793,8 +793,8 @@ TEST(Grid3f, Periodicity) {
 TEST(Grid3f, Reflectivity) {
 	// Test for reflective boundaries: grid(pos) = grid(x+a) = grid(-x-a)
 	size_t n = 3;
-	double spacing = 3;
-	double size = n * spacing;
+	long double spacing = 3;
+	long double size = n * spacing;
 	Grid3f grid(Vector3d(0.), n, spacing);
 	grid.setReflective(true); //set reflective boundary
 	for (int ix = 0; ix < 3; ix++)
@@ -1065,7 +1065,7 @@ TEST(CylindricalProjectionMap, functions) {
 TEST(EmissionMap, functions) {
 
 	EmissionMap em(360, 180, 100, 1 * EeV, 100 * EeV);
-	double e = em.energyFromBin(50);
+	long double e = em.energyFromBin(50);
 	size_t b = em.binFromEnergy(50 * EeV);
 
 	Vector3d d(1.0, 0.0, 0.0);
@@ -1101,9 +1101,9 @@ TEST(EmissionMap, merge) {
 }
 
 TEST(Variant, copyToBuffer) {
-	double a = 23.42;
+	long double a = 23.42;
 	Variant v(a);
-	double b;
+	long double b;
 	v.copyToBuffer(&b);
 	EXPECT_EQ(a, b);
 }
@@ -1138,20 +1138,20 @@ TEST(Variant, stringConversion) {
 	}
 
 	{
-		std::complex<double> a1(1, 1);
-		std::complex<double> a2(2, 0);
-		Vector3<std::complex<double>> a(a1, a1, a2);
+		std::complex<long double> a1(1, 1);
+		std::complex<long double> a2(2, 0);
+		Vector3<std::complex<long double>> a(a1, a1, a2);
 		Variant v = Variant::fromVector3c(a);
-		Vector3<std::complex<double>> u = v.asVector3c();
+		Vector3<std::complex<long double>> u = v.asVector3c();
 		EXPECT_EQ(a1, u.getX());
 		EXPECT_EQ(a1, u.getY());
 		EXPECT_EQ(a2, u.getZ());
 	}
 
 	{
-		std::complex<double> a(1, 2);
+		std::complex<long double> a(1, 2);
 		Variant v = Variant::fromComplexDouble(a);
-		std::complex<double> u = v.asComplexDouble();
+		std::complex<long double> u = v.asComplexDouble();
 		EXPECT_EQ(u.real(), 1);
 		EXPECT_EQ(u.imag(), 2);
 	}

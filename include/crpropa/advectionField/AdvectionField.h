@@ -24,8 +24,8 @@ class AdvectionField: public Referenced {
 public:
 	virtual ~AdvectionField() {
 	}
-	virtual Vector3d getField(const Vector3d &position, const double &time=0) const = 0;
-	virtual double getDivergence(const Vector3d &position, const double &time=0) const = 0;
+	virtual Vector3d getField(const Vector3d &position, const long double &time=0) const = 0;
+	virtual long double getDivergence(const Vector3d &position, const long double &time=0) const = 0;
 };
 
 
@@ -37,8 +37,8 @@ class AdvectionFieldList: public AdvectionField {
 	std::vector<ref_ptr<AdvectionField> > fields;
 public:
 	void addField(ref_ptr<AdvectionField> field);
-	Vector3d getField(const Vector3d &position, const double &time=0) const;
-	double getDivergence(const Vector3d &position, const double &time=0) const;
+	Vector3d getField(const Vector3d &position, const long double &time=0) const;
+	long double getDivergence(const Vector3d &position, const long double &time=0) const;
 };
 
 
@@ -50,8 +50,8 @@ class UniformAdvectionField: public AdvectionField {
 	Vector3d value;
 public:
 	UniformAdvectionField(const Vector3d &value);
-	Vector3d getField(const Vector3d &position, const double &time=0) const;
-	double getDivergence(const Vector3d &position, const double &time=0) const;
+	Vector3d getField(const Vector3d &position, const long double &time=0) const;
+	long double getDivergence(const Vector3d &position, const long double &time=0) const;
 
 	std::string getDescription() const;
 };
@@ -64,7 +64,7 @@ public:
 
 class ConstantSphericalAdvectionField: public AdvectionField {
 	Vector3d origin; //origin of the advection sphere
-	double vWind; // wind velocity
+	long double vWind; // wind velocity
 public:
 	/** Constructor
 	 @param origin	Origin of the advection field
@@ -72,15 +72,15 @@ public:
 
 */
 
-	ConstantSphericalAdvectionField(const Vector3d origin, double vWind);
-	Vector3d getField(const Vector3d &position, const double &time=0) const;
-	double getDivergence(const Vector3d &position, const double &time=0) const;
+	ConstantSphericalAdvectionField(const Vector3d origin, long double vWind);
+	Vector3d getField(const Vector3d &position, const long double &time=0) const;
+	long double getDivergence(const Vector3d &position, const long double &time=0) const;
 
 	void setOrigin(const Vector3d origin);
-	void setVWind(double vMax);
+	void setVWind(long double vMax);
 
 	Vector3d getOrigin() const;
-	double getVWind() const;
+	long double getVWind() const;
 
 	std::string getDescription() const;
 
@@ -95,10 +95,10 @@ public:
 
 class SphericalAdvectionField: public AdvectionField {
 	Vector3d origin; //origin of the advection sphere
-	double radius; //radius of the advection sphere
-	double vMax; // maximum wind velocity
-	double tau; // transition distance
-	double alpha; //tuning parameter
+	long double radius; //radius of the advection sphere
+	long double vMax; // maximum wind velocity
+	long double tau; // transition distance
+	long double alpha; //tuning parameter
 public:
 	/** Constructor
 	@param origin 	Origin of the advection sphere
@@ -107,23 +107,23 @@ public:
 	@param tau	Transition distance
 	@param alpha	Tuning parameter
 */
-	SphericalAdvectionField(const Vector3d origin, double radius, double vMax, double tau, double alpha);
-	Vector3d getField(const Vector3d &position, const double &time=0) const;
-	double getDivergence(const Vector3d &position, const double &time=0) const;
+	SphericalAdvectionField(const Vector3d origin, long double radius, long double vMax, long double tau, long double alpha);
+	Vector3d getField(const Vector3d &position, const long double &time=0) const;
+	long double getDivergence(const Vector3d &position, const long double &time=0) const;
 
-	double getV(const double &r) const;
+	long double getV(const long double &r) const;
 
 	void setOrigin(const Vector3d origin);
-	void setRadius(double radius);
-	void setVMax(double vMax);
-	void setTau(double tau);
-	void setAlpha(double alpha);
+	void setRadius(long double radius);
+	void setVMax(long double vMax);
+	void setTau(long double tau);
+	void setAlpha(long double alpha);
 
 	Vector3d getOrigin() const;
-	double getRadius() const;
-	double getVMax() const;
-	double getTau() const;
-	double getAlpha() const;
+	long double getRadius() const;
+	long double getVMax() const;
+	long double getTau() const;
+	long double getAlpha() const;
 	
 	std::string getDescription() const;
 };
@@ -134,26 +134,26 @@ public:
 		with variable compression ratio vUp/vDown
  */
 class OneDimensionalCartesianShock: public AdvectionField {
-	double compressionRatio; //compression ratio of shock
-	double vUp; //upstream velocity 
-	double lShock; //shock width
+	long double compressionRatio; //compression ratio of shock
+	long double vUp; //upstream velocity
+	long double lShock; //shock width
 public:
 /** Constructor
 	@param compressionRatio //compression ratio of shock
 	@param vUp //upstream velocity 
 	@param lShock //shock width
 */
-	OneDimensionalCartesianShock(double compressionRatio, double vUp, double lShock);
-	Vector3d getField(const Vector3d &position, const double &time=0) const;
-	double getDivergence(const Vector3d &position, const double &time=0) const;
+	OneDimensionalCartesianShock(long double compressionRatio, long double vUp, long double lShock);
+	Vector3d getField(const Vector3d &position, const long double &time=0) const;
+	long double getDivergence(const Vector3d &position, const long double &time=0) const;
 
-	void setComp(double compressionRatio);
-	void setVup(double vUp);
-	void setShockwidth(double lShock);
+	void setComp(long double compressionRatio);
+	void setVup(long double vUp);
+	void setShockwidth(long double lShock);
 
-	double getComp() const;
-	double getVup() const; 
-	double getShockwidth() const;
+	long double getComp() const;
+	long double getVup() const;
+	long double getShockwidth() const;
 
 	std::string getDescription() const;
 };
@@ -164,10 +164,10 @@ public:
 		with variable compression ratio ratio vUp/vDown
  */
 class OneDimensionalSphericalShock: public AdvectionField {
-	double compressionRatio; 	//compression ratio of shock
-	double vUp; 	//upstream velocity 
-	double lShock; 	//shock width
-	double rShock; 	//shock radius
+	long double compressionRatio; 	//compression ratio of shock
+	long double vUp; 	//upstream velocity
+	long double lShock; 	//shock width
+	long double rShock; 	//shock radius
 	bool coolUpstream; 	//flag for upstream cooling
 public:
 /** Constructor
@@ -177,20 +177,20 @@ public:
 	@param rShock 	//shock radius
 	@param coolUpstream //flag for upstream cooling
 */
-	OneDimensionalSphericalShock(double rShock, double vUp, double compressionRatio, double lShock, bool coolUpstream);
-	Vector3d getField(const Vector3d &position, const double &time=0) const;
-	double getDivergence(const Vector3d &position, const double &time=0) const;
+	OneDimensionalSphericalShock(long double rShock, long double vUp, long double compressionRatio, long double lShock, bool coolUpstream);
+	Vector3d getField(const Vector3d &position, const long double &time=0) const;
+	long double getDivergence(const Vector3d &position, const long double &time=0) const;
 
-	void setComp(double compressionRatio);
-	void setVup(double vUp);
-	void setShockwidth(double lShock);
-	void setShockRadius(double rShock);
+	void setComp(long double compressionRatio);
+	void setVup(long double vUp);
+	void setShockwidth(long double lShock);
+	void setShockRadius(long double rShock);
 	void setCooling(bool coolUpstream);
 
-	double getComp() const; 
-	double getVup() const;
-	double getShockwidth() const;
-	double getShockRadius() const;
+	long double getComp() const;
+	long double getVup() const;
+	long double getShockwidth() const;
+	long double getShockRadius() const;
 	bool getCooling() const;
 
 	std::string getDescription() const;
@@ -203,10 +203,10 @@ public:
 		and remains constant. 
  */
 class ObliqueAdvectionShock: public AdvectionField {
-	double compressionRatio; //compression ratio of shock
-	double vXUp; //upstream velocity x-component
-	double vY; //constant velocity y-component
-	double lShock; //shock width
+	long double compressionRatio; //compression ratio of shock
+	long double vXUp; //upstream velocity x-component
+	long double vY; //constant velocity y-component
+	long double lShock; //shock width
 	
 public:
 /** Constructor
@@ -216,19 +216,19 @@ public:
 	@param lShock //shock width
 	
 */
-	ObliqueAdvectionShock(double compressionRatio, double vXUp, double vY, double lShock);
-	Vector3d getField(const Vector3d &position, const double &time=0) const;
-	double getDivergence(const Vector3d &position, const double &time=0) const;
+	ObliqueAdvectionShock(long double compressionRatio, long double vXUp, long double vY, long double lShock);
+	Vector3d getField(const Vector3d &position, const long double &time=0) const;
+	long double getDivergence(const Vector3d &position, const long double &time=0) const;
 
-	void setComp(double compressionRatio);
-	void setVup(double vXUp);
-	void setVy(double vY);
-	void setShockwidth(double lShock);
+	void setComp(long double compressionRatio);
+	void setVup(long double vXUp);
+	void setVy(long double vY);
+	void setShockwidth(long double lShock);
 
-	double getComp() const; 
-	double getVup() const;
-	double getVy() const;
-	double getShockwidth() const;
+	long double getComp() const;
+	long double getVup() const;
+	long double getVy() const;
+	long double getShockwidth() const;
 	
 	std::string getDescription() const;
 };
@@ -242,11 +242,11 @@ public:
 
 class SphericalAdvectionShock: public AdvectionField {
 	Vector3d origin; // origin of the advection sphere
-	double r_0; // position of the shock
-	double v_0; // constant velocity
-	double lambda; //transition width
-	double r_rot; // normalization radius for rotation speed
-	double v_phi; // rotation speed at r_rot
+	long double r_0; // position of the shock
+	long double v_0; // constant velocity
+	long double lambda; //transition width
+	long double r_rot; // normalization radius for rotation speed
+	long double v_phi; // rotation speed at r_rot
 
 public:
 	/** Constructor
@@ -255,33 +255,33 @@ public:
 	@param v_0 	Constant velocity (r<<r_o)
 	@param lambda 	Transition width / width of the shock
 */
-	SphericalAdvectionShock(const Vector3d origin, double r_0, double v_0, double lambda);
+	SphericalAdvectionShock(const Vector3d origin, long double r_0, long double v_0, long double lambda);
 
-	Vector3d getField(const Vector3d &position, const double &time=0) const;
-	double getDivergence(const Vector3d &position, const double &time=0) const;
+	Vector3d getField(const Vector3d &position, const long double &time=0) const;
+	long double getDivergence(const Vector3d &position, const long double &time=0) const;
 
-	double g(double R) const;
-	double g_prime(double R) const;
+	long double g(long double R) const;
+	long double g_prime(long double R) const;
 
 	void setOrigin(const Vector3d Origin);
-	void setR0(double r);
-	void setV0(double v);
-	void setLambda(double l);
-	void setRRot(double r);
-	void setAzimuthalSpeed(double vPhi);
+	void setR0(long double r);
+	void setV0(long double v);
+	void setLambda(long double l);
+	void setRRot(long double r);
+	void setAzimuthalSpeed(long double vPhi);
 
 	Vector3d getOrigin() const;
-	double getR0() const;
-	double getV0() const;
-	double getLambda() const;
+	long double getR0() const;
+	long double getV0() const;
+	long double getLambda() const;
 	/**
 	 * @param r Normalization radius for rotation speed
 	*/	
-	double getRRot() const;
+	long double getRRot() const;
 	/**
 	 * @param vPhi 	Rotation speed at r_rot
 	*/	
-	double getAzimuthalSpeed() const;
+	long double getAzimuthalSpeed() const;
 
 	std::string getDescription() const;
 };

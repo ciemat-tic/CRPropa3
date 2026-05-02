@@ -22,13 +22,13 @@ private:
 public:
 	/** @param position position in galactic coordinates with Earth at (-8.5kpc, 0, 0)
 	 @return density in parts/m^3 */
-	double getDensity(const Vector3d &position) const;
+	long double getDensity(const Vector3d &position) const;
 	/** @param position position in galactic coordinates with Earth at (-8.5kpc, 0, 0)
 	 @return density of ionised hydrogen in parts/m^3, equal getDensity thus no other type is included for Cordes */
-	double getHIIDensity(const Vector3d &position) const;
+	long double getHIIDensity(const Vector3d &position) const;
 	/** @param position position in galactic coordinates with Earth at (-8.5kpc, 0, 0)
 	 @return density of nucleons in parts/m^3, equal getDensity thus only HII is included for Cordes */
-	double getNucleonDensity(const Vector3d &position) const;
+	long double getNucleonDensity(const Vector3d &position) const;
 
 	/** @return activation status of HI */
 	bool getIsForHI();

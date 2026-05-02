@@ -47,19 +47,19 @@ public:
 class ReflectiveShell: public Module {
 private:
 	Vector3d center;
-	double radius;
+	long double radius;
 
 public:
 	/** Constructor
 	 @param center	vector corresponding to the center of the sphere
 	 @param r		value corresponding to the radius of the shell
 	 */
-	ReflectiveShell(Vector3d center, double r);
-	double distance(const Vector3d &point) const;
+	ReflectiveShell(Vector3d center, long double r);
+	long double distance(const Vector3d &point) const;
 	Vector3d normal(const Vector3d &point) const;
 	void process(Candidate *candidate) const;
 	void setCenter(Vector3d center);
-	void setRadius(double r);
+	void setRadius(long double r);
 	std::string getDescription() const;
 };
 
@@ -102,8 +102,8 @@ public:
 class CubicBoundary: public AbstractCondition {
 private:
 	Vector3d origin;
-	double size;
-	double margin;
+	long double size;
+	long double margin;
 	bool limitStep;
 
 public:
@@ -114,11 +114,11 @@ public:
 	 @param origin	vector corresponding to the lower box corner
 	 @param size	vector corresponding to the box sizes along each direction
 	 */
-	CubicBoundary(Vector3d origin, double size);
+	CubicBoundary(Vector3d origin, long double size);
 	void process(Candidate *candidate) const;
 	void setOrigin(Vector3d origin);
-	void setSize(double size);
-	void setMargin(double margin);
+	void setSize(long double size);
+	void setMargin(long double margin);
 	void setLimitStep(bool limitStep);
 	std::string getDescription() const;
 };
@@ -134,8 +134,8 @@ public:
 class SphericalBoundary: public AbstractCondition {
 private:
 	Vector3d center;
-	double radius;
-	double margin;
+	long double radius;
+	long double margin;
 	bool limitStep;
 
 public:
@@ -146,11 +146,11 @@ public:
 	 @param center		vector containing the coordinates of the center of the sphere
 	 @param radius		radius of the sphere
 	 */
-	SphericalBoundary(Vector3d center, double radius);
+	SphericalBoundary(Vector3d center, long double radius);
 	void process(Candidate *candidate) const;
 	void setCenter(Vector3d center);
-	void setRadius(double size);
-	void setMargin(double margin);
+	void setRadius(long double size);
+	void setMargin(long double margin);
 	void setLimitStep(bool limitStep);
 	std::string getDescription() const;
 };
@@ -168,8 +168,8 @@ class EllipsoidalBoundary: public AbstractCondition {
 private:
 	Vector3d focalPoint1;
 	Vector3d focalPoint2;
-	double majorAxis;
-	double margin;
+	long double majorAxis;
+	long double margin;
 	bool limitStep;
 
 public:
@@ -182,11 +182,11 @@ public:
 	 @param majorAxis		length of the major axis of the ellipsoid
 	 */
 	EllipsoidalBoundary(Vector3d focalPoint1, Vector3d focalPoint2,
-			double majorAxis);
+			long double majorAxis);
 	void process(Candidate *candidate) const;
 	void setFocalPoints(Vector3d focalPoint1, Vector3d focalPoint2);
-	void setMajorAxis(double size);
-	void setMargin(double margin);
+	void setMajorAxis(long double size);
+	void setMargin(long double margin);
 	void setLimitStep(bool limitStep);
 	std::string getDescription() const;
 };
@@ -202,9 +202,9 @@ public:
 class CylindricalBoundary: public AbstractCondition {
 private:
 	Vector3d origin;
-	double height;
-	double radius;
-	double margin;
+	long double height;
+	long double radius;
+	long double margin;
 	bool limitStep;
 
 public:
@@ -216,13 +216,13 @@ public:
 	 @param height	height of the cylinder
 	 @param radius	radius of the cylinder
 	 */
-	CylindricalBoundary(Vector3d origin, double height,
-			double radius);
+	CylindricalBoundary(Vector3d origin, long double height,
+			long double radius);
 	void process(Candidate *candidate) const;
 	void setOrigin(Vector3d origin);
-	void setHeight(double height);
-	void setRadius(double radius);
-	void setMargin(double margin);
+	void setHeight(long double height);
+	void setRadius(long double radius);
+	void setMargin(long double margin);
 	void setLimitStep(bool limitStep);
 	std::string getDescription() const;
 };

@@ -15,9 +15,9 @@ namespace crpropa {
 
 /**
  @class EMDoublePairProduction
- @brief Electron double pair production of photons with background photons.
+ @brief Electron long double pair production of photons with background photons.
 
- This module simulates electron double pair production of photons with background photons for several photon fields.
+ This module simulates electron long double pair production of photons with background photons for several photon fields.
  The secondary electrons from this interaction are optionally created (default = false).
  The module limits the propagation step size to a fraction of the mean free path (default = 0.1).
  Thinning is available. A thinning of 0 means that all particles are tracked. 
@@ -28,13 +28,13 @@ class EMDoublePairProduction: public Module {
 private:
 	ref_ptr<PhotonField> photonField;
 	bool haveElectrons;
-	double limit;
-	double thinning;
+	long double limit;
+	long double thinning;
 	std::string interactionTag = "EMDP";
 
 	// tabulated interaction rate 1/lambda(E)
-	std::vector<double> tabEnergy;  //!< electron energy in [J]
-	std::vector<double> tabRate;  //!< interaction rate in [1/m]
+	std::vector<long double> tabEnergy;  //!< electron energy in [J]
+	std::vector<long double> tabRate;  //!< interaction rate in [1/m]
 
 public:
 	/** Constructor
@@ -43,7 +43,7 @@ public:
 	 @param thinning		weighted sampling of secondaries (0: all particles are tracked; 1: maximum thinning)
 	 @param limit			step size limit as fraction of mean free path
 	 */
-	EMDoublePairProduction(ref_ptr<PhotonField> photonField, bool haveElectrons = false, double thinning = 0, double limit = 0.1);
+	EMDoublePairProduction(ref_ptr<PhotonField> photonField, bool haveElectrons = false, long double thinning = 0, long double limit = 0.1);
 
 	// set the target photon field
 	void setPhotonField(ref_ptr<PhotonField> photonField);
@@ -54,12 +54,12 @@ public:
 	/** Limit the propagation step to a fraction of the mean free path
 	 * @param limit fraction of the mean free path
 	 */
-	void setLimit(double limit);
+	void setLimit(long double limit);
 
 	/** Apply thinning with a given thinning factor
 	 * @param thinning factor of thinning (0: no thinning, 1: maximum thinning)
 	 */
-	void setThinning(double thinning);
+	void setThinning(long double thinning);
 	
 	/** set a custom interaction tag to trace back this interaction
 	 * @param tag string that will be added to the candidate and output

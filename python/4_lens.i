@@ -6,7 +6,7 @@
 %include typemaps.i
 
 %template(IntVector) std::vector<int>;
-%template(DoubleVector) std::vector<double>;
+%template(DoubleVector) std::vector<long double>;
 
 %{
   #include "crpropa/magneticLens/ModelMatrix.h"
@@ -16,13 +16,13 @@
 %}
 
 %include "crpropa/magneticLens/ModelMatrix.h"
-%apply double &INOUT {double &longitude, double &latitude};
-%typemap(in,numinputs=0) double& longitude (double temp) "$1 = &temp;"
-%typemap(in,numinputs=0) double& latitude (double temp) "$1 = &temp;"
-%typemap(argout) double& longitude {
+%apply long double &INOUT {long double &longitude, long double &latitude};
+%typemap(in,numinputs=0) long double& longitude (long double temp) "$1 = &temp;"
+%typemap(in,numinputs=0) long double& latitude (long double temp) "$1 = &temp;"
+%typemap(argout) long double& longitude {
   %append_output(PyFloat_FromDouble(*$1));
 }
-%typemap(argout) double& latitude {
+%typemap(argout) long double& latitude {
   %append_output(PyFloat_FromDouble(*$1));
 }
 
@@ -32,14 +32,14 @@
 
 %ignore crpropa::Pixelization::nPix( uint8_t order );
 
-%apply double &INOUT {double &phi, double &theta};
-%ignore MagneticLens::transformModelVector(double *, double) const;
+%apply long double &INOUT {long double &phi, long double &theta};
+%ignore MagneticLens::transformModelVector(long double *, long double) const;
 %include "crpropa/magneticLens/MagneticLens.h"
 %template(LenspartVector) std::vector<crpropa::LensPart*>;
 
 
 %extend crpropa::MagneticLens {
-  PyObject * transformModelVector_numpyArray(PyObject *input, double rigidity) {
+  PyObject * transformModelVector_numpyArray(PyObject *input, long double rigidity) {
     PyArrayObject *arr = NULL;
     PyArray_Descr *dtype = NULL;
     int ndim = 0;
@@ -52,7 +52,7 @@
       Py_RETURN_NONE;
     }
 
-    double *dataPointer = (double*) PyArray_DATA(arr);
+    long double *dataPointer = (long double*) PyArray_DATA(arr);
     $self->transformModelVector(dataPointer, rigidity);
     return input;
   }
@@ -121,10 +121,10 @@
     }
 
     void *particleIds_dp = PyArray_DATA(particleIds_arr);
-    double *energies_dp = (double*) PyArray_DATA(energies_arr);
-    double *galacticLongitudes_dp = (double*) PyArray_DATA(galacticLongitudes_arr);
-    double *galacticLatitudes_dp = (double*) PyArray_DATA(galacticLatitudes_arr);
-    double *weights_dp= (double*) PyArray_DATA(weights_arr);
+    long double *energies_dp = (long double*) PyArray_DATA(energies_arr);
+    long double *galacticLongitudes_dp = (long double*) PyArray_DATA(galacticLongitudes_arr);
+    long double *galacticLatitudes_dp = (long double*) PyArray_DATA(galacticLatitudes_arr);
+    long double *weights_dp= (long double*) PyArray_DATA(weights_arr);
 
 
     npy_intp *D = PyArray_DIMS(particleIds_arr);
@@ -145,8 +145,8 @@
     Py_RETURN_TRUE;
   }
 
-  PyObject *getMap_numpyArray(const int particleId, double energy) {
-    double* data = $self->getMap(particleId, energy);
+  PyObject *getMap_numpyArray(const int particleId, long double energy) {
+    long double* data = $self->getMap(particleId, energy);
     npy_intp npix = $self->getNumberOfPixels();
     npy_intp dims[1] = {npix};
     return PyArray_SimpleNewFromData(1, dims, NPY_DOUBLE, (void*)data);
@@ -161,18 +161,18 @@
   }
 
   PyObject *getEnergies_numpyArray(const int pid) {
-    std::vector<double> v = $self->getEnergies(pid);
+    std::vector<long double> v = $self->getEnergies(pid);
     npy_intp size = v.size();
     PyObject *out = PyArray_SimpleNew(1, &size, NPY_DOUBLE);
-    memcpy(PyArray_DATA((PyArrayObject *) out), &v[0], v.size() * sizeof(double));
+    memcpy(PyArray_DATA((PyArrayObject *) out), &v[0], v.size() * sizeof(long double));
     return out;
   }
 
   PyObject *getRandomParticles_numpyArray(size_t N) {
     vector<int> particleId;
-    vector<double> energy;
-    vector<double> galacticLongitudes;
-    vector<double> galacticLatitudes;
+    vector<long double> energy;
+    vector<long double> galacticLongitudes;
+    vector<long double> galacticLatitudes;
     $self->getRandomParticles(N, particleId, energy, galacticLongitudes, galacticLatitudes);
 
     npy_intp size = N;
@@ -182,9 +182,9 @@
     PyArrayObject *oLat = (PyArrayObject*)PyArray_New(&PyArray_Type, 1, &size, NPY_DOUBLE, NULL, NULL, 0, NPY_ARRAY_CARRAY, NULL);
 
     memcpy(PyArray_DATA(oId), &particleId[0], particleId.size() * sizeof(int));
-    memcpy(PyArray_DATA(oEnergy), &energy[0], energy.size() * sizeof(double));
-    memcpy(PyArray_DATA(oLon), &galacticLongitudes[0], galacticLongitudes.size() * sizeof(double));
-    memcpy(PyArray_DATA(oLat), &galacticLatitudes[0], galacticLatitudes.size() * sizeof(double));
+    memcpy(PyArray_DATA(oEnergy), &energy[0], energy.size() * sizeof(long double));
+    memcpy(PyArray_DATA(oLon), &galacticLongitudes[0], galacticLongitudes.size() * sizeof(long double));
+    memcpy(PyArray_DATA(oLat), &galacticLatitudes[0], galacticLatitudes.size() * sizeof(long double));
 
     PyObject *returnList = PyList_New(4);
     PyList_SET_ITEM(returnList, 0, (PyObject*) oId);

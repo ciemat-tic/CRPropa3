@@ -9,9 +9,9 @@
 
 namespace crpropa {
 
-static const double mec2 = mass_electron * c_squared;
+static const long double mec2 = mass_electron * c_squared;
 
-EMInverseComptonScattering::EMInverseComptonScattering(ref_ptr<PhotonField> photonField, bool havePhotons, double thinning, double limit) {
+EMInverseComptonScattering::EMInverseComptonScattering(ref_ptr<PhotonField> photonField, bool havePhotons, long double thinning, long double limit) {
 	setPhotonField(photonField);
 	setHavePhotons(havePhotons);
 	setLimit(limit);
@@ -30,11 +30,11 @@ void EMInverseComptonScattering::setHavePhotons(bool havePhotons) {
 	this->havePhotons = havePhotons;
 }
 
-void EMInverseComptonScattering::setLimit(double limit) {
+void EMInverseComptonScattering::setLimit(long double limit) {
 	this->limit = limit;
 }
 
-void EMInverseComptonScattering::setThinning(double thinning) {
+void EMInverseComptonScattering::setThinning(long double thinning) {
 	this->thinning = thinning;
 }
 
@@ -50,7 +50,7 @@ void EMInverseComptonScattering::initRate(std::string filename) {
 
 	while (infile.good()) {
 		if (infile.peek() != '#') {
-			double a, b;
+			long double a, b;
 			infile >> a >> b;
 			if (infile) {
 				tabEnergy.push_back(pow(10, a) * eV);
@@ -78,7 +78,7 @@ void EMInverseComptonScattering::initCumulativeRate(std::string filename) {
 		infile.ignore(std::numeric_limits < std::streamsize > ::max(), '\n');
 
 	// read s values in first line
-	double a;
+	long double a;
 	infile >> a; // skip first value
 	while (infile.good() and (infile.peek() != '\n')) {
 		infile >> a;
@@ -91,7 +91,7 @@ void EMInverseComptonScattering::initCumulativeRate(std::string filename) {
 		if (!infile)
 			break;  // end of file
 		tabE.push_back(pow(10, a) * eV);
-		std::vector<double> cdf;
+		std::vector<long double> cdf;
 		for (int i = 0; i < tabs.size(); i++) {
 			infile >> a;
 			cdf.push_back(a / Mpc);
@@ -104,18 +104,18 @@ void EMInverseComptonScattering::initCumulativeRate(std::string filename) {
 // Class to calculate the energy distribution of the ICS photon and to sample from it
 class ICSSecondariesEnergyDistribution {
 	private:
-		std::vector< std::vector<double> > data;
-		std::vector<double> s_values;
+		std::vector< std::vector<long double> > data;
+		std::vector<long double> s_values;
 		size_t Ns;
 		size_t Nrer;
-		double s_min;
-		double s_max;
-		double dls;
+		long double s_min;
+		long double s_max;
+		long double dls;
 
 	public:
 		// differential cross-section, see Lee '96 (arXiv:9604098), eq. 23 for x = Ee'/Ee
-		double dSigmadE(double x, double beta) {
-			double q = ((1 - beta) / beta) * (1 - 1./x);
+		long double dSigmadE(long double x, long double beta) {
+			long double q = ((1 - beta) / beta) * (1 - 1./x);
 			return ((1 + beta) / beta) * (x + 1./x + 2 * q + q * q);
 		}
 
@@ -126,27 +126,27 @@ class ICSSecondariesEnergyDistribution {
 			s_min = mec2 * mec2;
 			s_max = 2e23 * eV * eV;
 			dls = (log(s_max) - log(s_min)) / Ns;
-			data = std::vector< std::vector<double> >(1000, std::vector<double>(1000));
-			std::vector<double> data_i(1000);
+			data = std::vector< std::vector<long double> >(1000, std::vector<long double>(1000));
+			std::vector<long double> data_i(1000);
 
 			// tabulate s bin borders
-			s_values = std::vector<double>(1001);
+			s_values = std::vector<long double>(1001);
 			for (size_t i = 0; i < Ns + 1; ++i)
 				s_values[i] = s_min * exp(i*dls);
 
 
 			// for each s tabulate cumulative differential cross section
 			for (size_t i = 0; i < Ns; i++) {
-				double s = s_min * exp((i+0.5) * dls);
-				double beta = (s - s_min) / (s + s_min);
-				double x0 = (1 - beta) / (1 + beta);
-				double dlx = -log(x0) / Nrer;
+				long double s = s_min * exp((i+0.5) * dls);
+				long double beta = (s - s_min) / (s + s_min);
+				long double x0 = (1 - beta) / (1 + beta);
+				long double dlx = -log(x0) / Nrer;
 
 				// cumulative midpoint integration
 				data_i[0] = dSigmadE(x0, beta) * expm1(dlx);
 				for (size_t j = 1; j < Nrer; j++) {
-					double x = x0 * exp((j+0.5) * dlx);
-					double dx = exp((j+1) * dlx) - exp(j * dlx);
+					long double x = x0 * exp((j+0.5) * dlx);
+					long double dx = exp((j+1) * dlx) - exp(j * dlx);
 					data_i[j] = dSigmadE(x, beta) * dx;
 					data_i[j] += data_i[j-1];
 				}
@@ -155,24 +155,24 @@ class ICSSecondariesEnergyDistribution {
 		}
 
 		// draw random energy for the up-scattered photon Ep(Ee, s)
-		double sample(double Ee, double s) {
+		long double sample(long double Ee, long double s) {
 			size_t idx = std::lower_bound(s_values.begin(), s_values.end(), s) - s_values.begin();
-			std::vector<double> s0 = data[idx];
+			std::vector<long double> s0 = data[idx];
 			Random &random = Random::instance();
 			size_t j = random.randBin(s0) + 1; // draw random bin (upper bin boundary returned)
-			double beta = (s - s_min) / (s + s_min);
-			double x0 = (1 - beta) / (1 + beta);
-			double dlx = -log(x0) / Nrer;
-			double binWidth = x0 * (exp(j * dlx) - exp((j-1) * dlx));
-			double Ep = (x0 * exp((j-1) * dlx) + binWidth) * Ee;
+			long double beta = (s - s_min) / (s + s_min);
+			long double x0 = (1 - beta) / (1 + beta);
+			long double dlx = -log(x0) / Nrer;
+			long double binWidth = x0 * (exp(j * dlx) - exp((j-1) * dlx));
+			long double Ep = (x0 * exp((j-1) * dlx) + binWidth) * Ee;
 			return std::min(Ee, Ep); // prevent Ep > Ee from numerical inaccuracies
 		}
 };
 
 void EMInverseComptonScattering::performInteraction(Candidate *candidate) const {
 	// scale the particle energy instead of background photons
-	double z = candidate->getRedshift();
-	double E = candidate->current.getEnergy() * (1 + z);
+	long double z = candidate->getRedshift();
+	long double E = candidate->current.getEnergy() * (1 + z);
 
 	if (E < tabE.front() or E > tabE.back())
 		return;
@@ -181,19 +181,19 @@ void EMInverseComptonScattering::performInteraction(Candidate *candidate) const 
 	Random &random = Random::instance();
 	size_t i = closestIndex(E, tabE);
 	size_t j = random.randBin(tabCDF[i]);
-	double s_kin = pow(10, log10(tabs[j]) + (random.rand() - 0.5) * 0.1);
-	double s = s_kin + mec2 * mec2;
+	long double s_kin = pow(10, log10(tabs[j]) + (random.rand() - 0.5) * 0.1);
+	long double s = s_kin + mec2 * mec2;
 
 	// sample electron energy after scattering
 	static ICSSecondariesEnergyDistribution distribution;
-	double Enew = distribution.sample(E, s);
+	long double Enew = distribution.sample(E, s);
 
 	// add up-scattered photon
 	if (havePhotons) {
-		double Esecondary = E - Enew;
-		double f = Enew / E;
+		long double Esecondary = E - Enew;
+		long double f = Enew / E;
 		if (random.rand() < pow(1 - f, thinning)) {
-			double w = 1. / pow(1 - f, thinning);
+			long double w = 1. / pow(1 - f, thinning);
 			Vector3d pos = random.randomInterpolatedPosition(candidate->previous.getPosition(), candidate->current.getPosition());
 			candidate->addSecondary(22, Esecondary / (1 + z), pos, w, interactionTag);
 		}
@@ -210,21 +210,21 @@ void EMInverseComptonScattering::process(Candidate *candidate) const {
 		return;
 
 	// scale the particle energy instead of background photons
-	double z = candidate->getRedshift();
-	double E = candidate->current.getEnergy() * (1 + z);
+	long double z = candidate->getRedshift();
+	long double E = candidate->current.getEnergy() * (1 + z);
 
 	if (E < tabEnergy.front() or (E > tabEnergy.back()))
 		return;
 
 	// interaction rate
-	double rate = interpolate(E, tabEnergy, tabRate);
+	long double rate = interpolate(E, tabEnergy, tabRate);
 	rate *= pow_integer<2>(1 + z) * photonField->getRedshiftScaling(z);
 
 	// run this loop at least once to limit the step size
-	double step = candidate->getCurrentStep();
+	long double step = candidate->getCurrentStep();
 	Random &random = Random::instance();
 	do {
-		double randDistance = -log(random.rand()) / rate;
+		long double randDistance = -log(random.rand()) / rate;
 
 		// check for interaction; if it doesn't ocurr, limit next step
 		if (step < randDistance) {

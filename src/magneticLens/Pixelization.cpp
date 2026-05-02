@@ -51,7 +51,7 @@ uint32_t Pixelization::nPix(uint8_t order)
 	}
 }
 
-uint32_t Pixelization::direction2Pix(double longitude, double latitude) const
+uint32_t Pixelization::direction2Pix(long double longitude, long double latitude) const
 {
 	healpix::vec3 v;
 	spherCo2Vec(longitude, latitude, v);
@@ -70,8 +70,8 @@ uint32_t Pixelization::direction2Pix(double longitude, double latitude) const
 	}
 }
 
-void Pixelization::pix2Direction(uint32_t i, double &longitude,
-		double &latitude) const
+void Pixelization::pix2Direction(uint32_t i, long double &longitude,
+		long double &latitude) const
 {
 	healpix::vec3 v;
 	try{
@@ -88,7 +88,7 @@ void Pixelization::pix2Direction(uint32_t i, double &longitude,
 	vec2SphereCo(longitude, latitude, v);
 }
 
-void Pixelization::spherCo2Vec(double phi, double theta,
+void Pixelization::spherCo2Vec(long double phi, long double theta,
 		healpix::vec3 &V) const
 {
 	V.x = cos(phi) * cos(theta);
@@ -96,7 +96,7 @@ void Pixelization::spherCo2Vec(double phi, double theta,
 	V.z = sin(theta);
 }
 
-void Pixelization::vec2SphereCo(double &phi, double &theta,
+void Pixelization::vec2SphereCo(long double &phi, long double &theta,
 		const healpix::vec3 &V) const
 {
 	theta = asin(V.z);
@@ -104,17 +104,17 @@ void Pixelization::vec2SphereCo(double &phi, double &theta,
 }
 
 
-double Pixelization::angularDistance(uint32_t i, uint32_t j) const
+long double Pixelization::angularDistance(uint32_t i, uint32_t j) const
 {
 	healpix::vec3 v1, v2;
 	v1 = _healpix->pix2vec(i);
 	v2 = _healpix->pix2vec(j);
-	double s = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+	long double s = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	// Failsafe for numerical inaccuracies
 	return ((s > 1) ? 0 : ((s < -1) ? M_PI : acos(s)));
 }
 
-void Pixelization::getRandomDirectionInPixel(uint32_t i, double &longitude, double &latitude) 
+void Pixelization::getRandomDirectionInPixel(uint32_t i, long double &longitude, long double &latitude)
 {
 	
 	uint64_t inest = _healpix->ring2nest(i);
