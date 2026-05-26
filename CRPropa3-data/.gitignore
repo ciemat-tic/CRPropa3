@@ -1,0 +1,9 @@
+*.pyc
+*.tar.gz
+*.tar.gz*
+
+plots/
+temp/
+
+data/
+!data/CustomPhotonField/
