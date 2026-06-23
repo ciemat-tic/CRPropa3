@@ -18,7 +18,7 @@ void AbstractAccelerationModule::scatter(
 	crpropa::Candidate *candidate,
 	const crpropa::Vector3d &scatter_center_velocity) const {
 	// particle momentum in lab frame
-	const double E = candidate->current.getEnergy();
+	const double E = candidate->current.getTotalEnergy();
 	const crpropa::Vector3d p = candidate->current.getMomentum();
 
 	// transform to rest frame of scatter center (p: prime)
@@ -37,8 +37,9 @@ void AbstractAccelerationModule::scatter(
 		(crpropa::c_light * crpropa::c_light)) * gamma;
 
 	// update candidate properties
-	candidate->current.setEnergy(E_new);
-	candidate->current.setDirection(p_new / p_new.getR());
+	candidate->current.setTotalEnergy(E_new);
+	if (p_new.getR() > 0.)
+		candidate->current.setDirection(p_new / p_new.getR());
 }
 
 
@@ -96,7 +97,14 @@ DirectedFlowOfScatterCenters::DirectedFlowOfScatterCenters(
 
 double DirectedFlowOfScatterCenters::modify(double steplength, Candidate* candidate)
 {
-	double directionModifier = (-1. * __scatterVelocity.dot(candidate->current.getDirection()) + c_light) / c_light;
+	double speed = candidate->getVelocity();
+	if (speed <= 0.)
+		return steplength;
+
+	double directionModifier = (-1. * __scatterVelocity.dot(candidate->current.getDirection()) + speed) / speed;
+	if (directionModifier <= 0.)
+		return steplength;
+
 	return steplength / directionModifier;
 }
 

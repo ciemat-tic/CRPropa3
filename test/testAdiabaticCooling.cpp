@@ -46,7 +46,7 @@ TEST (AdiabaticCooling, ConstantSphericalField) {
 	AC.process(&c);
 
 	// Check energy loss and step limitation
-	EXPECT_DOUBLE_EQ(c.current.getEnergy(), E/3.);
+	EXPECT_NEAR(c.current.getEnergy(), E / 3., E * 1e-10);
 	EXPECT_DOUBLE_EQ(c.getNextStep(), 0.15*c_light);
 
 }

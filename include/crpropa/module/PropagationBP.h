@@ -68,8 +68,8 @@ public:
 	/** Constructor for the adaptive Boris push.
 	 * @param field
 	 * @param tolerance	 tolerance is criterion for step adjustment. Step adjustment takes place only if minStep < maxStep
-	 * @param minStep	   minStep/c_light is the minimum integration time step
-	 * @param maxStep	   maxStep/c_light is the maximum integration time step. 
+	 * @param minStep	   minimum path-length step
+	 * @param maxStep	   maximum path-length step
 	 */
     PropagationBP(ref_ptr<MagneticField> field, double tolerance, double minStep, double maxStep);
 
@@ -80,18 +80,18 @@ public:
 	/** Calculates the new position and direction of the particle based on the solution of the Lorentz force
 	 * @param pos	current position of the candidate
 	 * @param dir	current direction of the candidate
-	 * @param step	current step size of the candidate
+	 * @param step	current path-length step of the candidate
 	 * @param z		current redshift is needed to calculate the magnetic field
 	 * @param q		current charge of the candidate
 	 * @param m		current mass of the candidate
 	 * @return	  return the new calculated position and direction of the candidate 
 	 */
-	Y dY(Vector3d  pos, Vector3d  dir, double step, double z, double q, double m) const;
+	Y dY(Vector3d  pos, Vector3d  dir, double step, double z, double q, double p) const;
 
 	/** comparison of the position after one step with the position after two steps with step/2.
 	 * @param x1	position after one step of size step
 	 * @param x2	position after two steps of size step/2
-	 * @param step	current step size
+	 * @param step	current path-length step
 	 * @return	  measurement of the error of the step 
 	 */
 	double errorEstimation(const Vector3d x1, const Vector3d x2, double step) const;
@@ -113,7 +113,7 @@ public:
 	 * @param q		 current charge of the candidate 
 	 * @param m		 current mass of the candidate
 	 */
-	void tryStep(const Y &y, Y &out, Y &error, double h, ParticleState &p, double z, double q, double m) const;
+	void tryStep(const Y &y, Y &out, Y &error, double h,  double z, double q, double p) const;
 
 	/** Set functions for the parameters of the class PropagationBP */
 
@@ -126,11 +126,11 @@ public:
 	 */
 	void setTolerance(double tolerance);
 	/** Set the minimum step for the Boris push
-	 * @param minStep	   minStep/c_light is the minimum integration time step 
+	 * @param minStep	   minimum path-length step
 	 */
 	void setMinimumStep(double minStep);
 	/** Set the maximum step for the Boris push
-	 * @param maxStep	   maxStep/c_light is the maximum integration time step 
+	 * @param maxStep	   maximum path-length step
 	 */
 	void setMaximumStep(double maxStep);
 

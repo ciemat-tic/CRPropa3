@@ -37,7 +37,7 @@ NuclearDecay::NuclearDecay(bool electrons, bool photons, bool neutrinos, double 
 		int Z, N;
 		double lifetime;
 		stream >> Z >> N >> decay.channel >> lifetime;
-		decay.rate = 1. / lifetime / c_light; // decay rate in [1/m]
+		decay.rate = 1. / lifetime / c_light; // base decay rate in [1/m] for v = c
 		std::vector<double> gamma;
 		double val;
 		while (stream >> val)
@@ -87,16 +87,21 @@ void NuclearDecay::process(Candidate *candidate) const {
 		if (decays.size() == 0)
 			return;
 
+		double speed = candidate->getVelocity();
+		if (speed <= 0.)
+			return;
+
 		// find interaction mode with minimum random decay distance
 		Random &random = Random::instance();
 		double randDistance = std::numeric_limits<double>::max();
-		int channel;
+		int channel = 0;
 		double totalRate = 0;
 
 		for (size_t i = 0; i < decays.size(); i++) {
 			double rate = decays[i].rate;
+			rate *= c_light / speed;  // convert 1/(tau c) to 1/(tau v)
 			rate /= candidate->current.getLorentzFactor();  // relativistic time dilation
-			rate /= (1 + z);  // rate per light travel distance -> rate per comoving distance
+			rate /= (1 + z);  // local path-length rate -> comoving path-length rate
 			totalRate += rate;
 			double d = -log(random.rand()) / rate;
 			if (d > randDistance)
@@ -247,7 +252,7 @@ void NuclearDecay::betaDecay(Candidate *candidate, bool isBetaPlus) const {
 
 	Vector3d pos = random.randomInterpolatedPosition(candidate->previous.getPosition(), candidate->current.getPosition());
 	if (haveElectrons)
-		candidate->addSecondary(electronId, Ee, pos, 1., interactionTag);
+		candidate->addSecondary(electronId, Ee - mass_electron * c_squared, pos, 1., interactionTag);
 	if (haveNeutrinos)
 		candidate->addSecondary(neutrinoId, Enu, pos, 1., interactionTag);
 }

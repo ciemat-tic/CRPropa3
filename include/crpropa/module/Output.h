@@ -24,6 +24,7 @@ namespace crpropa {
  or as columns (in a HDF5 file). The right columns are the names of each
  column for internal access.
  . D			 TrajectoryLengthColumn
+ . time    	         TimeColumn
  . SN			 SerialNumberColumn
  . ID			 CurrentIdColumn
  . E			 CurrentEnergyColumn

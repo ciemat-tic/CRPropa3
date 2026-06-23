@@ -51,7 +51,7 @@ TEST(TextOutput, printHeader_Trajectory1D) {
 	output.process(&c);
 	std::string captured = testing::internal::GetCapturedStdout();
 
-	EXPECT_EQ(captured.substr(0, captured.find("\n")), "#\tID\tE\tX");
+	EXPECT_EQ(captured.substr(0, captured.find("\n")), "#\ttime\tID\tE\tX");
 }
 
 TEST(TextOutput, printHeader_Event1D) {
@@ -62,7 +62,7 @@ TEST(TextOutput, printHeader_Event1D) {
 	output.process(&c);
 	std::string captured = testing::internal::GetCapturedStdout();
 
-	EXPECT_EQ(captured.substr(0, captured.find("\n")), "#\tD\tID\tE\tID0\tE0");
+	EXPECT_EQ(captured.substr(0, captured.find("\n")), "#\tD\ttime\tID\tE\tID0\tE0");
 }
 
 TEST(TextOutput, printHeader_Trajectory3D) {
@@ -74,7 +74,7 @@ TEST(TextOutput, printHeader_Trajectory3D) {
 	std::string captured = testing::internal::GetCapturedStdout();
 
 	EXPECT_EQ(captured.substr(0, captured.find("\n")),
-	          "#\tD\tID\tE\tX\tY\tZ\tPx\tPy\tPz");
+	          "#\tD\ttime\tID\tE\tX\tY\tZ\tPx\tPy\tPz");
 }
 
 TEST(TextOutput, printHeader_Event3D) {
@@ -87,7 +87,7 @@ TEST(TextOutput, printHeader_Event3D) {
 
 	EXPECT_EQ(
 	    captured.substr(0, captured.find("\n")),
-	    "#\tD\tID\tE\tX\tY\tZ\tPx\tPy\tPz\tID0\tE0\tX0\tY0\tZ0\tP0x\tP0y\tP0z");
+	    "#\tD\ttime\tID\tE\tX\tY\tZ\tPx\tPy\tPz\tID0\tE0\tX0\tY0\tZ0\tP0x\tP0y\tP0z");
 }
 
 TEST(TextOutput, printHeader_Custom) {

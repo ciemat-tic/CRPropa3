@@ -13,16 +13,14 @@ namespace crpropa {
  @class ParticleState
  @brief State of the particle: ID, energy, position, direction
 
- The ParticleState defines the state of an ultra-high energy cosmic ray, which
- is assumed to be traveling at the exact speed of light.
- The cosmic ray state is defined by particle ID, energy and position and
- direction vector.
+ The ParticleState defines the state of a cosmic ray. The cosmic ray state is
+ defined by particle ID, kinetic energy, position and direction vector.
  For faster lookup mass and charge of the particle are stored as members.
  */
 class ParticleState {
 private:
 	int id; ///< particle ID (Particle Data Group numbering scheme)
-	double energy; ///< total energy
+	double energy; ///< kinetic energy
 	Vector3d position; ///< position vector in comoving coordinates
 	Vector3d direction; ///< unit vector of velocity or momentum
 	double pmass; ///< particle rest mass
@@ -31,7 +29,7 @@ private:
 public:
 	/** Constructor for a particle state.
 	 @param id			id of the particle following the PDG numbering scheme
-	 @param energy		energy of the particle [in Joules]
+	 @param energy		kinetic energy of the particle [in Joules]
 	 @param position	vector containing the coordinates of the particle [in meters]
 	 @param direction	vector containing the direction of motion of the particle
 	 */
@@ -58,15 +56,23 @@ public:
 	 */
 	const Vector3d &getDirection() const;
 
-	/** Set energy of particle.
-	 @param newEnergy	energy to be assigned to particle [in Joules]
+	/** Set kinetic energy of particle.
+	 @param newEnergy	kinetic energy to be assigned to particle [in Joules]
 	 */
 	void setEnergy(double newEnergy);
-	/** Get energy of particle.
-	 @returns Energy of particle [in Joules]
+	/** Get kinetic energy of particle.
+	 @returns Kinetic energy of particle [in Joules]
 	 */
 	double getEnergy() const;
-	/** Get rigidity of particle, defined as E/(Z*e).
+	/** Set total energy of particle.
+	 @param newEnergy	total energy to be assigned to particle [in Joules]
+	 */
+	void setTotalEnergy(double newEnergy);
+	/** Get total energy of particle.
+	 @returns Total energy of particle [in Joules]
+	 */
+	double getTotalEnergy() const;
+	/** Get rigidity of particle, defined as p*c/(Z*e).
 	 @returns Rigidity of the particle [in Volts]
 	 */
 	double getRigidity() const;
@@ -104,11 +110,15 @@ public:
 	 */
 	double getLorentzFactor() const;
 
-	/** Get velocity: direction times the speed of light.
+	/** Set momentum magnitude and modify the particle's kinetic energy accordingly.
+	 @param momentum	momentum magnitude [kg m/s]
+	 */
+	void setMomentum(double momentum);
+	/** Get velocity.
 	 @returns Velocity of particle [m/s]
 	 */
 	Vector3d getVelocity() const;
-	/** Get momentum: direction times energy divided by the speed of light 
+	/** Get momentum.
 	 @returns The momentum [kg m/s]
 	*/
 	Vector3d getMomentum() const;

@@ -7,6 +7,8 @@
 
 #include "gtest/gtest.h"
 
+#include <algorithm>
+#include <cmath>
 #include <string>
 #include <iostream>
 
@@ -34,6 +36,38 @@ TEST(testSimplePropagation, step) {
 	EXPECT_EQ(Vector3d(0,  1, 0), c.previous.getDirection());
 	EXPECT_EQ(Vector3d(0, 20, 0), c.current.getPosition());
 	EXPECT_EQ(Vector3d(0,  1, 0), c.current.getDirection());
+}
+
+TEST(testSimplePropagation, trajectoryLengthAndTimeTrackSpeed) {
+	const double step = 1 * pc;
+	SimplePropagation propa(step, step);
+
+	const double energies[] = {1e3 * eV, 1e6 * eV, 1e12 * eV, 100 * EeV};
+	double previousSpeed = 0.;
+
+	for (size_t i = 0; i < 4; i++) {
+		ParticleState p;
+		p.setId(nucleusId(1, 1));
+		p.setEnergy(energies[i]);
+		p.setPosition(Vector3d(0, 0, 0));
+		p.setDirection(Vector3d(1, 0, 0));
+
+		Candidate c(p);
+		propa.process(&c);
+
+		const double speed = c.getVelocity();
+		const double measuredSpeed = c.getTrajectoryLength() /
+			static_cast<double>(c.getTime());
+
+		EXPECT_DOUBLE_EQ(step, c.getCurrentStep());
+		EXPECT_DOUBLE_EQ(step, c.getTrajectoryLength());
+		EXPECT_NEAR(speed, measuredSpeed, std::max(1e-6, speed * 1e-12));
+		EXPECT_GT(speed, previousSpeed);
+		previousSpeed = speed;
+	}
+
+	EXPECT_LT(previousSpeed, c_light * (1 + 1e-14));
+	EXPECT_GT(previousSpeed, c_light * (1 - 1e-12));
 }
 
 
@@ -545,6 +579,40 @@ TEST(testPropagationBP, neutron) {
 	EXPECT_DOUBLE_EQ(1 * kpc, c.getNextStep());
 	EXPECT_EQ(Vector3d(0, 1 * kpc, 0), c.current.getPosition());
 	EXPECT_EQ(Vector3d(0, 1, 0), c.current.getDirection());
+}
+
+TEST(testPropagationBP, electronLarmorRadiusLowEnergy) {
+	const double Bz = 1 * nG;
+	const double energies[] = {1e6 * eV, 1e8 * eV, 1e10 * eV};
+
+	for (size_t i = 0; i < 3; i++) {
+		ParticleState p;
+		p.setId(11); // electron
+		p.setEnergy(energies[i]);
+		p.setPosition(Vector3d(0, 0, 0));
+		p.setDirection(Vector3d(1, 0, 0));
+
+		const double expectedRadius = p.getMomentum().getR() /
+			(std::fabs(p.getCharge()) * Bz);
+		const double step = expectedRadius / 500.;
+		const size_t nSteps = 100;
+
+		PropagationBP propa(new UniformMagneticField(Vector3d(0, 0, Bz)), step);
+		Candidate c(p);
+
+		for (size_t j = 0; j < nSteps; j++)
+			propa.process(&c);
+
+		const Vector3d pos = c.current.getPosition();
+		const double measuredRadius = (pos.x * pos.x + pos.y * pos.y) /
+			(2. * std::fabs(pos.y));
+		const double measuredSpeed = c.getTrajectoryLength() /
+			static_cast<double>(c.getTime());
+
+		EXPECT_NEAR(expectedRadius, measuredRadius, expectedRadius * 1e-4);
+		EXPECT_NEAR(nSteps * step, c.getTrajectoryLength(), nSteps * step * 1e-14);
+		EXPECT_NEAR(c.getVelocity(), measuredSpeed, c.getVelocity() * 1e-12);
+	}
 }
 
 

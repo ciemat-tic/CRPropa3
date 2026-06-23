@@ -51,8 +51,7 @@ class AbstractAccelerationModule : public Module {
 	virtual Vector3d scatterCenterVelocity(Candidate *candidate) const = 0;
 
 	/// Scatter the candidate with a center with given scatter center
-	/// velocity into a random direction. Assumes that the
-	/// candidate is ultra-relativistic (m = 0).
+	/// velocity into a random direction.
 	void scatter(Candidate *candidate,
 	             const Vector3d &scatter_center_velocity) const;
 };

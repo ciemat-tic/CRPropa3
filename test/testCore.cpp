@@ -6,6 +6,8 @@
  */
 
 #include <complex>
+#include <cmath>
+#include <limits>
 
 #include "crpropa/Candidate.h"
 #include "crpropa/base64.h"
@@ -34,8 +36,13 @@ TEST(ParticleState, position) {
 
 TEST(ParticleState, energy) {
 	ParticleState particle;
+	particle.setId(nucleusId(1, 1));
 	particle.setEnergy(10 * EeV);
 	EXPECT_EQ(particle.getEnergy(), 10 * EeV);
+	EXPECT_DOUBLE_EQ(particle.getTotalEnergy(), 10 * EeV + mass_proton * c_squared);
+
+	particle.setTotalEnergy(10 * EeV + mass_proton * c_squared);
+	EXPECT_DOUBLE_EQ(particle.getEnergy(), 10 * EeV);
 }
 
 TEST(ParticleState, direction) {
@@ -50,14 +57,25 @@ TEST(ParticleState, velocity) {
 	Vector3d v(1, 1, 0);
 	particle.setDirection(v);
 	EXPECT_TRUE(particle.getVelocity() == v.getUnitVector() * c_light);
+
+	particle.setId(nucleusId(1, 1));
+	particle.setEnergy(mass_proton * c_squared);
+	const double beta = std::sqrt(1. - 1. / 4.);
+	EXPECT_NEAR(particle.getVelocity().getR() / c_light, beta, 1e-15);
 }
 
 TEST(ParticleState, momentum) {
 	ParticleState particle;
 	Vector3d v(0, 1, 0);
+	particle.setId(nucleusId(1, 1));
 	particle.setDirection(v);
-	particle.setEnergy(100 * EeV);
-	EXPECT_TRUE(particle.getMomentum() == v * (particle.getEnergy() / c_light));
+	particle.setEnergy(mass_proton * c_squared);
+
+	const double expectedMomentum = std::sqrt(3.) * mass_proton * c_light;
+	EXPECT_NEAR(particle.getMomentum().getR(), expectedMomentum, expectedMomentum * 1e-15);
+
+	particle.setMomentum(expectedMomentum);
+	EXPECT_NEAR(particle.getEnergy(), mass_proton * c_squared, mass_proton * c_squared * 1e-15);
 }
 
 TEST(ParticleState, id) {
@@ -99,7 +117,11 @@ TEST(ParticleState, Rigidity) {
 
 	particle.setId(nucleusId(1, 1)); // proton
 	particle.setEnergy(1 * EeV);
-	EXPECT_EQ(particle.getRigidity(), 1e18);
+	const double expectedRigidity = particle.getMomentum().getR() * c_light / eplus;
+	EXPECT_DOUBLE_EQ(particle.getRigidity(), expectedRigidity);
+
+	particle.setId(nucleusId(1, 0)); // neutron
+	EXPECT_TRUE(std::isinf(particle.getRigidity()));
 }
 
 TEST(ParticleState, Mass) {
@@ -128,7 +150,11 @@ TEST(ParticleState, lorentzFactor) {
 	particle.setId(nucleusId(1, 1));
 	particle.setEnergy(1e12 * eV);
 	EXPECT_DOUBLE_EQ(particle.getLorentzFactor(),
-			1e12 * eV / mass_proton / c_squared);
+			1. + 1e12 * eV / mass_proton / c_squared);
+
+	particle.setId(22);
+	EXPECT_DOUBLE_EQ(particle.getLorentzFactor(),
+			std::numeric_limits<double>::max());
 }
 
 TEST(ParticleID, nucleusId) {
@@ -185,6 +211,19 @@ TEST(Candidate, currentStep) {
 	EXPECT_DOUBLE_EQ(candidate.getCurrentStep(), 1 * Mpc);
 	EXPECT_DOUBLE_EQ(candidate.getTrajectoryLength(), 1 * Mpc);
 	EXPECT_DOUBLE_EQ(candidate.getTime(), 1 * Mpc / c_light);
+}
+
+TEST(Candidate, currentStepUsesParticleVelocityForTime) {
+	ParticleState particle;
+	particle.setId(nucleusId(1, 1));
+	particle.setEnergy(mass_proton * c_squared);
+	Candidate candidate(particle);
+
+	candidate.setCurrentStep(1 * Mpc);
+
+	EXPECT_DOUBLE_EQ(candidate.getCurrentStep(), 1 * Mpc);
+	EXPECT_DOUBLE_EQ(candidate.getTrajectoryLength(), 1 * Mpc);
+	EXPECT_DOUBLE_EQ(candidate.getTime(), 1 * Mpc / candidate.getVelocity());
 }
 
 TEST(Candidate, limitNextStep) {

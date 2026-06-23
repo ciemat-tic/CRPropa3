@@ -43,11 +43,11 @@ private:
 	bool active; /**< Active status */
 	double weight; /**< Weight of the candidate */
 	double redshift; /**< Current simulation time-point in terms of redshift z */
-	double trajectoryLength; /**< Comoving distance [m] the candidate has traveled so far */
-	double currentStep; /**< Size of the currently performed step in [m] comoving units */
+	double trajectoryLength; /**< Comoving path length [m] the candidate has traveled so far */
+	double currentStep; /**< Distance of the currently performed step in [m] comoving units */
 	double nextStep; /**< Proposed size of the next propagation step in [m] comoving units */
 	std::string tagOrigin; /**< Name of interaction/source process which created this candidate*/
-	double time; /**< Time [s] that has passed in the laboratory frame of reference */
+	long double time; /**< Time [s] that has passed in the laboratory frame of reference */
 
 	static uint64_t nextSerialNumber;
 	uint64_t serialNumber;
@@ -89,7 +89,8 @@ public:
 	double getWeight() const;
 
 	/**
-	 Sets the current step and increases the trajectory length accordingly.
+	 Sets the current step distance and increases the trajectory length accordingly.
+	 Modules integrating in time must pass the distance traveled during the step.
 	 Only the propagation module should use this.
 	 */
 	void setCurrentStep(double step);
@@ -111,8 +112,8 @@ public:
 	/**
 	 Sets the time of the candidate.
 	 */
-	void setTime(double t);
-	double getTime() const;
+	void setTime(long double t);
+	long double getTime() const;
 
 	/**
 	 Make a bid for the next step size: the lowest wins.

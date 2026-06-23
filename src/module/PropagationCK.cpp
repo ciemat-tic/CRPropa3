@@ -27,8 +27,7 @@ const double cash_karp_bs[] = {
 
 void PropagationCK::tryStep(const Y &y, Y &out, Y &error, double h,
 		ParticleState &particle, double z) const {
-	std::vector<Y> k;
-	k.reserve(6);
+	std::vector<Y> k(6);
 
 	out = y;
 	error = Y(0);
@@ -50,13 +49,18 @@ void PropagationCK::tryStep(const Y &y, Y &out, Y &error, double h,
 
 PropagationCK::Y PropagationCK::dYdt(const Y &y, ParticleState &p, double z) const {
 	// normalize direction vector to prevent numerical losses
-	Vector3d velocity = y.u.getUnitVector() * c_light;
+	const double speed = p.getVelocity().getR();
+	Vector3d velocity = y.u.getUnitVector() * speed;
 	
 	// get B field at particle position
 	Vector3d B = getFieldAtPosition(y.x, z);
 
-	// Lorentz force: du/dt = q*c/E * (v x B)
-	Vector3d dudt = p.getCharge() * c_light / p.getEnergy() * velocity.cross(B);
+	const double momentum = p.getMomentum().getR();
+	if (momentum <= 0.)
+		return Y(velocity, Vector3d(0.));
+
+	// Lorentz force: du/dt = q/p * (v x B)
+	Vector3d dudt = p.getCharge() / momentum * velocity.cross(B);
 	return Y(velocity, dudt);
 }
 
@@ -91,6 +95,13 @@ void PropagationCK::process(Candidate *candidate) const {
 		return;
 	}
 
+	double speed = current.getVelocity().getR();
+	if (speed <= 0.) {
+		candidate->setCurrentStep(0.);
+		candidate->setNextStep(minStep);
+		return;
+	}
+
 	Y yOut, yErr;
 	double newStep = step;
 	double z = candidate->getRedshift();
@@ -99,7 +110,7 @@ void PropagationCK::process(Candidate *candidate) const {
 	// if minStep is the same as maxStep the adaptive algorithm with its error
 	// estimation is not needed and the computation time can be saved:
 	if (minStep == maxStep){
-		tryStep(yIn, yOut, yErr, step / c_light, current, z);
+		tryStep(yIn, yOut, yErr, step / speed, current, z);
 	} else {
 		step = clip(candidate->getNextStep(), minStep, maxStep);
 		newStep = step;
@@ -107,7 +118,7 @@ void PropagationCK::process(Candidate *candidate) const {
 
 		// try performing step until the target error (tolerance) or the minimum/maximum step size has been reached
 		while (true) {
-			tryStep(yIn, yOut, yErr, step / c_light, current, z);
+			tryStep(yIn, yOut, yErr, step / speed, current, z);
 			r = yErr.u.getR() / tolerance;  // ratio of absolute direction error and tolerance
 			if (r > 1) {  // large direction error relative to tolerance, try to decrease step size
 				if (step == minStep)  // already minimum step size

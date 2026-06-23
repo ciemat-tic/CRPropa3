@@ -6,39 +6,42 @@
 
 namespace crpropa {
 	void PropagationBP::tryStep(const Y &y, Y &out, Y &error, double h,
-			ParticleState &particle, double z, double q, double m) const {
-		out = dY(y.x, y.u, h, z, q, m);  // 1 step with h
+		double z, double q, double p) const {
+		out = dY(y.x, y.u, h, z, q, p);  // 1 step with h
 
-		Y outHelp = dY(y.x, y.u, h/2, z, q, m);  // 2 steps with h/2
-		Y outCompare = dY(outHelp.x, outHelp.u, h/2, z, q, m);
+		Y outHelp = dY(y.x, y.u, h/2, z, q, p);  // 2 steps with h/2
+		Y outCompare = dY(outHelp.x, outHelp.u, h/2, z, q, p);
 
 		error = errorEstimation(out.x , outCompare.x , h);
 	}
 
 
 	PropagationBP::Y PropagationBP::dY(Vector3d pos, Vector3d dir, double step,
-			double z, double q, double m) const {
+			double z, double q, double p) const {
 		// half leap frog step in the position
 		pos += dir * step / 2.;
 
 		// get B field at particle position
 		Vector3d B = getFieldAtPosition(pos, z);
 
-		// Boris help vectors
-		Vector3d t = B * q / 2 / m * step / c_light;
-		Vector3d s = t * 2 / (1 + t.dot(t));
-		Vector3d v_help;
 
-		// Boris push
-		v_help = dir + dir.cross(t);
+		// Boris rotation for propagation in path length s:
+		//   d uhat / ds = (q / p) (uhat x B)
+		Vector3d t = B * (q * step / (2. * p));
+		Vector3d s = t * (2. / (1. + t.dot(t)));
+
+		// Boris push.
+		Vector3d v_help = dir + dir.cross(t);
 		dir = dir + v_help.cross(s);
 
-		// the other half leap frog step in the position
+		// Avoid numerical drift.
+		dir = dir.getUnitVector();
+
+		// Second half leap-frog step in position.
 		pos += dir * step / 2.;
+
 		return Y(pos, dir);
 	}
-
-
 	// with a fixed step size
 	PropagationBP::PropagationBP(ref_ptr<MagneticField> field, double fixedStep) :
 			minStep(0) {
@@ -67,35 +70,44 @@ namespace crpropa {
 		Y yIn(current.getPosition(), current.getDirection());
 
 		// calculate charge of particle
-		double q = current.getCharge();
-		double step = maxStep;
+		const double q = current.getCharge();
+
+		double step = clip(candidate->getNextStep(), minStep, maxStep);
+		double newStep = step;
+		const double z = candidate->getRedshift();
 
 		// rectilinear propagation for neutral particles
 		if (q == 0) {
-			step = clip(candidate->getNextStep(), minStep, maxStep);
 			current.setPosition(yIn.x + yIn.u * step);
 			candidate->setCurrentStep(step);
 			candidate->setNextStep(maxStep);
 			return;
 		}
+		// Momentum magnitude. This must be computed consistently with the
+		// kinetic-energy convention in ParticleState.
+		const double p = current.getMomentum().getR();
+
+		// If p <= 0, the particle cannot be propagated with magnetic deflection.
+		// Register a zero step to avoid silently advancing time or position.
+		if (p <= 0.) {
+		    candidate->setCurrentStep(0.);
+		    candidate->setNextStep(minStep);
+		    return;
+		}
 
 		Y yOut, yErr;
-		double newStep = step;
-		double z = candidate->getRedshift();
-		double m = current.getEnergy()/(c_light * c_light);
+		
 
 		// if minStep is the same as maxStep the adaptive algorithm with its error
 		// estimation is not needed and the computation time can be saved:
 		if (minStep == maxStep){
-			yOut = dY(yIn.x, yIn.u, step, z, q, m);
+			yOut = dY(yIn.x, yIn.u, step, z, q, p);
 		} else {
-			step = clip(candidate->getNextStep(), minStep, maxStep);
-			newStep = step;
 			double r = 42;  // arbitrary value
 
 			// try performing step until the target error (tolerance) or the minimum/maximum step size has been reached
 			while (true) {
-				tryStep(yIn, yOut, yErr, step, current, z, q, m);
+				tryStep(yIn, yOut, yErr, step, z, q, p);
 				r = yErr.u.getR() / tolerance;  // ratio of absolute direction error and tolerance
 				if (r > 1) {  // large direction error relative to tolerance, try to decrease step size
 					if (step == minStep)  // already minimum step size
@@ -119,6 +131,7 @@ namespace crpropa {
 
 		current.setPosition(yOut.x);
 		current.setDirection(yOut.u.getUnitVector());
+		
 		candidate->setCurrentStep(step);
 		candidate->setNextStep(newStep);
 	}

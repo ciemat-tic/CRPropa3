@@ -13,8 +13,12 @@ void Redshift::process(Candidate *c) const {
 	if (z <= std::numeric_limits<double>::min())
 		return;
 
-	// use small step approximation:  dz = H(z) / c * ds
-	double dz = hubbleRate(z) / c_light * c->getCurrentStep();
+	double speed = c->getVelocity();
+	if (speed <= 0.)
+		return;
+
+	// use small step approximation: dz = H(z) * dt = H(z) / v * ds
+	double dz = hubbleRate(z) / speed * c->getCurrentStep();
 
 	// prevent dz > z
 	dz = std::min(dz, z);
@@ -22,9 +26,9 @@ void Redshift::process(Candidate *c) const {
 	// update redshift
 	c->setRedshift(z - dz);
 
-	// adiabatic energy loss: dE / dz = E / (1 + z)
-	double E = c->current.getEnergy();
-	c->current.setEnergy(E * (1 - dz / (1 + z)));
+	// cosmological redshift scales momentum as p ~ 1 / a
+	double p = c->current.getMomentum().getR();
+	c->current.setMomentum(p * (1 - dz / (1 + z)));
 }
 
 std::string Redshift::getDescription() const {
@@ -41,15 +45,19 @@ void FutureRedshift::process(Candidate *c) const {
 	if (z <= -1)
 		return;
 
-	// use small step approximation:  dz = H(z) / c * ds
-	double dz = hubbleRate(z) / c_light * c->getCurrentStep();
+	double speed = c->getVelocity();
+	if (speed <= 0.)
+		return;
+
+	// use small step approximation: dz = H(z) * dt = H(z) / v * ds
+	double dz = hubbleRate(z) / speed * c->getCurrentStep();
 
 	// update redshift
 	c->setRedshift(z - dz);
 
-	// adiabatic energy loss: dE / dz = E / (1 + z)
-	double E = c->current.getEnergy();
-	c->current.setEnergy(E * (1 - dz / (1 + z)));
+	// cosmological redshift scales momentum as p ~ 1 / a
+	double p = c->current.getMomentum().getR();
+	c->current.setMomentum(p * (1 - dz / (1 + z)));
 }
 
 std::string FutureRedshift::getDescription() const {

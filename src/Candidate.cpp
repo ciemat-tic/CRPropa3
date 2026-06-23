@@ -58,7 +58,7 @@ double Candidate::getTrajectoryLength() const {
 }
 
 double Candidate::getVelocity() const {
-	return c_light;
+	return current.getVelocity().getR();
 }
 
 double Candidate::getWeight() const {
@@ -91,8 +91,11 @@ void Candidate::updateWeight(double w) {
 
 void Candidate::setCurrentStep(double lstep) {
 	currentStep = lstep;
+	const long double v = static_cast<long double>(getVelocity());
+
 	trajectoryLength += lstep;
-	time += lstep / getVelocity();
+	if (v > 0)
+		time += static_cast<long double>(lstep) / v;
 }
 
 void Candidate::setNextStep(double step) {
@@ -115,11 +118,11 @@ std::string Candidate::getTagOrigin () const {
 	return tagOrigin;
 }
 
-void Candidate::setTime(double t) {
+void Candidate::setTime(long double t) {
 	time = t;
 }
 
-double Candidate::getTime() const {
+long double Candidate::getTime() const {
 	return time;
 }
 
@@ -173,7 +176,13 @@ void Candidate::addSecondary(int id, double energy, Vector3d position, double w,
 	ref_ptr<Candidate> secondary = new Candidate;
 	secondary->setRedshift(redshift);
 	secondary->setTrajectoryLength(trajectoryLength - (current.getPosition() - position).getR());
-	secondary->setTime(time - (current.getPosition() - position).getR() / getVelocity());
+	const double distanceToCreation = (current.getPosition() - position).getR();
+	const long double v = static_cast<long double>(getVelocity());
+
+	if (v > 0)
+	    secondary->setTime(time - static_cast<long double>(distanceToCreation) / v);
+	else
+	    secondary->setTime(time);
 	secondary->setWeight(weight * w);
 	secondary->setTagOrigin(tagOrigin);
 	for (PropertyMap::const_iterator it = properties.begin(); it != properties.end(); ++it) {
