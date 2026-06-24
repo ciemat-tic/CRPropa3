@@ -42,10 +42,17 @@ TEST(testSimplePropagation, trajectoryLengthAndTimeTrackSpeed) {
 	const double step = 1 * pc;
 	SimplePropagation propa(step, step);
 
+<<<<<<< HEAD
 	const double energies[] = {1e3 * eV, 1e6 * eV, 1e12 * eV, 100 * EeV};
 	double previousSpeed = 0.;
 
 	for (size_t i = 0; i < 4; i++) {
+=======
+	const double energies[] = {1e0 * eV, 1e3 * eV, 1e6 * eV, 1e12 * eV, 100 * EeV};
+	double previousSpeed = 0.;
+
+	for (size_t i = 0; i < 5; i++) {
+>>>>>>> 44a9c92b (More fixes)
 		ParticleState p;
 		p.setId(nucleusId(1, 1));
 		p.setEnergy(energies[i]);
@@ -58,9 +65,20 @@ TEST(testSimplePropagation, trajectoryLengthAndTimeTrackSpeed) {
 		const double speed = c.getVelocity();
 		const double measuredSpeed = c.getTrajectoryLength() /
 			static_cast<double>(c.getTime());
+<<<<<<< HEAD
 
 		EXPECT_DOUBLE_EQ(step, c.getCurrentStep());
 		EXPECT_DOUBLE_EQ(step, c.getTrajectoryLength());
+=======
+		const double gamma = 1. + energies[i] / (mass_proton * c_squared);
+		const double expectedSpeed = c_light * std::sqrt(1. - 1. / (gamma * gamma));
+
+		EXPECT_DOUBLE_EQ(step, c.getCurrentStep());
+		EXPECT_DOUBLE_EQ(step, c.getTrajectoryLength());
+		EXPECT_NEAR(expectedSpeed, speed, std::max(1e-6, expectedSpeed * 1e-12));
+		EXPECT_NEAR(step / expectedSpeed, static_cast<double>(c.getTime()),
+			static_cast<double>(c.getTime()) * 1e-12);
+>>>>>>> 44a9c92b (More fixes)
 		EXPECT_NEAR(speed, measuredSpeed, std::max(1e-6, speed * 1e-12));
 		EXPECT_GT(speed, previousSpeed);
 		previousSpeed = speed;
@@ -582,10 +600,20 @@ TEST(testPropagationBP, neutron) {
 }
 
 TEST(testPropagationBP, electronLarmorRadiusLowEnergy) {
+<<<<<<< HEAD
 	const double Bz = 1 * nG;
 	const double energies[] = {1e6 * eV, 1e8 * eV, 1e10 * eV};
 
 	for (size_t i = 0; i < 3; i++) {
+=======
+	const double Bz = 1e-3 * nG;
+	const double energies[] = {
+		1e0 * eV, 1e1 * eV, 1e2 * eV, 1e3 * eV, 1e4 * eV,
+		1e5 * eV, 1e6 * eV, 1e8 * eV, 1e10 * eV
+	};
+
+	for (size_t i = 0; i < 9; i++) {
+>>>>>>> 44a9c92b (More fixes)
 		ParticleState p;
 		p.setId(11); // electron
 		p.setEnergy(energies[i]);

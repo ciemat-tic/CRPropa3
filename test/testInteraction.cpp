@@ -2,6 +2,7 @@
 #include "crpropa/Units.h"
 #include "crpropa/ParticleID.h"
 #include "crpropa/PhotonBackground.h"
+#include "crpropa/Random.h"
 #include "crpropa/module/ElectronPairProduction.h"
 #include "crpropa/module/NuclearDecay.h"
 #include "crpropa/module/PhotoDisintegration.h"
@@ -15,9 +16,35 @@
 #include "crpropa/module/SynchrotronRadiation.h"
 #include "gtest/gtest.h"
 
+#include <algorithm>
+#include <cmath>
 #include <fstream>
+#include <limits>
 
 namespace crpropa {
+
+namespace {
+
+double thomsonRateCMB() {
+	const double Tcmb = 2.73 * kelvin;
+	const double zeta3 = 1.202056903159594;
+	const double nPhoton = 16. * M_PI * zeta3 *
+		std::pow(k_boltzmann * Tcmb, 3) /
+		std::pow(h_planck * c_light, 3);
+
+	return nPhoton * sigma_thomson;
+}
+
+double inverseComptonRateFromStepLimit(const EMInverseComptonScattering &m,
+		double energy, double limit) {
+	Candidate c(11, energy);
+	c.setNextStep(std::numeric_limits<double>::max());
+	m.process(&c);
+
+	return limit / c.getNextStep();
+}
+
+} // namespace
 
 // ElectronPairProduction -----------------------------------------------------
 TEST(ElectronPairProduction, allBackgrounds) {
@@ -1058,6 +1085,51 @@ TEST(EMInverseComptonScattering, limitNextStep) {
 	c.setNextStep(std::numeric_limits<double>::max());
 	m.process(&c);
 	EXPECT_LT(c.getNextStep(), std::numeric_limits<double>::max());
+}
+
+TEST(EMInverseComptonScattering, thomsonLimitMeanFreePathAndSurvival) {
+	const double limit = 0.1;
+	ref_ptr<PhotonField> cmb = new CMB();
+	EMInverseComptonScattering m(cmb, true, 0., limit);
+
+	const double expectedRate = thomsonRateCMB();
+	const double energies[] = {1e0 * eV, 1e1 * eV, 1e3 * eV, 1e6 * eV, 1e8 * eV};
+	double referenceRate = 0.;
+
+	for (size_t i = 0; i < 5; i++) {
+		const double rate = inverseComptonRateFromStepLimit(m, energies[i], limit);
+		if (i == 0)
+			referenceRate = rate;
+
+		EXPECT_NEAR(expectedRate, rate, expectedRate * 1e-2);
+		EXPECT_NEAR(referenceRate, rate, referenceRate * 1e-12);
+	}
+
+	const double lambda = 1. / referenceRate;
+	const double distancesInLambda[] = {0.25, 1., 2., 3.};
+	const int nCandidates = 5000;
+
+	Random::instance().seed(12345);
+	for (size_t i = 0; i < 4; i++) {
+		const double distanceInLambda = distancesInLambda[i];
+		int survivors = 0;
+
+		for (int j = 0; j < nCandidates; j++) {
+			Candidate c(11, 1e0 * eV);
+			c.setCurrentStep(distanceInLambda * lambda);
+			m.process(&c);
+
+			if (c.secondaries.empty())
+				survivors++;
+		}
+
+		const double observed = static_cast<double>(survivors) / nCandidates;
+		const double expected = std::exp(-distanceInLambda);
+		const double binomialSigma =
+			std::sqrt(expected * (1. - expected) / nCandidates);
+
+		EXPECT_NEAR(expected, observed, std::max(0.02, 5. * binomialSigma));
+	}
 }
 
 TEST(EMInverseComptonScattering, secondaries) {

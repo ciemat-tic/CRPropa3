@@ -105,12 +105,27 @@ cmake -S "${SOURCE_DIR}" -B "${BUILD_DIR}" \
 cmake --build "${BUILD_DIR}" -j"$(nproc)"
 cmake --install "${BUILD_DIR}"
 
+<<<<<<< HEAD
 install_if_different "${SOURCE_DIR}/Velocity_test.py" "${PREFIX}/Velocity_test.py"
 install_if_different "${SOURCE_DIR}/PropagationBP_test.py" "${PREFIX}/PropagationBP_test.py"
 
 mkdir -p "${PREFIX}/share/crpropa/examples"
 install_if_different "${SOURCE_DIR}/Velocity_test.py" "${PREFIX}/share/crpropa/examples/Velocity_test.py"
 install_if_different "${SOURCE_DIR}/PropagationBP_test.py" "${PREFIX}/share/crpropa/examples/PropagationBP_test.py"
+=======
+TEST_SCRIPT_DIR="${SOURCE_DIR}/build"
+for script in \
+  Velocity_test.py \
+  PropagationBP_test.py \
+  LarmorLowEnergy_test.py \
+  ICSThomsonMFP_test.py \
+  TravelTime_test.py
+do
+  if [[ -f "${TEST_SCRIPT_DIR}/${script}" ]]; then
+    install_if_different "${TEST_SCRIPT_DIR}/${script}" "${BUILD_DIR}/${script}"
+  fi
+done
+>>>>>>> 44a9c92b (More fixes)
 
 cat > "${PREFIX}/activate.sh" <<EOF
 #!/usr/bin/env bash
@@ -129,7 +144,16 @@ Compilacion realizada en: ${BUILD_DIR}
 Activa el entorno con:
   source "${PREFIX}/activate.sh"
 Scripts de prueba:
+<<<<<<< HEAD
   cd "${PREFIX}"
   python3 Velocity_test.py
   python3 PropagationBP_test.py
+=======
+  cd "${BUILD_DIR}"
+  python3 Velocity_test.py
+  python3 PropagationBP_test.py
+  python3 LarmorLowEnergy_test.py
+  python3 ICSThomsonMFP_test.py
+  python3 TravelTime_test.py
+>>>>>>> 44a9c92b (More fixes)
 EOF
