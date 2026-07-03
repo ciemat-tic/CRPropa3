@@ -26,7 +26,7 @@ try_load_acme_spack() {
 
   if command -v spack >/dev/null 2>&1; then
     # ACME Rocky9 cascadelake toolchain used by this portable bundle.
-    spack load /tjciufg /w6dgctr /3tjlhpm /sqvlzkq /pbvefzl /kxsb4uw >/dev/null 2>&1 || true
+    spack load /tjciufg /w6dgctr /3tjlhpm /lnsshyr /ovya43b /sqvlzkq /pbvefzl /kxsb4uw >/dev/null 2>&1 || true
   fi
 }
 
@@ -78,6 +78,22 @@ if ! have_numpy; then
   exit 1
 fi
 
+if ! python3 -c 'import scipy' >/dev/null 2>&1; then
+  echo "Falta scipy en el python3 activo: $(command -v python3)" >&2
+  echo "En ACME prueba primero:" >&2
+  echo "  source /etc/profile.d/SPACK2.sh" >&2
+  echo "  spack load /lnsshyr" >&2
+  exit 1
+fi
+
+if ! python3 -c 'import pandas' >/dev/null 2>&1; then
+  echo "Falta pandas en el python3 activo: $(command -v python3)" >&2
+  echo "En ACME prueba primero:" >&2
+  echo "  source /etc/profile.d/SPACK2.sh" >&2
+  echo "  spack load /ovya43b" >&2
+  exit 1
+fi
+
 PY_VER="$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
 PY_INSTALL_DIR="${PREFIX}/lib/python${PY_VER}/site-packages"
 
@@ -105,14 +121,6 @@ cmake -S "${SOURCE_DIR}" -B "${BUILD_DIR}" \
 cmake --build "${BUILD_DIR}" -j"$(nproc)"
 cmake --install "${BUILD_DIR}"
 
-<<<<<<< HEAD
-install_if_different "${SOURCE_DIR}/Velocity_test.py" "${PREFIX}/Velocity_test.py"
-install_if_different "${SOURCE_DIR}/PropagationBP_test.py" "${PREFIX}/PropagationBP_test.py"
-
-mkdir -p "${PREFIX}/share/crpropa/examples"
-install_if_different "${SOURCE_DIR}/Velocity_test.py" "${PREFIX}/share/crpropa/examples/Velocity_test.py"
-install_if_different "${SOURCE_DIR}/PropagationBP_test.py" "${PREFIX}/share/crpropa/examples/PropagationBP_test.py"
-=======
 TEST_SCRIPT_DIR="${SOURCE_DIR}/build"
 for script in \
   Velocity_test.py \
@@ -125,7 +133,6 @@ do
     install_if_different "${TEST_SCRIPT_DIR}/${script}" "${BUILD_DIR}/${script}"
   fi
 done
->>>>>>> 44a9c92b (More fixes)
 
 cat > "${PREFIX}/activate.sh" <<EOF
 #!/usr/bin/env bash
@@ -144,16 +151,10 @@ Compilacion realizada en: ${BUILD_DIR}
 Activa el entorno con:
   source "${PREFIX}/activate.sh"
 Scripts de prueba:
-<<<<<<< HEAD
-  cd "${PREFIX}"
-  python3 Velocity_test.py
-  python3 PropagationBP_test.py
-=======
   cd "${BUILD_DIR}"
   python3 Velocity_test.py
   python3 PropagationBP_test.py
   python3 LarmorLowEnergy_test.py
   python3 ICSThomsonMFP_test.py
   python3 TravelTime_test.py
->>>>>>> 44a9c92b (More fixes)
 EOF

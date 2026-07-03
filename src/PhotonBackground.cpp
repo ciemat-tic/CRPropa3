@@ -202,7 +202,7 @@ double BlackbodyPhotonField::getMinimumPhotonEnergy(double z) const {
 }
 
 double BlackbodyPhotonField::getMaximumPhotonEnergy(double z) const {
-	double factor = std::max(1., blackbodyTemperature / 2.73);
+	double factor = std::max(1., blackbodyTemperature / 2.72548);
 	return 0.1 * factor * eV; // T dependent scaling, starting at 0.1 eV as suitable for CMB
 }
 

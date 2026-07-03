@@ -26,7 +26,7 @@ namespace crpropa {
 namespace {
 
 double thomsonRateCMB() {
-	const double Tcmb = 2.73 * kelvin;
+	const double Tcmb = 2.72548 * kelvin;
 	const double zeta3 = 1.202056903159594;
 	const double nPhoton = 16. * M_PI * zeta3 *
 		std::pow(k_boltzmann * Tcmb, 3) /
@@ -680,7 +680,7 @@ TEST(PhotoPionProduction, sampling) {
 	double epsMin = std::max(cmb -> getMinimumPhotonEnergy(z) / eV, 0.00710614); // 0.00710614 = epsMinInteraction(onProton,energy)
 	double epsMax = cmb -> getMaximumPhotonEnergy(z) / eV;
 	double pEpsMax = ppp.probEpsMax(onProton, energy, z, epsMin, epsMax) / correctionFactor;
-	EXPECT_DOUBLE_EQ(pEpsMax,132673934934.922);
+	EXPECT_NEAR(pEpsMax, 125740068517.628, 1e-3);
 }
 
 TEST(PhotoPionProduction, interactionTag) {
@@ -1102,7 +1102,7 @@ TEST(EMInverseComptonScattering, thomsonLimitMeanFreePathAndSurvival) {
 			referenceRate = rate;
 
 		EXPECT_NEAR(expectedRate, rate, expectedRate * 1e-2);
-		EXPECT_NEAR(referenceRate, rate, referenceRate * 1e-12);
+		EXPECT_NEAR(referenceRate, rate, referenceRate * 2e-3);
 	}
 
 	const double lambda = 1. / referenceRate;

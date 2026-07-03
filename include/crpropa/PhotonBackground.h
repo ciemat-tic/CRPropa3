@@ -309,11 +309,11 @@ protected:
  @brief Cosmic mircowave background photon field
 
  Source info:
- This field is an isotropic blackbody photon field with temperature T = 2.73 K
+ This field is an isotropic blackbody photon field with temperature T = 2.72548 K
  */
 class CMB: public BlackbodyPhotonField {
 public:
-	CMB() : BlackbodyPhotonField("CMB", 2.73) {}
+	CMB() : BlackbodyPhotonField("CMB", 2.72548) {}
 };
 
 

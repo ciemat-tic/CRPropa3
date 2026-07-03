@@ -39,7 +39,7 @@ falla, ejecuta antes:
 
 ```bash
 source /etc/profile.d/SPACK2.sh
-spack load /tjciufg /w6dgctr /3tjlhpm /sqvlzkq /pbvefzl /kxsb4uw
+spack load /tjciufg /w6dgctr /3tjlhpm /lnsshyr /ovya43b /sqvlzkq /pbvefzl /kxsb4uw
 ```
 
 No ejecutes `source activate.sh` hasta que `./install.sh` termine mostrando
