@@ -7,7 +7,9 @@
 #include "CRPropa.h"
 
 #include "gtest/gtest.h"
+#include <cmath>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 
@@ -136,6 +138,61 @@ TEST(TextOutput, printHeader_Version) {
 	EXPECT_EQ(captured.substr(version_pos,
 	                          captured.find("\n", version_pos) - version_pos),
 	          g_GIT_DESC);
+}
+
+TEST(TextOutput, Event1DTimeTracksKineticEnergyVelocity) {
+	const double kineticEnergy = mass_proton * c_squared;
+	const double step = 1 * pc;
+
+	ParticleState particle;
+	particle.setId(nucleusId(1, 1));
+	particle.setEnergy(kineticEnergy);
+	particle.setPosition(Vector3d(0, 0, 0));
+	particle.setDirection(Vector3d(1, 0, 0));
+
+	Candidate candidate(particle);
+	SimplePropagation propagation(step, step);
+	propagation.process(&candidate);
+
+	std::ostringstream stream;
+	TextOutput output(stream, Output::Event1D);
+	output.setLengthScale(1.);
+	output.setTimeScale(1.);
+	output.setEnergyScale(1.);
+	output.process(&candidate);
+
+	std::istringstream lines(stream.str());
+	std::string line;
+	std::string dataLine;
+	while (std::getline(lines, line)) {
+		if (!line.empty() && line[0] != '#')
+			dataLine = line;
+	}
+	ASSERT_FALSE(dataLine.empty());
+
+	long double outputDistance = 0.;
+	long double outputTime = 0.;
+	int outputId = 0;
+	int sourceId = 0;
+	double outputEnergy = 0.;
+	double sourceEnergy = 0.;
+	std::istringstream data(dataLine);
+	data >> outputDistance >> outputTime >> outputId >> outputEnergy >>
+		sourceId >> sourceEnergy;
+	ASSERT_FALSE(data.fail());
+
+	const double gamma = 1. + kineticEnergy / (mass_proton * c_squared);
+	const double expectedSpeed = c_light * std::sqrt(1. - 1. / (gamma * gamma));
+	const double outputSpeed = static_cast<double>(outputDistance / outputTime);
+
+	EXPECT_EQ(nucleusId(1, 1), outputId);
+	EXPECT_EQ(nucleusId(1, 1), sourceId);
+	EXPECT_NEAR(step, static_cast<double>(outputDistance), step * 1e-12);
+	EXPECT_NEAR(kineticEnergy, outputEnergy, kineticEnergy * 1e-12);
+	EXPECT_NEAR(kineticEnergy, sourceEnergy, kineticEnergy * 1e-12);
+	EXPECT_NEAR(step / expectedSpeed, static_cast<double>(outputTime),
+		(step / expectedSpeed) * 1e-12);
+	EXPECT_NEAR(expectedSpeed, outputSpeed, expectedSpeed * 1e-12);
 }
 
 #ifndef CRPROPA_TESTS_SKIP_EXCEPTIONS

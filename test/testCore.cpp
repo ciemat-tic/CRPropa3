@@ -45,6 +45,29 @@ TEST(ParticleState, energy) {
 	EXPECT_DOUBLE_EQ(particle.getEnergy(), 10 * EeV);
 }
 
+TEST(ParticleState, getEnergyReturnsKineticEnergy) {
+	ParticleState proton;
+	proton.setId(nucleusId(1, 1));
+
+	const double kineticEnergy = 1e3 * eV;
+	const double restEnergy = mass_proton * c_squared;
+	proton.setTotalEnergy(restEnergy + kineticEnergy);
+
+	EXPECT_NEAR(kineticEnergy, proton.getEnergy(), kineticEnergy * 1e-9);
+	EXPECT_NEAR(restEnergy + kineticEnergy, proton.getTotalEnergy(),
+		(restEnergy + kineticEnergy) * 1e-15);
+	EXPECT_NEAR(1. + kineticEnergy / restEnergy, proton.getLorentzFactor(),
+		1e-15);
+	EXPECT_NEAR(kineticEnergy, (proton.getLorentzFactor() - 1.) * restEnergy,
+		kineticEnergy * 1e-9);
+
+	ParticleState photon;
+	photon.setId(22);
+	photon.setTotalEnergy(kineticEnergy);
+	EXPECT_DOUBLE_EQ(kineticEnergy, photon.getEnergy());
+	EXPECT_DOUBLE_EQ(kineticEnergy, photon.getTotalEnergy());
+}
+
 TEST(ParticleState, direction) {
 	ParticleState particle;
 	Vector3d v(1, 2, 3);
