@@ -1,0 +1,53 @@
+name: Sync master with upstream
+
+on:
+  # Ejecutar automáticamente cada día a las 03:27 UTC
+  schedule:
+    - cron: "27 3 * * *"
+
+  # Permitir también la ejecución manual
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Sync
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout CIEMAT repository
+        uses: actions/checkout@v5
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Synchronize with official CRPropa3
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git remote add upstream https://github.com/CRPropa/CRPropa3.git
+          git fetch upstream master
+
+          # Terminar correctamente si ya está actualizado
+          if git merge-base --is-ancestor upstream/master HEAD; then
+            echo "The CIEMAT master branch is already up to date."
+            exit 0
+          fi
+
+          # Preparar la fusión sin crear todavía el commit
+          git merge --no-ff --no-commit upstream/master
+
+          # Conservar los workflows propios de CIEMAT
+          git restore \
+            --source=HEAD \
+            --staged \
+            --worktree \
+            .github/workflows
+
+          # Crear y subir el commit de sincronización
+          git commit -m "Sync master with CRPropa/CRPropa3"
+          git push origin master
