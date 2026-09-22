@@ -12,8 +12,10 @@ install/
 lib/
 share/
 doc/api/
+.vscode/
 
-!final_doc/ # needed for deployment of the documentation
+!final_doc/
+!conda-bld/build.sh
 
 cmake/CMakeCache.txt
 cmake/CMakeFiles/
@@ -26,3 +28,4 @@ cmake/CMakeFiles/
 *.dat
 *.ipynb_checkpoints
 *.idea
+.DS_Store

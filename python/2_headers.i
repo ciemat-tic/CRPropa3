@@ -41,6 +41,7 @@
 %ignore operator crpropa::ObserverFeature*;
 %ignore operator crpropa::MagneticField*;
 %ignore operator crpropa::PhotonField*;
+%ignore operator crpropa::InteractionRates*;
 %ignore operator crpropa::AdvectionField*;
 %ignore operator crpropa::ParticleCollector*;
 %ignore operator crpropa::Density*;
@@ -51,6 +52,9 @@
 %ignore operator crpropa::Grid< float >*;
 %ignore operator crpropa::Grid< double >*;
 %ignore crpropa::TextOutput::load;
+%ignore crpropa::addReferenceIf;
+%ignore crpropa::removeReferenceIf;
+%ignore crpropa::removeReferenceNoDeleteIf;
 
 %feature("ref")   crpropa::Referenced "$this->addReference();"
 %feature("unref") crpropa::Referenced "$this->removeReference();"
@@ -147,10 +151,10 @@
 
     if (PyUnicode_Check(name)) {
       input = PyUnicode_AsUTF8(name);
-    } else if (PyString_Check(name)){
-      input = PyString_AsString(name);
+    } else if (PyBytes_Check(name)){
+      input = PyBytes_AsString(name);
     } else {
-      std::cerr << "ERROR: The argument of getProperty() must be a string/unicode object!" << std::endl;
+      PyErr_SetString(PyExc_TypeError, "The argument of getProperty() must be a string/unicode object!");
       return NULL;
     }
 
@@ -158,43 +162,42 @@
 
     // implement this conversion here and not in the Variant as
     // __asPythonObject, as extensions cannot be called from extension.
-    if (! value.isValid())  {
-      Py_INCREF(Py_None);
-      return Py_None;
-    } else if (value.getTypeInfo() == typeid(bool)) {
-      if(value.toBool()) {
-        Py_RETURN_TRUE;
-      } else {
-        Py_RETURN_FALSE;
+    switch (value.getType()) {
+      case crpropa::Variant::TYPE_NONE:
+        Py_INCREF(Py_None);
+        return Py_None;
+      case crpropa::Variant::TYPE_BOOL:
+        if (value.toBool()) {
+          Py_RETURN_TRUE;
+        } else {
+          Py_RETURN_FALSE;
+        }
+      case crpropa::Variant::TYPE_CHAR:
+      case crpropa::Variant::TYPE_UCHAR:
+      case crpropa::Variant::TYPE_INT16:
+      case crpropa::Variant::TYPE_UINT16:
+      case crpropa::Variant::TYPE_INT32:
+      case crpropa::Variant::TYPE_UINT32:
+      case crpropa::Variant::TYPE_INT64:
+        return PyLong_FromLongLong(value.toInt64());
+      case crpropa::Variant::TYPE_UINT64:
+        return PyLong_FromUnsignedLongLong(value.toUInt64());
+      case crpropa::Variant::TYPE_FLOAT:
+      case crpropa::Variant::TYPE_DOUBLE:
+      case crpropa::Variant::TYPE_LONGDOUBLE:
+        return PyFloat_FromDouble(value.toDouble());
+      case crpropa::Variant::TYPE_STRING:
+        return PyUnicode_FromString(value.toString().c_str());
+      case crpropa::Variant::TYPE_COMPLEXF:
+      case crpropa::Variant::TYPE_COMPLEXD: {
+        std::complex<double> complexValue = value.toComplexDouble();
+        return PyComplex_FromDoubles(complexValue.real(), complexValue.imag());
       }
-    } else if (value.getTypeInfo() == typeid(char)) {
-      // convert all integer types to python long
-      return PyInt_FromLong(value.toInt64());
-    } else if (value.getTypeInfo() == typeid(unsigned char)) {
-      return PyInt_FromLong(value.toInt64());
-    } else if (value.getTypeInfo() == typeid(int16_t)) {
-      return PyInt_FromLong(value.toInt64());
-    } else if (value.getTypeInfo() == typeid(uint16_t)) {
-      return PyInt_FromLong(value.toInt64());
-    } else if (value.getTypeInfo() == typeid(int32_t)) {
-      return PyInt_FromLong(value.toInt64());
-    } else if (value.getTypeInfo() == typeid(uint32_t)) {
-      return PyInt_FromLong(value.toInt64());
-    } else if (value.getTypeInfo() == typeid(int64_t)) {
-      return PyLong_FromLong(value.toInt64());
-    } else if (value.getTypeInfo() == typeid(uint64_t)) {
-      return PyLong_FromUnsignedLong(value.toInt64());
-    } else if (value.getTypeInfo() == typeid(float)) {
-      // convert float and double to pyfloat which is double precision
-      return PyFloat_FromDouble(value.toDouble());
-    } else if (value.getTypeInfo() == typeid(double)) {
-      return PyFloat_FromDouble(value.toDouble());
-    } else if (value.getTypeInfo() == typeid(std::string)) {
-      return PyUnicode_FromString(value.toString().c_str());
+      default:
+        std::cerr << "ERROR: Unknown Type: " << value.getTypeName() << std::endl;
+        PyErr_Format(PyExc_TypeError, "Unsupported candidate property type '%s'", value.getTypeName());
+        return NULL;
     }
-
-    std::cerr << "ERROR: Unknown Type" << std::endl;
-    return NULL;
   }
 
   PyObject * setProperty(PyObject * name, PyObject * value) {
@@ -217,9 +220,6 @@
       } else {
         $self->setProperty(input, false);
       }
-      Py_RETURN_TRUE;
-    } else if (PyInt_Check(value)) {
-      $self->setProperty(input, crpropa::Variant::fromInt32(PyInt_AsLong(value)));
       Py_RETURN_TRUE;
     } else if (PyLong_Check(value)) {
       $self->setProperty(input, crpropa::Variant::fromUInt64(PyLong_AsLong(value)));
@@ -245,8 +245,9 @@
 %template(CandidateRefPtr) crpropa::ref_ptr<crpropa::Candidate>;
 %include "crpropa/Candidate.h"
 
+%implicitconv crpropa::ref_ptr<crpropa::Surface>;
+%template(SurfaceRefPtr) crpropa::ref_ptr<crpropa::Surface>;
 %feature("director") crpropa::Surface;
-%feature("director") crpropa::ClosedSurface;
 %include "crpropa/Geometry.h"
 
 %template(ModuleRefPtr) crpropa::ref_ptr<crpropa::Module>;
@@ -269,6 +270,11 @@
 %template(PhotonFieldRefPtr) crpropa::ref_ptr<crpropa::PhotonField>;
 %feature("director") crpropa::PhotonField;
 %include "crpropa/PhotonBackground.h"
+
+%implicitconv crpropa::ref_ptr<crpropa::InteractionRates>;
+%template(InteractionRatesRefPtr) crpropa::ref_ptr<crpropa::InteractionRates>;
+%feature("director") crpropa::InteractionRates;
+%include "crpropa/InteractionRates.h"
 
 %implicitconv crpropa::ref_ptr<crpropa::AdvectionField>;
 %template(AdvectionFieldRefPtr) crpropa::ref_ptr<crpropa::AdvectionField>;
@@ -354,9 +360,6 @@
         $self->enableProperty(name, false, comment);
       }
       Py_RETURN_TRUE;
-    } else if (PyInt_Check(defaultValue)) {
-      $self->enableProperty(name, crpropa::Variant::fromInt32(PyInt_AsLong(defaultValue)), comment);
-      Py_RETURN_TRUE;
     } else if (PyLong_Check(defaultValue)) {
       $self->enableProperty(name, crpropa::Variant::fromInt64(PyLong_AsLong(defaultValue)), comment);
       Py_RETURN_TRUE;
@@ -401,8 +404,10 @@
 %template(IntSet) std::set<int>;
 %include "crpropa/module/Tools.h"
 
+%implicitconv crpropa::ref_ptr<crpropa::SourceInterface>;
 %template(SourceInterfaceRefPtr) crpropa::ref_ptr<crpropa::SourceInterface>;
 %feature("director") crpropa::SourceInterface;
+%implicitconv crpropa::ref_ptr<crpropa::SourceFeature>;
 %template(SourceFeatureRefPtr) crpropa::ref_ptr<crpropa::SourceFeature>;
 %feature("director") crpropa::SourceFeature;
 %include "crpropa/Source.h"
