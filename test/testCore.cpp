@@ -6,6 +6,7 @@
  */
 
 #include <complex>
+#include <cmath>
 
 #include "crpropa/Candidate.h"
 #include "crpropa/base64.h"
@@ -60,6 +61,35 @@ TEST(ParticleState, momentum) {
 	EXPECT_TRUE(particle.getMomentum() == v * (particle.getEnergy() / c_light));
 }
 
+TEST(ParticleState, totalEnergy) {
+	ParticleState particle;
+	particle.setId(nucleusId(1, 1));
+
+	const double kineticEnergy = 1e12 * eV;
+	const double restEnergy = mass_proton * c_squared;
+	const double totalEnergy = kineticEnergy + restEnergy;
+
+	particle.setEnergy(kineticEnergy);
+	EXPECT_DOUBLE_EQ(particle.getTotalEnergy(), totalEnergy);
+
+	particle.setTotalEnergy(totalEnergy);
+	EXPECT_DOUBLE_EQ(particle.getEnergy(), kineticEnergy);
+}
+
+TEST(ParticleState, setMomentum) {
+	ParticleState particle;
+	particle.setId(nucleusId(1, 1));
+
+	const double momentum = 1e12 * eV / c_light;
+	const double restEnergy = mass_proton * c_squared;
+	const double expectedKineticEnergy = std::sqrt(momentum * momentum * c_squared + restEnergy * restEnergy) - restEnergy;
+
+	particle.setMomentum(momentum);
+
+	EXPECT_NEAR(particle.getEnergy(), expectedKineticEnergy, expectedKineticEnergy * 1e-14);
+	EXPECT_NEAR(particle.getMomentum().getR(), momentum, momentum * 1e-14);
+}
+
 TEST(ParticleState, id) {
 	ParticleState particle;
 	particle.setId(nucleusId(12, 6));
@@ -96,10 +126,15 @@ TEST(ParticleState, Charge) {
 
 TEST(ParticleState, Rigidity) {
 	ParticleState particle;
+	particle.setId(nucleusId(1, 1));
 
-	particle.setId(nucleusId(1, 1)); // proton
-	particle.setEnergy(1 * EeV);
-	EXPECT_EQ(particle.getRigidity(), 1e18);
+	const double kineticEnergy = 1e18 * eV;
+	particle.setEnergy(kineticEnergy);
+
+	const double restEnergy = particle.getMass() * c_squared;
+	const double expectedRigidity = std::sqrt(kineticEnergy * (kineticEnergy + 2. * restEnergy)) / std::abs(particle.getCharge());
+
+	EXPECT_NEAR(particle.getRigidity(), expectedRigidity, expectedRigidity * 1e-14);
 }
 
 TEST(ParticleState, Mass) {
@@ -127,8 +162,8 @@ TEST(ParticleState, lorentzFactor) {
 	ParticleState particle;
 	particle.setId(nucleusId(1, 1));
 	particle.setEnergy(1e12 * eV);
-	EXPECT_DOUBLE_EQ(particle.getLorentzFactor(),
-			1e12 * eV / mass_proton / c_squared);
+
+	EXPECT_DOUBLE_EQ(particle.getLorentzFactor(), 1. + 1e12 * eV / mass_proton / c_squared);
 }
 
 TEST(ParticleID, nucleusId) {
