@@ -37,30 +37,34 @@ void Output::process(Candidate *c) const {
 void Output::setOutputType(OutputType outputtype) {
 	modify();
 	if (outputtype == Trajectory1D) {
-		// X, ID, E
+		// time, X, ID, E
+		set(TimeColumn, true);
 		set(CurrentPositionColumn, true);
 		set(CurrentIdColumn, true);
 		set(CurrentEnergyColumn, true);
 		set1D(true);
 	} else if (outputtype == Event1D) {
-		// D, ID, E, ID0, E0
+		// D, time, ID, E, ID0, E0
 		set(TrajectoryLengthColumn, true);
+		set(TimeColumn, true);
 		set(CurrentIdColumn, true);
 		set(CurrentEnergyColumn, true);
 		set(SourceIdColumn, true);
 		set(SourceEnergyColumn, true);
 		set1D(true);
 	} else if (outputtype == Trajectory3D) {
-		// D, ID, E, X, Y, Z, Px, Py, Pz
+		// D, time, ID, E, X, Y, Z, Px, Py, Pz
 		set(TrajectoryLengthColumn, true);
+		set(TimeColumn, true);
 		set(CurrentIdColumn, true);
 		set(CurrentEnergyColumn, true);
 		set(CurrentPositionColumn, true);
 		set(CurrentDirectionColumn, true);
 		set1D(false);
 	} else if (outputtype == Event3D) {
-		// D, ID, E, X, Y, Z, Px, Py, Pz, ID0, E0, X0, Y0, Z0, P0x, P0y, P0z
+		// D, time, ID, E, X, Y, Z, Px, Py, Pz, ID0, E0, X0, Y0, Z0, P0x, P0y, P0z
 		set(TrajectoryLengthColumn, true);
+		set(TimeColumn, true);
 		set(CurrentIdColumn, true);
 		set(CurrentEnergyColumn, true);
 		set(CurrentPositionColumn, true);

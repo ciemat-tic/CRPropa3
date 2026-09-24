@@ -36,6 +36,41 @@ TEST(testSimplePropagation, step) {
 	EXPECT_EQ(Vector3d(0,  1, 0), c.current.getDirection());
 }
 
+TEST(testSimplePropagation, trajectoryLengthAndTimeTrackSpeed) {
+	const double step = 1 * pc;
+	SimplePropagation propa(step, step);
+
+	const double energies[] = {1e0 * eV, 1e3 * eV, 1e6 * eV, 1e12 * eV, 100 * EeV};
+	double previousSpeed = 0.;
+
+	for (size_t i = 0; i < 5; i++) {
+		ParticleState p;
+		p.setId(nucleusId(1, 1));
+		p.setEnergy(energies[i]);
+		p.setPosition(Vector3d(0, 0, 0));
+		p.setDirection(Vector3d(1, 0, 0));
+
+		Candidate c(p);
+		propa.process(&c);
+
+		const double speed = c.getVelocity();
+		const double measuredSpeed = c.getTrajectoryLength() / static_cast<double>(c.getTime());
+		const double gamma = 1. + energies[i] / (mass_proton * c_squared);
+		const double expectedSpeed = c_light * std::sqrt(1. - 1. / (gamma * gamma));
+
+		EXPECT_DOUBLE_EQ(step, c.getCurrentStep());
+		EXPECT_DOUBLE_EQ(step, c.getTrajectoryLength());
+		EXPECT_NEAR(expectedSpeed, speed, std::max(1e-6, expectedSpeed * 1e-12));
+		EXPECT_NEAR(step / expectedSpeed, static_cast<double>(c.getTime()), static_cast<double>(c.getTime()) * 1e-12);
+		EXPECT_NEAR(speed, measuredSpeed, std::max(1e-6, speed * 1e-12));
+		EXPECT_GT(speed, previousSpeed);
+
+		previousSpeed = speed;
+	}
+
+	EXPECT_LT(previousSpeed, c_light * (1 + 1e-14));
+	EXPECT_GT(previousSpeed, c_light * (1 - 1e-12));
+}
 
 TEST(testPropagationCK, zeroField) {
 	PropagationCK propa(new UniformMagneticField(Vector3d(0, 0, 0)));
