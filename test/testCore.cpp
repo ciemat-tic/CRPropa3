@@ -240,6 +240,40 @@ TEST(Candidate, currentStep) {
 	EXPECT_DOUBLE_EQ(candidate.getTime(), 1 * Mpc / c_light);
 }
 
+TEST(Candidate, massiveParticleTime) {
+	const double kineticEnergy = 1e3 * eV;
+	const double step = 1 * pc;
+
+	Candidate candidate(nucleusId(1, 1), kineticEnergy);
+	const long double expectedTime = static_cast<long double>(step) / static_cast<long double>(candidate.getVelocity());
+
+	candidate.setCurrentStep(step);
+
+	EXPECT_DOUBLE_EQ(candidate.getCurrentStep(), step);
+	EXPECT_DOUBLE_EQ(candidate.getTrajectoryLength(), step);
+	EXPECT_NEAR(static_cast<double>(candidate.getTime()), static_cast<double>(expectedTime), static_cast<double>(expectedTime) * 1e-9);
+}
+
+TEST(Candidate, secondaryCreationTime) {
+	const double kineticEnergy = 1e3 * eV;
+	const double step = 1 * pc;
+	const Vector3d endPosition(step, 0, 0);
+	const Vector3d creationPosition(step / 2., 0, 0);
+
+	Candidate candidate(nucleusId(1, 1), kineticEnergy);
+	candidate.current.setPosition(endPosition);
+
+	const long double velocity = static_cast<long double>(candidate.getVelocity());
+	const long double expectedCreationTime = static_cast<long double>(step / 2.) / velocity;
+
+	candidate.setCurrentStep(step);
+	candidate.addSecondary(22, 1 * eV, creationPosition);
+
+	ASSERT_EQ(candidate.secondaries.size(), 1);
+	EXPECT_NEAR(static_cast<double>(candidate.secondaries[0]->getTime()), static_cast<double>(expectedCreationTime), static_cast<double>(expectedCreationTime) * 1e-9);
+	EXPECT_DOUBLE_EQ(candidate.secondaries[0]->getTrajectoryLength(), step / 2.);
+}
+
 TEST(Candidate, limitNextStep) {
 	Candidate candidate;
 	candidate.setNextStep(5 * Mpc);

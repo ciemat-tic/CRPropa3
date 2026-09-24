@@ -176,11 +176,12 @@ void TextOutput::process(Candidate *c) const {
 	std::locale old_locale = std::locale::global(std::locale::classic());
 
 	if (fields.test(TrajectoryLengthColumn))
-		p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t",
+		p += std::snprintf(buffer + p, buffersize - p, "%.15E\t",
 				c->getTrajectoryLength() / lengthScale);
+
 	if (fields.test(TimeColumn))
-		p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t",
-				c->getTime() / timeScale);
+		p += std::snprintf(buffer + p, buffersize - p, "%.15LE\t",
+				c->getTime() / static_cast<long double>(timeScale));
 
 	if (fields.test(RedshiftColumn))
 		p += std::snprintf(buffer + p, buffersize - p, "%1.5E\t", c->getRedshift());
@@ -191,7 +192,7 @@ void TextOutput::process(Candidate *c) const {
 	if (fields.test(CurrentIdColumn))
 		p += std::snprintf(buffer + p, buffersize - p, "%10i\t", c->current.getId());
 	if (fields.test(CurrentEnergyColumn))
-		p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t",
+		p += std::snprintf(buffer + p, buffersize - p, "%.15E\t",
 				c->current.getEnergy() / energyScale);
 	if (fields.test(CurrentPositionColumn)) {
 		if (oneDimensional) {
@@ -216,7 +217,7 @@ void TextOutput::process(Candidate *c) const {
 	if (fields.test(SourceIdColumn))
 		p += std::snprintf(buffer + p, buffersize - p, "%10i\t", c->source.getId());
 	if (fields.test(SourceEnergyColumn))
-		p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t",
+		p += std::snprintf(buffer + p, buffersize - p, "%.15E\t",
 				c->source.getEnergy() / energyScale);
 	if (fields.test(SourcePositionColumn)) {
 		if (oneDimensional) {
