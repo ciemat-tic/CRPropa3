@@ -112,7 +112,20 @@ void ParticleState::setLorentzFactor(double lf) {
 }
 
 Vector3d ParticleState::getVelocity() const {
-	return direction * c_light;
+	if (pmass <= 0.)
+		return direction * c_light;
+
+	const double gamma = 1. + energy / (pmass * c_squared);
+
+	if (gamma <= 1.)
+		return direction * 0.;
+
+	const double beta2 = 1. - 1. / (gamma * gamma);
+
+	if (beta2 <= 0.)
+		return direction * 0.;
+
+	return direction * (c_light * std::sqrt(beta2));
 }
 
 void ParticleState::setMomentum(double momentum) {

@@ -13,8 +13,8 @@ namespace crpropa {
  @class ParticleState
  @brief State of the particle: ID, energy, position, direction
 
- The ParticleState defines the state of an ultra-high energy cosmic ray, which
- is assumed to be traveling at the exact speed of light.
+ The ParticleState defines the state of a cosmic ray, which
+ is not necessarily traveling at the exact speed of light.
  The cosmic ray state is defined by particle ID, kinetic energy and position and
  direction vector.
  For faster lookup mass and charge of the particle are stored as members.
@@ -119,7 +119,7 @@ public:
 	 */
 	void setMomentum(double momentum);
 
-	/** Get velocity: direction times the speed of light.
+	/** Get velocity.
 	 @returns Velocity of particle [m/s]
 	 */
 	Vector3d getVelocity() const;

@@ -53,6 +53,24 @@ TEST(ParticleState, velocity) {
 	EXPECT_TRUE(particle.getVelocity() == v.getUnitVector() * c_light);
 }
 
+
+TEST(ParticleState, massiveParticleVelocity) {
+	ParticleState particle;
+	Vector3d direction(1, 1, 0);
+
+	particle.setId(nucleusId(1, 1));
+	particle.setDirection(direction);
+
+	const double kineticEnergy = 1e3 * eV;
+	particle.setEnergy(kineticEnergy);
+
+	const double gamma = 1. + kineticEnergy / (particle.getMass() * c_squared);
+	const double expectedSpeed = c_light * std::sqrt(1. - 1. / (gamma * gamma));
+	const Vector3d expectedVelocity = direction.getUnitVector() * expectedSpeed;
+
+	EXPECT_NEAR((particle.getVelocity() - expectedVelocity).getR(), 0., expectedSpeed * 1e-9);
+}
+
 TEST(ParticleState, momentum) {
 	ParticleState particle;
 	Vector3d v(0, 1, 0);
