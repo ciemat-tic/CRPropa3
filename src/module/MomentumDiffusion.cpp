@@ -18,8 +18,22 @@ void ConstantMomentumDiffusion::process(Candidate *c) const {
 		return; // Only charged particles
 	}
 	
-	double p = c->current.getEnergy() / c_light; // Note we use E=p/c (relativistic limit)
-	double dt = c->getCurrentStep() / c_light;
+	// COMMIT 5 — MODIFIED:
+	// Use the exact relativistic momentum instead of the
+	// ultrarelativistic approximation p = E/c.
+	double p = c->current.getMomentum().getR();
+	// COMMIT 5 — ADDED:
+	// Use the energy-dependent particle velocity.
+	double speed = c->getVelocity();
+	// COMMIT 5 — ADDED:
+	// Momentum diffusion is undefined for particles with zero momentum,
+	// and a zero velocity cannot be used to calculate the elapsed time.
+	if (p <= 0. || speed <= 0.)
+		return;
+	// COMMIT 5 — MODIFIED:
+	// Convert the path-length step into elapsed time using dt = ds/v
+	// instead of the ultrarelativistic approximation dt = ds/c.
+	double dt = c->getCurrentStep() / speed;
 	
 	double eta =  Random::instance().randNorm();
 	double domega = eta * sqrt(dt);
@@ -28,9 +42,16 @@ void ConstantMomentumDiffusion::process(Candidate *c) const {
 	double BScal = calculateBScalar();
 
 	double dp = AScal * dt + BScal * domega;
-	c->current.setEnergy((p + dp) * c_light);
+	// COMMIT 5 — MODIFIED:
+	// Update the physical momentum directly. ParticleState converts it
+	// consistently into the stored kinetic energy.
+	c->current.setMomentum(p + dp);
 	
-	c->limitNextStep(limit * p / AScal * c_light);
+	// COMMIT 5 — MODIFIED:
+	// Convert the maximum allowed diffusion time into a path-length limit
+	// using the actual particle velocity.
+	if (AScal != 0.)
+		c->limitNextStep(limit * p / fabs(AScal) * speed);
 }
 
 double ConstantMomentumDiffusion::calculateAScalar(double p) const {

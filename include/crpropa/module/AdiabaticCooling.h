@@ -22,7 +22,7 @@ namespace crpropa {
 
 /**
 @class AdiabaticCooling
-@brief Implements adiabatic cooling/heating due to advection.
+@brief Implements adiabatic cooling or heating by evolving the particle momentum according to the divergence of the advection field.
 */
 
 class AdiabaticCooling: public Module {
@@ -37,7 +37,7 @@ public:
 	AdiabaticCooling(ref_ptr<AdvectionField> advectionField);
 	/** Constructor
 	 @param advectionField 	The advection field used for the adiabatic energy change
-	 @param limit 			Maximum relative energy change allowed
+	 @param limit 			Maximum relative momentum change allowed
 	 */
 	AdiabaticCooling(ref_ptr<AdvectionField> advectionField, double limit);
 	void process(Candidate *c) const;
