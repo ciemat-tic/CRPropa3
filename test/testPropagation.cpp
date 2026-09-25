@@ -582,6 +582,46 @@ TEST(testPropagationBP, neutron) {
 	EXPECT_EQ(Vector3d(0, 1, 0), c.current.getDirection());
 }
 
+TEST(testPropagationBP, electronLarmorRadiusLowEnergy) {
+	const double Bz = 1e-3 * nG;
+	const double energies[] = {
+		1e0 * eV,
+		1e1 * eV,
+		1e2 * eV,
+		1e3 * eV,
+		1e4 * eV,
+		1e5 * eV,
+		1e6 * eV,
+		1e8 * eV,
+		1e10 * eV
+	};
+
+	for (size_t i = 0; i < 9; i++) {
+		ParticleState p;
+		p.setId(11); // electron
+		p.setEnergy(energies[i]);
+		p.setPosition(Vector3d(0, 0, 0));
+		p.setDirection(Vector3d(1, 0, 0));
+
+		const double expectedRadius = p.getMomentum().getR() / (std::fabs(p.getCharge()) * Bz);
+		const double step = expectedRadius / 500.;
+		const size_t nSteps = 100;
+
+		PropagationBP propa(new UniformMagneticField(Vector3d(0, 0, Bz)), step);
+		Candidate c(p);
+
+		for (size_t j = 0; j < nSteps; j++)
+			propa.process(&c);
+
+		const Vector3d pos = c.current.getPosition();
+		const double measuredRadius = (pos.x * pos.x + pos.y * pos.y) / (2. * std::fabs(pos.y));
+		const double measuredSpeed = c.getTrajectoryLength() / static_cast<double>(c.getTime());
+
+		EXPECT_NEAR(expectedRadius, measuredRadius, expectedRadius * 1e-4);
+		EXPECT_NEAR(nSteps * step, c.getTrajectoryLength(), nSteps * step * 1e-14);
+		EXPECT_NEAR(c.getVelocity(), measuredSpeed, c.getVelocity() * 1e-12);
+	}
+}
 
 int main(int argc, char **argv) {
 	::testing::InitGoogleTest(&argc, argv);
