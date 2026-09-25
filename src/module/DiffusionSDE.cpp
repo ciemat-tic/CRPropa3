@@ -51,7 +51,14 @@ void DiffusionSDE::process(Candidate *candidate) const {
 	ParticleState &current = candidate->current;
 	candidate->previous = current;
 
-	double h = clip(candidate->getNextStep(), minStep, maxStep) / c_light;
+	double speed = candidate->getVelocity();
+	if (speed <= 0.) {
+		candidate->setCurrentStep(0.);
+		candidate->setNextStep(minStep);
+		return;
+	}
+
+	double h = clip(candidate->getNextStep(), minStep, maxStep) / speed;
 	Vector3d PosIn = current.getPosition();
 	Vector3d DirIn = current.getDirection();
 
@@ -68,14 +75,14 @@ void DiffusionSDE::process(Candidate *candidate) const {
 			driftStep(Pos, LinProp, h, time);
 		}
 
-		current.setPosition(Pos + LinProp + dir*h*c_light);
-		candidate->setCurrentStep(h * c_light);
+		current.setPosition(Pos + LinProp + dir * h * speed);
+		candidate->setCurrentStep(h * speed);
 		candidate->setNextStep(maxStep);
 		return;
 	}
 
 	double z = candidate->getRedshift();
-	double rig = current.getEnergy() / current.getCharge();
+	double rig = current.getRigidity();
 
     // Calculate the Diffusion tensor
 	double BTensor[] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
@@ -138,15 +145,15 @@ void DiffusionSDE::process(Candidate *candidate) const {
 		if (advectionField){
 			driftStep(Pos, LinProp, h, time);
 			current.setPosition(Pos + LinProp);
-	 		candidate->setCurrentStep(h*c_light);
-	  		double newStep = 5*h*c_light;
+			candidate->setCurrentStep(h * speed);
+			double newStep = 5 * h * speed;
 			newStep = clip(newStep, minStep, maxStep);
 	  		candidate->setNextStep(newStep);
 	  		return;
 		}
-		current.setPosition(Pos + dir*h*c_light);
-	 	candidate->setCurrentStep(h*c_light);
-		double newStep = 5*h*c_light;
+		current.setPosition(Pos + dir * h * speed);
+		candidate->setCurrentStep(h * speed);
+		double newStep = 5 * h * speed;
 		newStep = clip(newStep, minStep, maxStep);
 	  	candidate->setNextStep(newStep);
 	  	return;
@@ -196,14 +203,14 @@ void DiffusionSDE::process(Candidate *candidate) const {
 	DirOut = Random::instance().randConeVector(TVec, M_PI/2.);
 	current.setPosition(PO);
 	current.setDirection(DirOut);
-	candidate->setCurrentStep(h * c_light);
+	candidate->setCurrentStep(h * speed);
 
 	double nextStep;
 	if (stepNumber>1){
-		nextStep = h*pow(stepNumber, -2.)*c_light;
+		nextStep = h * pow(stepNumber, -2.) * speed;
 	}
 	else {
-		nextStep = 4 * h*c_light;
+		nextStep = 4 * h * speed;
 	}
 
 	candidate->setNextStep(nextStep);
