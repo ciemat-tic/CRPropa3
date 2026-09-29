@@ -1,0 +1,16 @@
+--- orig/test/testPythonExtension.py	2026-04-15 09:06:38.000000000 +0000
++++ mod/test/testPythonExtension.py	2026-04-17 11:54:43.472785283 +0000
+@@ -382,3 +382,13 @@
+ 
+ if __name__ == '__main__':
+     unittest.main()
++
++
++class testTextOutputPrecision(unittest.TestCase):
++    def test_set_get_precision(self):
++        out = crp.TextOutput()
++        self.assertEqual(5, out.getPrecision())
++        out.setPrecision(17)
++        self.assertEqual(17, out.getPrecision())
++        out.setPrecision(-3)
++        self.assertEqual(0, out.getPrecision())
