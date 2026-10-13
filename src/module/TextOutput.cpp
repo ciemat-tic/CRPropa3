@@ -22,22 +22,36 @@
 
 namespace crpropa {
 
-TextOutput::TextOutput() : Output(), out(&std::cout), storeRandomSeeds(false) {
+namespace {
+inline int appendScientific3(char *buffer, size_t buffersize, size_t pos, int precision, double x, double y, double z) {
+	return std::snprintf(
+		buffer + pos,
+		buffersize - pos,
+		"%.*E\t%.*E\t%.*E\t",
+		precision, x,
+		precision, y,
+		precision, z
+	);
 }
 
-TextOutput::TextOutput(OutputType outputtype) : Output(outputtype), out(&std::cout), storeRandomSeeds(false) {
+} // anonymous namespace
+
+TextOutput::TextOutput() : Output(), out(&std::cout), storeRandomSeeds(false), precision(5) {
 }
 
-TextOutput::TextOutput(std::ostream &out) : Output(), out(&out), storeRandomSeeds(false) {
+TextOutput::TextOutput(OutputType outputtype) : Output(outputtype), out(&std::cout), storeRandomSeeds(false), precision(5) {
+}
+
+TextOutput::TextOutput(std::ostream &out) : Output(), out(&out), storeRandomSeeds(false), precision(5) {
 }
 
 TextOutput::TextOutput(std::ostream &out,
-		OutputType outputtype) : Output(outputtype), out(&out), storeRandomSeeds(false) {
+		OutputType outputtype) : Output(outputtype), out(&out), storeRandomSeeds(false), precision(5) {
 }
 
 TextOutput::TextOutput(const std::string &filename) :  Output(), outfile(filename.c_str(),
 				std::ios::binary), out(&outfile),  filename(
-				filename), storeRandomSeeds(false) {
+				filename), storeRandomSeeds(false), precision(5) {
 	if (!outfile.is_open())
 		throw std::runtime_error(std::string("Cannot create file: ") + filename);
 	if (kiss::ends_with(filename, ".gz"))
@@ -47,7 +61,7 @@ TextOutput::TextOutput(const std::string &filename) :  Output(), outfile(filenam
 TextOutput::TextOutput(const std::string &filename,
 				OutputType outputtype) : Output(outputtype), outfile(filename.c_str(),
 				std::ios::binary), out(&outfile), filename(
-				filename), storeRandomSeeds(false) {
+				filename), storeRandomSeeds(false), precision(5) {
 	if (!outfile.is_open())
 		throw std::runtime_error(std::string("Cannot create file: ") + filename);
 	if (kiss::ends_with(filename, ".gz"))
@@ -176,99 +190,102 @@ void TextOutput::process(Candidate *c) const {
 	std::locale old_locale = std::locale::global(std::locale::classic());
 
 	if (fields.test(TrajectoryLengthColumn))
-		p += std::snprintf(buffer + p, buffersize - p, "%.15E\t",
-				c->getTrajectoryLength() / lengthScale);
+		p += std::snprintf(buffer + p, buffersize - p, "%.*E\t", precision, c->getTrajectoryLength() / lengthScale);
 
 	if (fields.test(TimeColumn))
-		p += std::snprintf(buffer + p, buffersize - p, "%.15LE\t",
-				c->getTime() / static_cast<long double>(timeScale));
+		p += std::snprintf(buffer + p, buffersize - p, "%.*LE\t", precision, c->getTime() / static_cast<long double>(timeScale));
 
 	if (fields.test(RedshiftColumn))
-		p += std::snprintf(buffer + p, buffersize - p, "%1.5E\t", c->getRedshift());
+		p += std::snprintf(buffer + p, buffersize - p, "%.*E\t", precision, c->getRedshift());
 
 	if (fields.test(SerialNumberColumn))
-		p += std::snprintf(buffer + p, buffersize - p, "%10" PRIu64 "\t",
-				c->getSerialNumber());
+		p += std::snprintf(buffer + p, buffersize - p, "%10" PRIu64 "\t", c->getSerialNumber());
+
 	if (fields.test(CurrentIdColumn))
 		p += std::snprintf(buffer + p, buffersize - p, "%10i\t", c->current.getId());
+
 	if (fields.test(CurrentEnergyColumn))
-		p += std::snprintf(buffer + p, buffersize - p, "%.15E\t",
-				c->current.getEnergy() / energyScale);
+		p += std::snprintf(buffer + p, buffersize - p, "%.*E\t", precision, c->current.getEnergy() / energyScale);
+
 	if (fields.test(CurrentPositionColumn)) {
 		if (oneDimensional) {
-			p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t",
-					c->current.getPosition().x / lengthScale);
+
+			p += std::snprintf(buffer + p, buffersize - p, "%.*E\t", precision, c->current.getPosition().x / lengthScale);
 		} else {
 			const Vector3d pos = c->current.getPosition() / lengthScale;
-			p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t%8.5E\t%8.5E\t", pos.x, pos.y,
-					pos.z);
+
+			p += appendScientific3(buffer, buffersize, p, precision, pos.x, pos.y, pos.z);
 		}
 	}
+
 	if (fields.test(CurrentDirectionColumn)) {
-		if (not oneDimensional) {
-			const Vector3d pos = c->current.getDirection();
-			p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t%8.5E\t%8.5E\t", pos.x, pos.y,
-					pos.z);
+		if (!oneDimensional) {
+			const Vector3d dir = c->current.getDirection();
+
+			p += appendScientific3(buffer, buffersize, p, precision, dir.x, dir.y, dir.z);
 		}
 	}
 
 	if (fields.test(SerialNumberColumn))
 		p += std::snprintf(buffer + p, buffersize - p, "%10" PRIu64 "\t", c->getSourceSerialNumber());
+
 	if (fields.test(SourceIdColumn))
 		p += std::snprintf(buffer + p, buffersize - p, "%10i\t", c->source.getId());
+
 	if (fields.test(SourceEnergyColumn))
-		p += std::snprintf(buffer + p, buffersize - p, "%.15E\t",
-				c->source.getEnergy() / energyScale);
+		p += std::snprintf(buffer + p, buffersize - p, "%.*E\t", precision, c->source.getEnergy() / energyScale);
+
 	if (fields.test(SourcePositionColumn)) {
 		if (oneDimensional) {
-			p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t",
-					c->source.getPosition().x / lengthScale);
+
+			p += std::snprintf(buffer + p, buffersize - p, "%.*E\t", precision, c->source.getPosition().x / lengthScale);
 		} else {
 			const Vector3d pos = c->source.getPosition() / lengthScale;
-			p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t%8.5E\t%8.5E\t", pos.x, pos.y,
-					pos.z);
+
+			p += appendScientific3(buffer, buffersize, p, precision, pos.x, pos.y, pos.z);
 		}
 	}
+
 	if (fields.test(SourceDirectionColumn)) {
-		if (not oneDimensional) {
-			const Vector3d pos = c->source.getDirection();
-			p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t%8.5E\t%8.5E\t", pos.x, pos.y,
-					pos.z);
+		if (!oneDimensional) {
+			const Vector3d dir = c->source.getDirection();
+
+			p += appendScientific3(buffer, buffersize, p, precision, dir.x, dir.y, dir.z);
 		}
-
 	}
-
 	if (fields.test(SerialNumberColumn))
-		p += std::snprintf(buffer + p, buffersize - p, "%10" PRIu64 "\t",
-				c->getCreatedSerialNumber());
+		p += std::snprintf(buffer + p, buffersize - p, "%10" PRIu64 "\t", c->getCreatedSerialNumber());
+
 	if (fields.test(CreatedIdColumn))
 		p += std::snprintf(buffer + p, buffersize - p, "%10i\t", c->created.getId());
+
 	if (fields.test(CreatedEnergyColumn))
-		p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t",
-				c->created.getEnergy() / energyScale);
+		p += std::snprintf(buffer + p, buffersize - p, "%.*E\t", precision, c->created.getEnergy() / energyScale);
+
 	if (fields.test(CreatedPositionColumn)) {
 		if (oneDimensional) {
-			p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t",
-					c->created.getPosition().x / lengthScale);
+
+			p += std::snprintf(buffer + p, buffersize - p, "%.*E\t", precision, c->created.getPosition().x / lengthScale);
 		} else {
 			const Vector3d pos = c->created.getPosition() / lengthScale;
-			p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t%8.5E\t%8.5E\t", pos.x, pos.y,
-					pos.z);
+
+			p += appendScientific3(buffer, buffersize, p, precision, pos.x, pos.y, pos.z);
 		}
 	}
+
 	if (fields.test(CreatedDirectionColumn)) {
-		if (not oneDimensional) {
-			const Vector3d pos = c->created.getDirection();
-			p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t%8.5E\t%8.5E\t", pos.x, pos.y,
-					pos.z);
+		if (!oneDimensional) {
+			const Vector3d dir = c->created.getDirection();
+
+			p += appendScientific3(buffer, buffersize, p, precision, dir.x, dir.y, dir.z);
 		}
 	}
-	if (fields.test(WeightColumn)) {
-		p += std::snprintf(buffer + p, buffersize - p, "%8.5E\t", c->getWeight());
-	}
-	if (fields.test(CandidateTagColumn)) {
+
+	if (fields.test(WeightColumn))
+		p += std::snprintf(buffer + p, buffersize - p, "%.*E\t", precision, c->getWeight());
+
+	if (fields.test(CandidateTagColumn))
 		p += std::snprintf(buffer + p, buffersize - p, "%s\t", c->getTagOrigin().c_str());
-	}
 
 	for(std::vector<Output::Property>::const_iterator iter = properties.begin();
 			iter != properties.end(); ++iter) {
@@ -325,16 +342,19 @@ void TextOutput::load(const std::string &filename, ParticleCollector *collector)
 
 		ref_ptr<Candidate> c = new Candidate(); 
 		double val_d; int val_i;
+		uint64_t val_serial;
 		long double val_time;
 		double x, y, z;
 		stream >> val_d;
 		c->setTrajectoryLength(val_d * lengthScale); // D
 		stream >> val_time;
-		c->setTime(val_time * static_cast<long double>(timeScale)); // time
+		c->setTime(
+				val_time * static_cast<long double>(timeScale)
+		); // time
 		stream >> val_d;
 		c->setRedshift(val_d); // z
-		stream >> val_i;
-		c->setSerialNumber(val_i); // SN
+		stream >> val_serial;
+		c->setSerialNumber(val_serial); // SN
 		stream >> val_i;
 		c->current.setId(val_i); // ID
 		stream >> val_d;
@@ -343,7 +363,7 @@ void TextOutput::load(const std::string &filename, ParticleCollector *collector)
 		c->current.setPosition(Vector3d(x, y, z) * lengthScale); // X, Y, Z
 		stream >> x >> y >> z;
 		c->current.setDirection(Vector3d(x, y, z) * lengthScale); // Px, Py, Pz
-		stream >> val_i; // SN0 (TODO: Reconstruct the parent-child relationship)
+		stream >> val_serial; // SN0
 		stream >> val_i;
 		c->source.setId(val_i); // ID0
 		stream >> val_d;
@@ -352,7 +372,7 @@ void TextOutput::load(const std::string &filename, ParticleCollector *collector)
 		c->source.setPosition(Vector3d(x, y, z) * lengthScale); // X0, Y0, Z0
 		stream >> x >> y >> z;
 		c->source.setDirection(Vector3d(x, y, z) * lengthScale); // P0x, P0y, P0z
-		stream >> val_i; // SN1
+		stream >> val_serial; // SN1
 		stream >> val_i;
 		c->created.setId(val_i); // ID1
 		stream >> val_d;
